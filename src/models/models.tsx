@@ -1,10 +1,10 @@
-interface Player {
+export interface Player {
     id: string;
     centralbank_uuid: string;
     username: string;
 }
 
-interface Creature {
+export interface Creature {
     id: number;
     name: string;
     type: string;
@@ -15,7 +15,7 @@ interface Creature {
     description: string;
 }
 
-interface Move {
+export interface Move {
     id: number;
     name: string;
     type: string;
@@ -25,7 +25,7 @@ interface Move {
     description: string;
 }
 
-interface Item {
+export interface Item {
     id: number;
     name: string;
     description: string;
