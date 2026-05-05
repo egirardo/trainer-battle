@@ -1,5 +1,5 @@
 import './App.css'
-import Button from './components/atoms/Button'
+import Button from './components/atoms/button'
 import InputField from './components/atoms/InputField'
 
 
