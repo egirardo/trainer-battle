@@ -1,0 +1,29 @@
+.button {
+    border: 4px solid transparent;
+    border-image: url('../../assets/sprites/button.png') 4 fill / 4px / 0 stretch;
+    image-rendering: pixelated;
+    background: none;
+    color: white;
+    padding: .5rem .65rem;
+    font-family: var(--pixel-bold);
+    font-size: 24px;
+    text-align: center;
+    cursor: pointer;
+    min-width: 24px;
+    min-height: 16px;
+
+}
+
+.button:hover {
+    filter: brightness(1.15);
+}
+
+.button:active {
+    filter: brightness(0.9);
+}
+
+.button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(0,0,0,0.8);
+}
