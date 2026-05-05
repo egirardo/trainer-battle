@@ -1,16 +1,28 @@
+import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
-import Button from './components/atoms/Button'
-
+import StartScreen from './views/StartScreen'
+import CharacterSelectScreen from './views/CharacterSelectScreen'
+import GameMenuScreen from './views/GameMenuScreen'
+import LobbyScreen from './views/LobbyScreen'
+import BattleScreen from './views/BattleScreen'
+import MonsterSelectScreen from './views/MonsterSelectScreen'
+import ResultScreen from './views/ResultScreen'
 
 function App() {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-4">
-        <Button onClick={() => alert('Button clicked!')}>
-          Submit
-        </Button>
-      </div>
+    <Routes>
+        <Route path="/" element={<StartScreen />}></Route>
+        <Route path="/character-select" element={<CharacterSelectScreen />}></Route>
+        <Route path="/game-menu" element={<GameMenuScreen />}></Route>
+        <Route path="/lobby" element={<LobbyScreen/>}></Route>
+        <Route path="/battle" element={<BattleScreen />}></Route>
+        <Route path="/monster-select" element={<MonsterSelectScreen />}></Route>
+        <Route path="/battle-result" element={<ResultScreen />}></Route>
+        <Route path="*" element={<Navigate to="/" replace />}></Route>
+    </Routes>
+
     </>
   )
 }
