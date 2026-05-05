@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function CharacterScreen(){
+export default function CharacterSelectScreen(){
     return(
         <main>
             <h1>This is Char Select</h1>

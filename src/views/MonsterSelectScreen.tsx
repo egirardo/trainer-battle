@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function MonsterScreen(){
+export default function MonsterSelectScreen(){
     return(
         <main>
             <h1>This is Monster Select</h1>
