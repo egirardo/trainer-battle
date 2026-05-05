@@ -11,7 +11,7 @@
     cursor: pointer;
     min-width: 24px;
     min-height: 16px;
-    /* text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.5); */
+
 }
 
 .button:hover {
@@ -20,4 +20,10 @@
 
 .button:active {
     filter: brightness(0.9);
+}
+
+.button:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(0,0,0,0.8);
 }
