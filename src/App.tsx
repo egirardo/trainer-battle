@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
@@ -20,6 +20,7 @@ function App() {
         <Route path="/battle" element={<BattleScreen />}></Route>
         <Route path="/monster-select" element={<MonsterSelectScreen />}></Route>
         <Route path="/battle-result" element={<ResultScreen />}></Route>
+        <Route path="*" element={<Navigate to="/" replace />}></Route>
     </Routes>
 
     </>
