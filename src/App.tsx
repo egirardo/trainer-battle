@@ -1,12 +1,14 @@
 import './App.css'
 import Button from './components/atoms/Button'
+import InputField from './components/atoms/InputField'
 
 
 function App() {
 
   return (
     <>
-      <div className="flex items-center justify-center gap-4">
+      <div className="div">
+        <InputField placeholder="Enter text" />
         <Button onClick={() => alert('Button clicked!')}>
           Submit
         </Button>

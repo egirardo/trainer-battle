@@ -17,6 +17,14 @@
   }
 }
 
+.div {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: center;
+}
+
 .hero {
   position: relative;
 

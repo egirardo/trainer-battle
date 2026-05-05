@@ -1,0 +1,33 @@
+.wrapper {
+    border: 8px solid transparent;
+    border-image: url('../../assets/sprites/components/input-field.png') 4 / 8px / 0 stretch;
+    image-rendering: pixelated;
+    background-color: #fff;
+    background-clip: padding-box;
+    display: inline-flex;
+    min-width: 1.5rem;
+    min-height: 1rem;
+}
+
+.wrapper:hover {
+    filter: brightness(1.15);
+}
+
+.wrapper:has(:focus-visible) {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+    box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+.input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: black;
+    padding: .5rem .65rem;
+    font-family: var(--pixel-regular);
+    font-size: 1.5rem;
+    text-align: left;
+    cursor: text;
+    width: 100%;
+}
