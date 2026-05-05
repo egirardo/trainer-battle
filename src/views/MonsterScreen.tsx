@@ -5,7 +5,7 @@ export default function MonsterScreen(){
         <main>
             <h1>This is Monster Select</h1>
             <p>Choose your monster</p>
-            <Link to="/menu">To gameplay menu screen</Link>
+            <Link to="/game-menu">To gameplay menu screen</Link>
         </main>
     )
 }

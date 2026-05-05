@@ -10,7 +10,7 @@ export default function StartScreen(){
                 Main screen
             </h2>
             <p>Login or start new game</p>
-            <Link to={"/character"}>Start - Char select</Link>
+            <Link to={"/character-select"}>Start - Char select</Link>
         </main>
     )
 }

@@ -7,7 +7,7 @@ export default function BattleScreen(){
             <p>Shows opponent and monster</p>
             <p>Shows player and monster</p>
             <p>And some battle menu</p>
-            <Link to="/result">Run away</Link>
+            <Link to="/battle-result">Run away</Link>
         </main>
     )
 }

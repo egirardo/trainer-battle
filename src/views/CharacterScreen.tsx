@@ -6,7 +6,7 @@ export default function CharacterScreen(){
             <h1>This is Char Select</h1>
             <p>Choose your name</p>
             <p>Choose your trainer</p>
-            <Link to="/monster">Next to monster select</Link>
+            <Link to="/monster-select">Next to monster select</Link>
         </main>
     )
 }

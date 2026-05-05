@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-export default function Gameplayscreen(){
+export default function GameMenuScreen(){
     return(
         <main>
             <h1>Gameplay menu</h1>
