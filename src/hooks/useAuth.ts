@@ -1,18 +1,14 @@
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase";
+import type { Database } from "../types/database.types";
 
 interface ApiError {
     message: string;
     status?: number;
 }
 
-interface Profile {
-    id: string;
-    username: string | null;
-    centralbank_uuid: string | null;
-    created_at: string;
-}
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 
 export function useAuth() {
     const [user, setUser] = useState<User | null>(null);
