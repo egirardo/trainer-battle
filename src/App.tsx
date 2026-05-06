@@ -9,6 +9,7 @@ import BattleScreen from './views/BattleScreen'
 import MonsterSelectScreen from './views/MonsterSelectScreen'
 import ResultScreen from './views/ResultScreen'
 import Login from './views/Login'
+import Register from './views/Register'
 
 function App() {
   const { loading } = useAuth();
@@ -22,6 +23,7 @@ function App() {
     <Routes>
         <Route path="/" element={<StartScreen />}></Route>
         <Route path="/login" element={<Login />}></Route>
+        <Route path="/register" element={<Register />}></Route>
         <Route path="/character-select" element={<CharacterSelectScreen />}></Route>
         <Route path="/game-menu" element={<GameMenuScreen />}></Route>
         <Route path="/lobby" element={<LobbyScreen/>}></Route>
