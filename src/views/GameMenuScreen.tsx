@@ -1,12 +1,20 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
 
 export default function GameMenuScreen(){
     const { user, profile, loading } = useAuth();
+    const navigate = useNavigate();
 
     async function handleLogout(): Promise<void> {
-        await supabase.auth.signOut();
+        const { error } = await supabase.auth.signOut();
+
+        if (error) {
+            console.error("Failed to sign out:", error);
+            return;
+        }
+
+        navigate("/");
     }
 
     if (loading) {
