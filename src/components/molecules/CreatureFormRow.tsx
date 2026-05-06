@@ -17,7 +17,7 @@ export default function CreatureFormRow({ idPrefix = "new", submitLabel = "Add" 
             <td><InputField hasLabel={false} type="number" name="base_defence" id={`${idPrefix}-base_defence`} placeholder="Base defence" /></td>
             <td><InputField hasLabel={false} type="number" name="base_speed" id={`${idPrefix}-base_speed`} placeholder="Base speed" /></td>
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" /></td>
-            <td><Button type="submit">{submitLabel}</Button></td>
+            <td><Button type="button">{submitLabel}</Button></td>
         </tr>
     );
 }

@@ -16,7 +16,7 @@ export default function MoveFormRow({ idPrefix = "new", submitLabel = "Add" }: M
             <td><InputField hasLabel={false} type="number" name="accuracy" id={`${idPrefix}-accuracy`} placeholder="Accuracy" /></td>
             <td><InputField hasLabel={false} name="effect" id={`${idPrefix}-effect`} placeholder="Effect" /></td>
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" /></td>
-            <td><Button type="submit">{submitLabel}</Button></td>
+            <td><Button type="button">{submitLabel}</Button></td>
         </tr>
     );
 }

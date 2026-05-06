@@ -14,7 +14,7 @@ export default function ItemFormRow({ idPrefix = "new", submitLabel = "Add" }: I
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" /></td>
             <td><InputField hasLabel={false} name="effect" id={`${idPrefix}-effect`} placeholder="Effect" /></td>
             <td><InputField hasLabel={false} type="number" name="price" id={`${idPrefix}-price`} placeholder="Price" /></td>
-            <td><Button type="submit">{submitLabel}</Button></td>
+            <td><Button type="button">{submitLabel}</Button></td>
         </tr>
     );
 }
