@@ -1,17 +1,32 @@
 import React from 'react';
 import styles from './InputField.module.css';
 
+// labelName is not a native input attribute
+type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  hasLabel?: boolean;
+  labelName?: string;
+}
+
 export default function InputField({
+    hasLabel = true,
+    labelName,
+    id,
     className,
     style,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement>) {
+}: InputFieldProps) {
   return (
-     <div className={[styles.wrapper, className].filter(Boolean).join(' ')} style={style}>
-       <input
-         {...props}
-         className={[styles.input, className].filter(Boolean).join(' ')}
-       />
-    </div>
+    <>
+      { hasLabel &&
+        <label htmlFor={id}>{labelName}</label>
+      }
+      <div className={[styles.wrapper, className].filter(Boolean).join(' ')} style={style}>
+        <input
+          id={id}
+          {...props}
+          className={[styles.input, className].filter(Boolean).join(' ')}
+        />
+      </div>
+    </>
   );
 }
