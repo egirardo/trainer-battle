@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
@@ -6,9 +6,10 @@ interface RegisterForm {
     email: string;
     username: string;
     startcode: string;
+    password: string;
 }
 
-async function verifyCentralbankStartCode(email: string, startcode: string): Promise<string | null> {
+async function verifyCentralbankStartCode(): Promise<string | null> {
     // TODO: replace with actual API call to centralbank
     // Should return centralbank_uuid on success, null on failure
 
@@ -23,13 +24,14 @@ export default function Register() {
         email:"",
         username:"",
         startcode:"",
+        password:"",
     });
     const [ otp, setOtp ] = useState<string>("");
     const [centralbankUuid, setCentralbankUuid] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    function handleChange(e: ChangeEvent<HTMLInputElement>): void {
         setForm({ ...form, [e.target.name]: e.target.value });
     }
 
@@ -38,7 +40,7 @@ export default function Register() {
         setLoading(true);
 
         // Verify startcode with centralbank
-        const uuid = await verifyCentralbankStartCode(form.email, form.startcode);
+        const uuid = await verifyCentralbankStartCode();
         if (!uuid) {
             setError("Invalid start code or email. Please check your details and try again.");
             setLoading(false);
@@ -46,12 +48,10 @@ export default function Register() {
         }
         setCentralbankUuid(uuid);
 
-        // send OTP via Supabase + Resend
-        const { error: authError } = await supabase.auth.signInWithOtp({
+        // Create user account with email and password; Supabase sends a confirmation email
+        const { error: authError } = await supabase.auth.signUp({
             email: form.email,
-            options: {
-                shouldCreateUser: true
-            }
+            password: form.password,
         });
 
         if (authError) {
@@ -116,7 +116,7 @@ export default function Register() {
                     onChange={(e) => setOtp(e.target.value)}
                     maxLength={8}
                 />
-                {error && <p>{error}</p>}
+                {error && <p role="alert">{error}</p>}
                 <button onClick={handleVerifyOtp} disabled={loading}>
                     {loading ? "Verifying..." : "Verify"}
                 </button>
@@ -155,7 +155,17 @@ export default function Register() {
                 value={form.startcode}
                 onChange={handleChange}
             />
-            {error && <p>{error}</p>}
+            <label htmlFor="password">Password</label>
+            <input
+                id="password"
+                type="password"
+                name="password"
+                placeholder="Password"
+                value={form.password}
+                onChange={handleChange}
+                required
+            />
+            {error && <p role="alert">{error}</p>}
             <button onClick={handleRegister} disabled={loading}>
                 {loading ? "Sending code..." : "Register"}
             </button>
