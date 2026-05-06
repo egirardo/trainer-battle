@@ -25,8 +25,8 @@ export default function Register() {
         startcode:"",
     });
     const [ otp, setOtp ] = useState<string>("");
-    const [centralbankUuid, setCentralbankUuid] = useState<string | null>("");
-    const [error, setError] = useState<string | null>("");
+    const [centralbankUuid, setCentralbankUuid] = useState<string | null>(null);
+    const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
     function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
