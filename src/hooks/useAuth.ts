@@ -49,7 +49,7 @@ export function useAuth() {
         if (error) {
             const apiError: ApiError = {
                 message: error.message,
-                status: error.code ? parseInt(error.code) : undefined
+                status: error.status
             };
             console.error("Error fetching profile:", apiError);
             setProfile(null);
