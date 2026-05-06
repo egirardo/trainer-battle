@@ -18,8 +18,8 @@ export default function InputField({
 
 // Usage:
 // Accepts all standard <input> HTML attributes. The pixel art border and background are
-// handled by a wrapper div — className and style are applied to the wrapper, not the input.
-// Use type, placeholder, value, onChange etc. as normal.
+// handled by a wrapper div — style is applied to the wrapper, and className is applied to
+// both the wrapper and the input. Use type, placeholder, value, onChange etc. as normal.
 //
 // <InputField type="text" placeholder="Enter name..." onChange={e => setName(e.target.value)} />
 // <InputField type="password" placeholder="Password" value={password} onChange={handleChange} />

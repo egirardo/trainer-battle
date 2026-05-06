@@ -1,4 +1,7 @@
 import styles from './IconButton.module.css';
+import React from 'react';
+
+// Children are intentionally excluded from the props since the button's content is always an image.
 export default function IconButton({
     className,
     image,
@@ -6,7 +9,7 @@ export default function IconButton({
     iconSize,
     type = 'button',
     ...props
-}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
+}: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
     image: string;
     ariaLabel: string;
     iconSize?: 'S' | 'M' | 'L';
@@ -16,8 +19,8 @@ export default function IconButton({
         <button
             className={[styles.iconButton, sizeClass, className].filter(Boolean).join(' ')}
             type={type}
-            aria-label={ariaLabel}
             {...props}
+            aria-label={ariaLabel}
         >
         <img className={styles.image} src={image} alt="" />
         </button>
