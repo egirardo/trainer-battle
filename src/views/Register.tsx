@@ -125,21 +125,27 @@ export default function Register() {
     return (
         <main>
             <h1>Register</h1>
+            <label htmlFor="email">Email</label>
             <input
+                id="email"
                 type="email"
                 name="email"
                 placeholder="Email"
                 value={form.email}
                 onChange={handleChange}
             />
+            <label htmlFor="username">Username</label>
             <input
+                id="username"
                 type="text"
                 name="username"
                 placeholder="Username"
                 value={form.username}
                 onChange={handleChange}
             />
+            <label htmlFor="startcode">Start code</label>
             <input
+                id="startcode"
                 type="text"
                 name="startcode"
                 placeholder="Start code"
