@@ -47,15 +47,15 @@ export default function Register() {
         setCentralbankUuid(uuid);
 
         // send OTP via Supabase + Resend
-        const { error } = await supabase.auth.signInWithOtp({
+        const { error: authError } = await supabase.auth.signInWithOtp({
             email: form.email,
             options: {
                 shouldCreateUser: true
             }
         });
 
-        if (error) {
-            setError(error.message);
+        if (authError) {
+            setError(authError.message);
             setLoading(false);
             return;
         }
