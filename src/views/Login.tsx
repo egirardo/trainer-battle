@@ -9,6 +9,7 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
 
     async function handleLogin(): Promise<void> {
+        setError(null)
         const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
