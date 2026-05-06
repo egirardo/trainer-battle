@@ -15,6 +15,7 @@ export default function AdminLogin() {
                     />
                     <InputField 
                         labelName="Password"
+                        type="password"
                         id="password"
                         name="password"
                         placeholder="Enter password"
