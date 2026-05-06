@@ -84,11 +84,14 @@ export default function Register() {
         if (data.user) {
             const { error: profileError } = await supabase
                 .from("profiles")
-                .update({
-                    username: form.username,
-                    centralbank_uuid: centralbankUuid,
-                })
-                .eq("id", data.user.id);
+                .upsert(
+                    {
+                        id: data.user.id,
+                        username: form.username,
+                        centralbank_uuid: centralbankUuid,
+                    },
+                    { onConflict: "id" }
+                );
 
             if (profileError) {
                 setError(profileError.message);
