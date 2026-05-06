@@ -11,7 +11,7 @@ import ResultScreen from './views/ResultScreen'
 import Login from './views/Login'
 
 function App() {
-  const { user, loading } = useAuth();
+  const { loading } = useAuth();
 
   if (loading) {
     return <p>Loading...</p>;
