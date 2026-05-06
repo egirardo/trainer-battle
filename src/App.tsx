@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { useAuth } from './hooks/useAuth'
 import './App.css'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
@@ -8,13 +9,20 @@ import BattleScreen from './views/BattleScreen'
 import MonsterSelectScreen from './views/MonsterSelectScreen'
 import ResultScreen from './views/ResultScreen'
 import AdminPanel from './views/AdminPanel'
+import Login from './views/Login'
 
 function App() {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <>
     <Routes>
         <Route path="/" element={<StartScreen />}></Route>
+        <Route path="/login" element={<Login />}></Route>
         <Route path="/character-select" element={<CharacterSelectScreen />}></Route>
         <Route path="/game-menu" element={<GameMenuScreen />}></Route>
         <Route path="/lobby" element={<LobbyScreen/>}></Route>
