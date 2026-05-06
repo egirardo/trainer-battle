@@ -16,14 +16,40 @@ export function useAuth() {
     const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setUser(session?.user ?? null);
-            if (session?.user) {
-                fetchProfile(session.user.id);
-            } else {
+        const loadSession = async () => {
+            try {
+                const { data: { session }, error } = await supabase.auth.getSession();
+
+                if (error) {
+                    const apiError: ApiError = {
+                        message: error.message,
+                        status: error.status
+                    };
+                    console.error("Error getting session:", apiError);
+                    setUser(null);
+                    setProfile(null);
+                    setLoading(false);
+                    return;
+                }
+
+                setUser(session?.user ?? null);
+                if (session?.user) {
+                    fetchProfile(session.user.id);
+                } else {
+                    setLoading(false);
+                }
+            } catch (error) {
+                const apiError: ApiError = {
+                    message: error instanceof Error ? error.message : "Unknown error"
+                };
+                console.error("Error getting session:", apiError);
+                setUser(null);
+                setProfile(null);
                 setLoading(false);
             }
-        });
+        };
+
+        loadSession();
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
             (_event, session) => {
