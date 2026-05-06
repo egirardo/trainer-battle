@@ -21,3 +21,11 @@ export default function Button({
     </button>
   );
 }
+
+// Usage:
+// Accepts all standard <button> HTML attributes. type defaults to "button" to prevent
+// accidental form submissions. Pass type="submit" explicitly when used inside a <form>.
+//
+// <Button onClick={() => console.log('clicked')}>Click me</Button>
+// <Button type="submit">Submit</Button>
+// <Button onClick={handleSave} className={styles.customStyle}>Save</Button>
