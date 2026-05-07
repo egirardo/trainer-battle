@@ -1,12 +1,17 @@
-import { Link } from "react-router-dom";
+import TrainerInfoForm from "@/components/molecules/createTrainerPage/TrainerInfoForm";
+import { useTrainerCreation } from "@/hooks/useTrainerCreation";
 
 export default function CharacterSelectScreen(){
+    const { trainerGender, setTrainerGender, trainerName, setTrainerName } = useTrainerCreation();
+
     return(
         <main>
-            <h1>This is Char Select</h1>
-            <p>Choose your name</p>
-            <p>Choose your trainer</p>
-            <Link to="/creature-select">Next to monster select</Link>
+            <TrainerInfoForm
+                trainerGender={trainerGender}
+                setTrainerGender={setTrainerGender}
+                trainerName={trainerName}
+                setTrainerName={setTrainerName}
+            />
         </main>
     )
 }
