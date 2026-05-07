@@ -13,12 +13,15 @@ export default function AdminPanel(){
     const [ error, setError ] = useState<string | null>(null);
 
     useEffect(() => {
+        let ignore = false;
+
         async function fetchData(){
             const [cRes, mRes, iRes] = await Promise.all([
                 supabase.from('creatures').select(),
                 supabase.from('moves').select(),
                 supabase.from('items').select(),
             ])
+            if (ignore) return;
             const err = cRes.error ?? mRes.error ?? iRes.error;
             if (err) {
                 console.error('Failed to fetch admin data:', err);
@@ -33,7 +36,8 @@ export default function AdminPanel(){
             setMoves(mRes.data)
             setItems(iRes.data)
         }
-    fetchData();
+        fetchData();
+        return () => { ignore = true; };
     }, [])
 
     return(
