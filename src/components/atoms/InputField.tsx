@@ -19,15 +19,18 @@ export default function InputField({
     orientation = 'vertical',
     ...props
 }: InputFieldProps) {
-  const errorId = error && id ? `${id}-error` : undefined;
+  const generatedId = React.useId();
+  // useId() generates a stable ID (e.g. :r0:) that's consistent across renders and safe for SSR. Now aria-describedby and the error id are always linked regardless of whether a caller provides an id prop.
+  const resolvedId = id ?? generatedId;
+  const errorId = error ? `${resolvedId}-error` : undefined;
   return (
     <div className={[styles.fieldLabelWrapper, orientation === 'horizontal' && styles.horizontal].filter(Boolean).join(' ')}>
       { hasLabel &&
-        <label htmlFor={id}>{labelName}</label>
+        <label htmlFor={resolvedId}>{labelName}</label>
       }
       <div className={[styles.wrapper, error && styles.hasError, className].filter(Boolean).join(' ')} style={style}>
         <input
-          id={id}
+          id={resolvedId}
           {...props}
           aria-describedby={errorId}
           aria-invalid={!!error}

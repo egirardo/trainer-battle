@@ -1,11 +1,10 @@
-fieldset {
-    decoration: none;
+.genderSelect {
     border: none;
     padding: 0;
     margin: 1rem;
 }
 
-legend {
+.genderSelectLegend {
     font-size: 1.25rem;
     font-weight: bold;
     margin-bottom: 0.5rem;
