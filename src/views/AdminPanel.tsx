@@ -48,7 +48,7 @@ export default function AdminPanel(){
                         </thead>
                         <tbody>
                             { creatures.map((creature) => (
-                                <tr>
+                                <tr key={creature.id}>
                                     <td>{creature.id}</td>
                                     <td>{creature.name}</td>
                                     <td>{creature.type}</td>
@@ -84,7 +84,7 @@ export default function AdminPanel(){
                         </thead>
                         <tbody>
                             { moves.map((move) => (
-                                <tr>
+                                <tr key={move.id}>
                                     <td>{move.id}</td>
                                     <td>{move.name}</td>
                                     <td>{move.type}</td>
@@ -117,7 +117,7 @@ export default function AdminPanel(){
                         </thead>
                         <tbody>
                             { items.map((item) => (
-                                <tr>
+                                <tr key={item.id}>
                                     <td>{item.id}</td>
                                     <td>{item.name}</td>
                                     <td>{item.description}</td>
