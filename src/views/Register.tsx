@@ -1,4 +1,4 @@
-import { ChangeEvent, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
@@ -6,13 +6,12 @@ interface RegisterForm {
     email: string;
     username: string;
     startcode: string;
-    password: string;
 }
 
-async function verifyCentralbankStartCode(): Promise<string | null> {
+async function verifyCentralbankStartCode(email: string, startcode: string): Promise<string | null> {
     // TODO: replace with actual API call to centralbank
     // Should return centralbank_uuid on success, null on failure
-
+    console.log("Verifying startcode with Centralbank...", email, startcode);
     return "mock-centralbank-uuid-1234";
 }
 
@@ -24,14 +23,13 @@ export default function Register() {
         email:"",
         username:"",
         startcode:"",
-        password:"",
     });
     const [ otp, setOtp ] = useState<string>("");
     const [centralbankUuid, setCentralbankUuid] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    function handleChange(e: ChangeEvent<HTMLInputElement>): void {
+    function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
         setForm({ ...form, [e.target.name]: e.target.value });
     }
 
@@ -40,7 +38,7 @@ export default function Register() {
         setLoading(true);
 
         // Verify startcode with centralbank
-        const uuid = await verifyCentralbankStartCode();
+        const uuid = await verifyCentralbankStartCode(form.email, form.startcode);
         if (!uuid) {
             setError("Invalid start code or email. Please check your details and try again.");
             setLoading(false);
@@ -48,14 +46,16 @@ export default function Register() {
         }
         setCentralbankUuid(uuid);
 
-        // Create user account with email and password; Supabase sends a confirmation email
-        const { error: authError } = await supabase.auth.signUp({
+        // send OTP via Supabase + Resend
+        const { error } = await supabase.auth.signInWithOtp({
             email: form.email,
-            password: form.password,
+            options: {
+                shouldCreateUser: true
+            }
         });
 
-        if (authError) {
-            setError(authError.message);
+        if (error) {
+            setError(error.message);
             setLoading(false);
             return;
         }
@@ -109,7 +109,9 @@ export default function Register() {
             <main>
                 <h1>Check your email</h1>
                 <p>We sent an eight digit code to {form.email}</p>
+                <label htmlFor="otp">Enter code</label>
                 <input
+                    id="otp"
                     type="text"
                     placeholder="Enter code"
                     value={otp}
@@ -154,16 +156,6 @@ export default function Register() {
                 placeholder="Start code"
                 value={form.startcode}
                 onChange={handleChange}
-            />
-            <label htmlFor="password">Password</label>
-            <input
-                id="password"
-                type="password"
-                name="password"
-                placeholder="Password"
-                value={form.password}
-                onChange={handleChange}
-                required
             />
             {error && <p role="alert">{error}</p>}
             <button onClick={handleRegister} disabled={loading}>
