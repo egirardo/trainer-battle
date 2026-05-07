@@ -13,6 +13,7 @@ export default function InputField({
     hasLabel = true,
     labelName,
     id,
+    name,
     className,
     style,
     error,
@@ -34,6 +35,7 @@ export default function InputField({
           {...props}
           aria-describedby={errorId}
           aria-invalid={!!error}
+          name={name}
           className={[styles.input, className].filter(Boolean).join(' ')}
         />
       </div>
