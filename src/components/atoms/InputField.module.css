@@ -48,7 +48,7 @@
 }
 
 .wrapper:has(:focus-visible) {
-    outline: 3px solid #fff;
+    outline: 3px solid var(--outline);
     outline-offset: 3px;
     box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.5);
 }

@@ -16,7 +16,7 @@ const steps = [
 export default function CreationFlowLayout() {
     const { pathname } = useLocation()
     const navigate = useNavigate()
-    const { trainerName, setTrainerNameError, selectedCreature } = useTrainerCreation()
+    const { trainerName, setTrainerNameError, selectedCreature, setCreatureError } = useTrainerCreation()
 
     const currentStep = steps.find(s => s.path === pathname)
 
@@ -30,7 +30,10 @@ export default function CreationFlowLayout() {
             const error = validateTrainerName(trainerName)
             if (error) { setTrainerNameError(error); return }
         }
-        if (pathname === '/creature-select' && selectedCreature === null) return
+        if (pathname === '/creature-select') {
+            if (selectedCreature === null) { setCreatureError('You must select a creature to proceed'); return }
+            setCreatureError(undefined)
+        }
         navigate(currentStep.next)
     }
 

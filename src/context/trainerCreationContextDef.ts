@@ -1,5 +1,6 @@
 import { createContext } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
+import type { Creature } from '@/models/models'
 
 export type TrainerGender = 'male' | 'female' | 'nb'
 
@@ -10,8 +11,10 @@ export interface TrainerCreationState {
     setTrainerNameError: Dispatch<SetStateAction<string | undefined>>
     trainerGender: TrainerGender
     setTrainerGender: Dispatch<SetStateAction<TrainerGender>>
-    selectedCreature: string | null
-    setSelectedCreature: Dispatch<SetStateAction<string | null>>
+    selectedCreature: Creature | null
+    setSelectedCreature: Dispatch<SetStateAction<Creature | null>>
+    creatureError: string | undefined
+    setCreatureError: Dispatch<SetStateAction<string | undefined>>
 }
 
 export const TrainerCreationContext = createContext<TrainerCreationState | null>(null)

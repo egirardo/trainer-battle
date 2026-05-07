@@ -13,6 +13,7 @@
     cursor: pointer;
     min-width: 1.5rem;
     min-height: 1rem;
+    border-radius: 4px;
 }
 
 .button:hover {
@@ -24,7 +25,6 @@
 }
 
 .button:focus-visible {
-    outline: 3px solid #fff;
-    outline-offset: 3px;
-    box-shadow: 0 0 0 6px rgba(0,0,0,0.8);
+    outline: none;
+    box-shadow: 0 0 0 3px var(--outline), 0 0 0 6px rgba(0,0,0,0.8);
 }

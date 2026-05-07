@@ -1,0 +1,30 @@
+.creatureAvatarPreview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: .125rem solid transparent;
+}
+
+.creatureAvatarPreview img {
+    width: auto;
+    height: 35vh;
+    image-rendering: pixelated;
+}
+
+.emptyState {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    height: 35vh;
+}
+
+.questionMark {
+    font-size: 15rem;
+    color: #2a2a2a;
+    line-height: 1;
+}
+
+

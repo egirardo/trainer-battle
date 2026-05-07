@@ -39,9 +39,11 @@ export default function TrainerInfoForm({ trainerGender, setTrainerGender, train
             <InputField labelName='What is your name?' id="trainer-name" type="text" placeholder="Enter your name..." value={trainerName} onChange={e => { setTrainerName(e.target.value); setTrainerNameError(undefined); }} error={trainerNameError} />
             <fieldset className={styles.genderSelect}>
                 <legend className={styles.genderSelectLegend}>What is your gender?</legend>
-                <IconButton image={femaleIcon} ariaLabel="Select Female Gender" onClick={() => setTrainerGender('female')} isSelected={trainerGender === 'female'} />
-                <IconButton image={maleIcon} ariaLabel="Select Male Gender" onClick={() => setTrainerGender('male')} isSelected={trainerGender === 'male'} />
-                <IconButton image={nbIcon} ariaLabel="Select Non-Binary Gender" onClick={() => setTrainerGender('nb')} isSelected={trainerGender === 'nb'} />
+                <div className={styles.genderSelectButtons}>
+                    <IconButton image={femaleIcon} ariaLabel="Select Female Gender" onClick={() => setTrainerGender('female')} isSelected={trainerGender === 'female'} />
+                    <IconButton image={maleIcon} ariaLabel="Select Male Gender" onClick={() => setTrainerGender('male')} isSelected={trainerGender === 'male'} />
+                    <IconButton image={nbIcon} ariaLabel="Select Non-Binary Gender" onClick={() => setTrainerGender('nb')} isSelected={trainerGender === 'nb'} />
+                </div>
             </fieldset>
         </form>
     </>
