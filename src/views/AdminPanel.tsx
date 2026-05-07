@@ -1,8 +1,30 @@
 import CreatureFormRow from "../components/molecules/CreatureFormRow";
 import MoveFormRow from "../components/molecules/MoveFormRow";
 import ItemFormRow from "../components/molecules/ItemFormRow";
+import { useEffect, useState } from 'react';
+import { Creature, Item, Move } from "@/models/models";
+import { supabase } from "@/lib/supabase";
 
 export default function AdminPanel(){
+
+    const [ creatures, setCreatures ] = useState<Creature[]>([]);
+    const [ moves, setMoves ] = useState<Move[]>([])
+    const [ items, setItems ] = useState<Item[]>([]);
+
+    useEffect(() => {
+        async function fetchData(){
+            const [cRes, mRes, iRes] = await Promise.all([
+                supabase.from('creatures').select(),
+                supabase.from('moves').select(),
+                supabase.from('items').select(),
+            ])
+            if(cRes.data) setCreatures(cRes.data as Creature[])
+            if(mRes.data) setMoves(mRes.data as Move[])
+            if(iRes.data) setItems(iRes.data as Item[])
+        }
+    fetchData();
+    })
+
     return(
         <main>
             <h1>Welcome!</h1>
@@ -25,6 +47,19 @@ export default function AdminPanel(){
                             </tr>
                         </thead>
                         <tbody>
+                            { creatures.map((creature) => (
+                                <tr>
+                                    <td>{creature.id}</td>
+                                    <td>{creature.name}</td>
+                                    <td>{creature.type}</td>
+                                    <td>{creature.base_hp}</td>
+                                    <td>{creature.base_attack}</td>
+                                    <td>{creature.base_defence}</td>
+                                    <td>{creature.base_speed}</td>
+                                    <td>{creature.description}</td>
+                                    <td></td>
+                                </tr>
+                            ))}
                             <CreatureFormRow />
                         </tbody>
                     </table>
@@ -48,6 +83,18 @@ export default function AdminPanel(){
                             </tr>
                         </thead>
                         <tbody>
+                            { moves.map((move) => (
+                                <tr>
+                                    <td>{move.id}</td>
+                                    <td>{move.name}</td>
+                                    <td>{move.type}</td>
+                                    <td>{move.power}</td>
+                                    <td>{move.accuracy}</td>
+                                    <td>{move.effect}</td>
+                                    <td>{move.description}</td>
+                                    <td></td>
+                                </tr>
+                            ))}
                             <MoveFormRow />
                         </tbody>
                     </table>
@@ -69,6 +116,16 @@ export default function AdminPanel(){
                             </tr>
                         </thead>
                         <tbody>
+                            { items.map((item) => (
+                                <tr>
+                                    <td>{item.id}</td>
+                                    <td>{item.name}</td>
+                                    <td>{item.description}</td>
+                                    <td>{item.effect}</td>
+                                    <td>{item.price}</td>
+                                    <td></td>
+                                </tr>
+                            ))}
                             <ItemFormRow />
                         </tbody>
                     </table>
