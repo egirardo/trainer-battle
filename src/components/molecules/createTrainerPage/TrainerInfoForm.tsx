@@ -32,7 +32,7 @@ export default function TrainerInfoForm({ trainerGender, setTrainerGender, train
     return (
         <>
         <div className={styles.instructions}>
-            <h1>YOUR TRAINER</h1>
+            <h1>Your Trainer</h1>
         </div>
         <TrainerAvatarPreview trainerGender={trainerGender} />
         <form className={styles.trainerInfoForm} onSubmit={handleSubmit} noValidate>
