@@ -1,18 +1,32 @@
 import React from 'react';
 import styles from './InputField.module.css';
 
+type WithLabel = { hasLabel?: true; labelName: string; id: string };
+type WithoutLabel = { hasLabel: false; labelName?: never; id?: string };
+
+type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & (WithLabel | WithoutLabel);
+
 export default function InputField({
+    hasLabel = true,
+    labelName,
+    id,
     className,
     style,
   ...props
-}: React.InputHTMLAttributes<HTMLInputElement>) {
+}: InputFieldProps) {
   return (
-     <div className={[styles.wrapper, className].filter(Boolean).join(' ')} style={style}>
-       <input
-         {...props}
-         className={[styles.input, className].filter(Boolean).join(' ')}
-       />
-    </div>
+    <>
+      { hasLabel &&
+        <label htmlFor={id}>{labelName}</label>
+      }
+      <div className={[styles.wrapper, className].filter(Boolean).join(' ')} style={style}>
+        <input
+          id={id}
+          {...props}
+          className={[styles.input, className].filter(Boolean).join(' ')}
+        />
+      </div>
+    </>
   );
 }
 
