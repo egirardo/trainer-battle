@@ -7,17 +7,19 @@ export default function IconButton({
     image,
     ariaLabel,
     iconSize,
+    isSelected,
     type = 'button',
     ...props
 }: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
     image: string;
     ariaLabel: string;
     iconSize?: 'S' | 'M' | 'L';
+    isSelected?: boolean;
 }) {
     const sizeClass = iconSize ? styles[iconSize] : styles.M;
     return (
         <button
-            className={[styles.iconButton, sizeClass, className].filter(Boolean).join(' ')}
+            className={[styles.iconButton, sizeClass, isSelected && styles.selected, className].filter(Boolean).join(' ')}
             type={type}
             {...props}
             aria-label={ariaLabel}

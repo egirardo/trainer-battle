@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
 import type { Database } from '../types/database.types'
 import { supabase } from '../lib/supabase'
-import { AuthContext } from './authContext'
+import { AuthContext } from './authContextDef'
 
 interface ApiError {
     message: string

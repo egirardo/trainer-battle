@@ -1,0 +1,9 @@
+.trainerCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 8px solid transparent;
+    background-color: green;
+}
