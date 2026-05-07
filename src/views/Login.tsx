@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
 export default function Login() {
@@ -43,6 +43,7 @@ export default function Login() {
             {error && <p role="alert">{error}</p>}
             <button onClick={handleLogin}>Login</button>
 
+            <Link to="/register">Don't have an account? Register here</Link>
         </div>
 
         
