@@ -33,6 +33,7 @@ function App() {
         <Route path="/battle-result" element={<ResultScreen />}></Route>
         <Route path="/admin-panel" element={<AdminPanel/>}></Route>
         <Route path="*" element={<Navigate to="/" replace />}></Route>
+        <Route path="/battle/:sessionId" element={<BattleScreen />} />
     </Routes>
 
     </>
