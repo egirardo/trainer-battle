@@ -2,14 +2,14 @@ import CreatureFormRow from "../components/molecules/CreatureFormRow";
 import MoveFormRow from "../components/molecules/MoveFormRow";
 import ItemFormRow from "../components/molecules/ItemFormRow";
 import { useEffect, useState } from 'react';
-import { Creature, Item, Move } from "@/models/models";
+import { Tables } from "@/types/database.types";
 import { supabase } from "@/lib/supabase";
 
 export default function AdminPanel(){
 
-    const [ creatures, setCreatures ] = useState<Creature[]>([]);
-    const [ moves, setMoves ] = useState<Move[]>([])
-    const [ items, setItems ] = useState<Item[]>([]);
+    const [ creatures, setCreatures ] = useState<Tables<'creatures'>[]>([]);
+    const [ moves, setMoves ] = useState<Tables<'moves'>[]>([])
+    const [ items, setItems ] = useState<Tables<'items'>[]>([]);
 
     useEffect(() => {
         async function fetchData(){
@@ -18,9 +18,9 @@ export default function AdminPanel(){
                 supabase.from('moves').select(),
                 supabase.from('items').select(),
             ])
-            if(cRes.data) setCreatures(cRes.data as Creature[])
-            if(mRes.data) setMoves(mRes.data as Move[])
-            if(iRes.data) setItems(iRes.data as Item[])
+            if(cRes.data) setCreatures(cRes.data)
+            if(mRes.data) setMoves(mRes.data)
+            if(iRes.data) setItems(iRes.data)
         }
     fetchData();
     })
