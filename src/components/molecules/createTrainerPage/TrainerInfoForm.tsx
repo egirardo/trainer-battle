@@ -1,11 +1,12 @@
 import styles from './TrainerInfoForm.module.css';
 import InputField from '@/components/atoms/InputField';
-import Button from '@/components/atoms/button';
 import IconButton from '@/components/atoms/IconButton';
 import femaleIcon from "@/assets/sprites/icons/female-icon.svg";
 import maleIcon from "@/assets/sprites/icons/male-icon.svg";
 import nbIcon from "@/assets/sprites/icons/nb-icon.svg";
 import React from 'react';
+import TrainerAvatarPreview from './TrainerAvatarPreview';
+import { useTrainerCreation } from '@/hooks/useTrainerCreation';
 
 type TrainerGender = 'male' | 'female' | 'nb';
 
@@ -17,9 +18,19 @@ interface TrainerInfoFormProps {
 }
 
 export default function TrainerInfoForm({ trainerGender, setTrainerGender, trainerName, setTrainerName }: TrainerInfoFormProps) {
+    const { trainerNameError, setTrainerNameError } = useTrainerCreation();
 
     function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
+        if (!trainerName.trim()) {
+            setTrainerNameError('Trainer name is required.');
+            return;
+        }
+        if (trainerName.trim().length > 20) {
+            setTrainerNameError('Trainer name must be 20 characters or fewer.');
+            return;
+        }
+        setTrainerNameError(undefined);
         console.log({ trainerName, trainerGender });
         // TODO: replace console.log with Supabase insert
     };
@@ -27,19 +38,17 @@ export default function TrainerInfoForm({ trainerGender, setTrainerGender, train
     return (
         <>
         <div className={styles.instructions}>
-            <p>Welcome to the world of Trainer Battle! Please enter your trainer information below to get started.</p>
-            <p>Don't worry about making mistakes — you can always change your name and gender later in your profile settings.</p>
+            <h1>YOUR TRAINER</h1>
         </div>
-        <form className={styles.trainerInfoForm} onSubmit={handleSubmit}>
-            <label htmlFor="trainer-name">Trainer Name:</label>
-            <InputField id="trainer-name" type="text" placeholder="Enter your trainer name..." value={trainerName} onChange={e => setTrainerName(e.target.value)} required/> {/* // Add error handling to InputField once Laura's PR is merged, then add validation here to prevent empty names or names that are too long. */}
+        <TrainerAvatarPreview trainerGender={trainerGender} />
+        <form className={styles.trainerInfoForm} onSubmit={handleSubmit} noValidate>
+            <InputField labelName='What is your name?' id="trainer-name" type="text" placeholder="Enter your name..." value={trainerName} onChange={e => { setTrainerName(e.target.value); setTrainerNameError(undefined); }} error={trainerNameError} />
             <fieldset className={styles.genderSelect}>
-                <legend>Choose your gender:</legend>
+                <legend>What is your gender?</legend>
                 <IconButton image={femaleIcon} ariaLabel="Select Female Gender" onClick={() => setTrainerGender('female')} isSelected={trainerGender === 'female'} />
                 <IconButton image={maleIcon} ariaLabel="Select Male Gender" onClick={() => setTrainerGender('male')} isSelected={trainerGender === 'male'} />
                 <IconButton image={nbIcon} ariaLabel="Select Non-Binary Gender" onClick={() => setTrainerGender('nb')} isSelected={trainerGender === 'nb'} />
             </fieldset>
-            <Button type="submit">Submit</Button>
         </form>
     </>
     )

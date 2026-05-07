@@ -4,7 +4,10 @@ import styles from './InputField.module.css';
 type WithLabel = { hasLabel?: true; labelName: string; id: string };
 type WithoutLabel = { hasLabel: false; labelName?: never; id?: string };
 
-type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & (WithLabel | WithoutLabel);
+type InputFieldProps = React.InputHTMLAttributes<HTMLInputElement> & (WithLabel | WithoutLabel) & {
+    error?: string;
+    orientation?: 'vertical' | 'horizontal';
+};
 
 export default function InputField({
     hasLabel = true,
@@ -12,21 +15,29 @@ export default function InputField({
     id,
     className,
     style,
-  ...props
+    error,
+    orientation = 'vertical',
+    ...props
 }: InputFieldProps) {
+  const errorId = error && id ? `${id}-error` : undefined;
   return (
-    <>
+    <div className={[styles.fieldLabelWrapper, orientation === 'horizontal' && styles.horizontal].filter(Boolean).join(' ')}>
       { hasLabel &&
         <label htmlFor={id}>{labelName}</label>
       }
-      <div className={[styles.wrapper, className].filter(Boolean).join(' ')} style={style}>
+      <div className={[styles.wrapper, error && styles.hasError, className].filter(Boolean).join(' ')} style={style}>
         <input
           id={id}
           {...props}
+          aria-describedby={errorId}
+          aria-invalid={!!error}
           className={[styles.input, className].filter(Boolean).join(' ')}
         />
       </div>
-    </>
+      { error &&
+        <span id={errorId} className={styles.errorMessage} role="alert">{error}</span>
+      }
+    </div>
   );
 }
 

@@ -1,23 +1,17 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import TrainerCard from "@/components/molecules/createTrainerPage/TrainerCard";
 import TrainerInfoForm from "@/components/molecules/createTrainerPage/TrainerInfoForm";
-
+import { useTrainerCreation } from "@/hooks/useTrainerCreation";
 
 export default function CharacterSelectScreen(){
-    const [trainerGender, setTrainerGender] = React.useState<'male' | 'female' | 'nb'>('female');
-    const [trainerName, setTrainerName] = React.useState('');
+    const { trainerGender, setTrainerGender, trainerName, setTrainerName } = useTrainerCreation();
 
     return(
         <main>
-            <TrainerCard trainerName={trainerName || "Your Trainer Name"} trainerGender={trainerGender} />
             <TrainerInfoForm
                 trainerGender={trainerGender}
                 setTrainerGender={setTrainerGender}
                 trainerName={trainerName}
                 setTrainerName={setTrainerName}
             />
-            <Link to="/monster-select">Next to monster select</Link>
         </main>
     )
 }
