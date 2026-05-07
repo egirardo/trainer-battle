@@ -25,7 +25,7 @@ export default function GameMenuScreen(){
         <main>
             <h1>Gameplay menu</h1>
             <p>Inventory</p>
-            <p>Your monsters</p>
+            <p>Your creatures</p>
             <p>Shop</p>
             <Link to="/lobby">Play - go to lobby</Link>
             <button onClick={handleLogout}>Logout</button>

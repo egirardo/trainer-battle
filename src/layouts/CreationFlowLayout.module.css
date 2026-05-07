@@ -1,0 +1,21 @@
+.layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+}
+
+.stepLabel {
+    text-align: center;
+    margin: 1rem 0;
+}
+
+.content {
+    flex: 1;
+}
+
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+}
