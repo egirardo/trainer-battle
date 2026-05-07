@@ -10,6 +10,7 @@ export default function AdminPanel(){
     const [ creatures, setCreatures ] = useState<Tables<'creatures'>[]>([]);
     const [ moves, setMoves ] = useState<Tables<'moves'>[]>([])
     const [ items, setItems ] = useState<Tables<'items'>[]>([]);
+    const [ error, setError ] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchData(){
@@ -18,16 +19,27 @@ export default function AdminPanel(){
                 supabase.from('moves').select(),
                 supabase.from('items').select(),
             ])
-            if(cRes.data) setCreatures(cRes.data)
-            if(mRes.data) setMoves(mRes.data)
-            if(iRes.data) setItems(iRes.data)
+            const err = cRes.error ?? mRes.error ?? iRes.error;
+            if (err) {
+                console.error('Failed to fetch admin data:', err);
+                setError(err.message);
+                return;
+            }
+            if (!cRes.data || !mRes.data || !iRes.data) {
+                setError('No data to load.');
+                return;
+            }
+            setCreatures(cRes.data)
+            setMoves(mRes.data)
+            setItems(iRes.data)
         }
     fetchData();
-    })
+    }, [])
 
     return(
         <main>
             <h1>Welcome!</h1>
+            {error && <p>Error loading data: {error}</p>}
 
             <section>
                 <h2>Creatures:</h2>
