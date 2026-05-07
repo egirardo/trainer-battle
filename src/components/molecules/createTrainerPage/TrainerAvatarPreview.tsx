@@ -5,7 +5,7 @@ import nbTrainer from "@/assets/sprites/trainers/test-avatar-nb.png";
 
 
 interface TrainerAvatarPreviewProps {
-  trainerGender: 'male' | 'female' | 'nb' | null;
+  trainerGender: 'male' | 'female' | 'nb';
 }
 
 export default function TrainerAvatarPreview({ trainerGender }: TrainerAvatarPreviewProps) {
