@@ -10,8 +10,8 @@ export interface TrainerCreationState {
     setTrainerNameError: Dispatch<SetStateAction<string | undefined>>
     trainerGender: TrainerGender
     setTrainerGender: Dispatch<SetStateAction<TrainerGender>>
-    selectedMonster: string | null
-    setSelectedMonster: Dispatch<SetStateAction<string | null>>
+    selectedCreature: string | null
+    setSelectedCreature: Dispatch<SetStateAction<string | null>>
 }
 
 export const TrainerCreationContext = createContext<TrainerCreationState | null>(null)

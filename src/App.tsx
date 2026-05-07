@@ -6,7 +6,7 @@ import CharacterSelectScreen from './views/CharacterSelectScreen'
 import GameMenuScreen from './views/GameMenuScreen'
 import LobbyScreen from './views/LobbyScreen'
 import BattleScreen from './views/BattleScreen'
-import MonsterSelectScreen from './views/MonsterSelectScreen'
+import CreatureSelectScreen from './views/CreatureSelectScreen'
 import ResultScreen from './views/ResultScreen'
 import AdminPanel from './views/AdminPanel'
 import Login from './views/Login'
@@ -30,7 +30,7 @@ function App() {
         <Route path="/register" element={<Register />}></Route>
         <Route element={<TrainerCreationProvider><CreationFlowLayout /></TrainerCreationProvider>}>
             <Route path="/character-select" element={<CharacterSelectScreen />} />
-            <Route path="/monster-select" element={<MonsterSelectScreen />} />
+            <Route path="/creature-select" element={<CreatureSelectScreen />} />
             <Route path="/profile-confirmation" element={<ProfileConfirmation />} />
         </Route>
         <Route path="/game-menu" element={<GameMenuScreen />}></Route>

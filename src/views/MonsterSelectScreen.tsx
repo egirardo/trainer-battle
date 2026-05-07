@@ -1,33 +1,33 @@
 import { useTrainerCreation } from '@/hooks/useTrainerCreation'
-import monster1 from '@/assets/sprites/monsters/test-character.png'
-import monster2 from '@/assets/sprites/monsters/test-character2.png'
-import monster3 from '@/assets/sprites/monsters/test-character3.png'
+import creature1 from '@/assets/sprites/creatures/test-character.png'
+import creature2 from '@/assets/sprites/creatures/test-character2.png'
+import creature3 from '@/assets/sprites/creatures/test-character3.png'
 
-const monsters = [
-    { id: 'test-character', name: 'Monster 1', sprite: monster1 },
-    { id: 'test-character2', name: 'Monster 2', sprite: monster2 },
-    { id: 'test-character3', name: 'Monster 3', sprite: monster3 },
+const creatures = [
+    { id: 'test-character', name: 'Creature 1', sprite: creature1 },
+    { id: 'test-character2', name: 'Creature 2', sprite: creature2 },
+    { id: 'test-character3', name: 'Creature 3', sprite: creature3 },
 ]
 
-export default function MonsterSelectScreen() {
-    const { selectedMonster, setSelectedMonster } = useTrainerCreation()
+export default function CreatureSelectScreen() {
+    const { selectedCreature, setSelectedCreature } = useTrainerCreation()
 
     return (
         <main>
-            <h1>Choose Your Starter Monster</h1>
+            <h1>Choose Your Starter Creature</h1>
             <div>
-                {monsters.map(monster => (
+                {creatures.map(creature => (
                     <button
-                        key={monster.id}
-                        onClick={() => setSelectedMonster(monster.id)}
-                        aria-pressed={selectedMonster === monster.id}
+                        key={creature.id}
+                        onClick={() => setSelectedCreature(creature.id)}
+                        aria-pressed={selectedCreature === creature.id}
                     >
                         <img
-                            src={monster.sprite}
-                            alt={monster.name}
+                            src={creature.sprite}
+                            alt={creature.name}
                             style={{ imageRendering: 'pixelated' }}
                         />
-                        <p>{monster.name}</p>
+                        <p>{creature.name}</p>
                     </button>
                 ))}
             </div>

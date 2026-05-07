@@ -6,21 +6,21 @@ import forwardArrow from '@/assets/sprites/components/forward-arrow.svg'
 import styles from './CreationFlowLayout.module.css'
 
 const steps = [
-    { path: '/character-select', label: '- Step 1 of 3 -', back: null,                  next: '/monster-select' },
-    { path: '/monster-select',   label: '- Step 2 of 3 -', back: '/character-select',   next: '/profile-confirmation' },
-    { path: '/profile-confirmation', label: '- Step 3 of 3 -', back: '/monster-select', next: null },
+    { path: '/character-select', label: '- Step 1 of 3 -', back: null,                  next: '/creature-select' },
+    { path: '/creature-select',   label: '- Step 2 of 3 -', back: '/character-select',   next: '/profile-confirmation' },
+    { path: '/profile-confirmation', label: '- Step 3 of 3 -', back: '/creature-select', next: null },
 ]
 
 export default function CreationFlowLayout() {
     const { pathname } = useLocation()
     const navigate = useNavigate()
-    const { trainerName, setTrainerNameError, selectedMonster } = useTrainerCreation()
+    const { trainerName, setTrainerNameError, selectedCreature } = useTrainerCreation()
 
     const currentStep = steps.find(s => s.path === pathname)
 
     const canProceed: Record<string, boolean> = {
         '/character-select': trainerName.trim().length > 0,
-        '/monster-select': selectedMonster !== null,
+        '/creature-select': selectedCreature !== null,
         '/profile-confirmation': true,
     }
 
