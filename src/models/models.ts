@@ -13,6 +13,7 @@ export interface Creature {
     base_defence: number;
     base_speed: number;
     description: string;
+    image: string;
 }
 
 export interface Move {

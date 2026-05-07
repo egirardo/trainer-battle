@@ -4,6 +4,12 @@
     margin: 1rem;
 }
 
+.genderSelectButtons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
 .genderSelectLegend {
     font-size: 1.25rem;
     font-weight: bold;
