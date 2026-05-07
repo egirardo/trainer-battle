@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { useAuth } from './hooks/useAuth'
+
 import './App.css'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
@@ -9,19 +9,23 @@ import BattleScreen from './views/BattleScreen'
 import CreatureSelectScreen from './views/CreatureSelectScreen'
 import ResultScreen from './views/ResultScreen'
 import AdminPanel from './views/AdminPanel'
+import AdminLogin from './views/AdminLogin'
 import Login from './views/Login'
 import Register from './views/Register'
 import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 
+// AdminRoute must be a component (not an inline expression in App) so that
+// localStorage is read at render time and not once when App first mounts.
+// An inline `isAdmin` variable in App would be stale after navigate() is called.
+function AdminRoute() {
+  return localStorage.getItem('adminUsername') !== null
+    ? <AdminPanel />
+    : <Navigate to="/admin-login" replace />;
+}
+
 function App() {
-  const { loading } = useAuth();
-
-  if (loading) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <>
     <Routes>
@@ -37,7 +41,8 @@ function App() {
         <Route path="/lobby" element={<LobbyScreen/>}></Route>
         <Route path="/battle" element={<BattleScreen />}></Route>
         <Route path="/battle-result" element={<ResultScreen />}></Route>
-        <Route path="/admin-panel" element={<AdminPanel/>}></Route>
+        <Route path="/admin-login" element={<AdminLogin />}></Route>
+        <Route path="/admin-panel" element={<AdminRoute />}></Route>
         <Route path="*" element={<Navigate to="/" replace />}></Route>
     </Routes>
 

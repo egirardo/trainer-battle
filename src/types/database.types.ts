@@ -321,18 +321,21 @@ export type Database = {
       }
       profiles: {
         Row: {
+          admin: boolean | null
           centralbank_uuid: string | null
           created_at: string
           id: string
           username: string | null
         }
         Insert: {
+          admin?: boolean | null
           centralbank_uuid?: string | null
           created_at?: string
           id: string
           username?: string | null
         }
         Update: {
+          admin?: boolean | null
           centralbank_uuid?: string | null
           created_at?: string
           id?: string
