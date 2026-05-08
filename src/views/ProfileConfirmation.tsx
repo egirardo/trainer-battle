@@ -1,5 +1,6 @@
 import { useTrainerCreation } from '@/hooks/useTrainerCreation'
 import { useNavigate } from 'react-router-dom'
+import { ROUTES } from '@/routes'
 
 export default function ProfileConfirmation() {
     const { trainerName, trainerGender, selectedCreature } = useTrainerCreation()
@@ -8,7 +9,7 @@ export default function ProfileConfirmation() {
     function handleSubmit() {
         console.log({ trainerName, trainerGender, selectedCreature })
         // TODO: replace with Supabase insert
-        navigate('/game-menu')
+        navigate(ROUTES.gameMenu)
     }
 
     return (

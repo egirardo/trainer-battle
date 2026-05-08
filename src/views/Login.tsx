@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { ROUTES } from '../routes';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -47,7 +48,7 @@ export default function Login() {
             return;
         }
 
-        navigate("/game-menu");
+        navigate(ROUTES.gameMenu);
         setLoading(false);
     }
 
@@ -89,7 +90,7 @@ export default function Login() {
             <button onClick={handleRequestOtp} disabled={loading}>
                 {loading ? "Sending code..." : "Send code"}
             </button>
-            <Link to="/register">Don't have an account? Register</Link>
+            <Link to={ROUTES.register}>Don't have an account? Register</Link>
         </main>
     );
 }
