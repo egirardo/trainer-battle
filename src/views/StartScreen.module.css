@@ -1,0 +1,66 @@
+.gameLogo {
+  display: block;
+  color: var(--secondary);
+  line-height: 0.85em;
+}
+
+.gameLogo:first-child {
+  font-size: 1.2em;
+}
+
+.gameLogo:last-child {
+  font-size: 2.1em;
+  font-weight: 800;
+}
+
+.startButton {
+  text-transform: uppercase;
+  text-decoration: none;
+  color: white;
+  background-color: var(--accent);
+  padding: 1.5em;
+  min-width: 8em;
+  display: block;
+  border-radius: 1em;
+  font-size: 1.5em;
+  flex: 1;
+}
+
+.navContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5em;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.logoImgContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 20em;
+  height: 15em;
+  margin: 0 auto;
+}
+
+.logoImg {
+  position: absolute;
+  bottom: 2em;
+  image-rendering: pixelated;
+}
+
+.logoImg:first-child {
+  width: 275px;
+  right: 50px;
+  bottom: 20px;
+  z-index: 2;
+}
+
+.logoImg:last-child {
+  width: 255px;
+  left: 80px;
+  bottom: -1.4em;
+  z-index: 3;
+}
