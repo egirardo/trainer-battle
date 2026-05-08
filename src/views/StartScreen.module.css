@@ -1,0 +1,105 @@
+.mainScreen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-content: space-around;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.logoContainer {
+  margin-bottom: 0;
+}
+
+.gameLogo {
+  display: block;
+  color: var(--secondary);
+  line-height: 0.85em;
+}
+
+.gameLogo:first-child {
+  font-size: 1.2em;
+}
+
+.gameLogo:last-child {
+  font-size: 2.1em;
+  font-weight: 800;
+}
+
+.navContainer .startButton {
+  text-transform: uppercase;
+  color: white;
+  background-color: #6366f1;
+  padding: 1em 2em;
+  min-width: 8em;
+  display: block;
+  border-radius: 1em;
+  font-size: 1.6em;
+  flex: 1;
+}
+
+/* Removes underline from Link component */
+.navContainer a {
+  text-decoration: none;
+}
+
+.startButton {
+  text-transform: uppercase;
+  text-decoration: none;
+  color: white;
+  background-color: var(--accent);
+  padding: 1.5em;
+  min-width: 8em;
+  display: block;
+  border-radius: 1em;
+  font-size: 1.5em;
+  flex: 1;
+}
+
+.navContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5em;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.logoImgContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  width: 20em;
+  height: 15em;
+  margin: 0 auto;
+}
+
+.logoImg {
+  position: absolute;
+  bottom: 2em;
+  image-rendering: pixelated;
+}
+
+.logoImg:first-child {
+  width: 275px;
+  right: 50px;
+  bottom: 20px;
+  z-index: 2;
+}
+
+.logoImg:last-child {
+  width: 255px;
+  left: 80px;
+  bottom: -1.4em;
+  z-index: 3;
+}
+
+.extrasContainer .small {
+  font-size: 1em;
+  margin: 0.5em;
+  min-width: 140px;
+}
+.extrasContainer {
+  margin-bottom: 2em;
+}

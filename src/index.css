@@ -4,6 +4,7 @@
   --bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
+  --secondary: #f43f5e;
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
@@ -12,12 +13,11 @@
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
   --outline: #493f47;
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: 'Pixelify Sans Bold', sans-serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading: "Pixelify Sans Bold", sans-serif;
   --mono: ui-monospace, Consolas, monospace;
-  --pixel-bold: 'Pixelify Sans Bold', sans-serif;
-  --pixel-regular: 'Pixelify Sans Regular', sans-serif;
-
+  --pixel-bold: "Pixelify Sans Bold", sans-serif;
+  --pixel-regular: "Pixelify Sans Regular", sans-serif;
 
   font: 16px/145% var(--pixel-regular);
   letter-spacing: 0.18px;
@@ -35,24 +35,25 @@
 }
 
 @font-face {
-  font-family: 'Press Start 2P';
-  src: url('./assets/fonts/PressStart2P.ttf') format('truetype');
+  font-family: "Press Start 2P";
+  src: url("./assets/fonts/PressStart2P.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Pixelify Sans Bold';
-  src: url('./assets/fonts/Pixelify/PixelifySans-Bold.ttf') format('truetype');
+  font-family: "Pixelify Sans Bold";
+  src: url("./assets/fonts/Pixelify/PixelifySans-Bold.ttf") format("truetype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Pixelify Sans Regular';
-  src: url('./assets/fonts/Pixelify/PixelifySans-Regular.ttf') format('truetype');
+  font-family: "Pixelify Sans Regular";
+  src: url("./assets/fonts/Pixelify/PixelifySans-Regular.ttf")
+    format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -61,7 +62,7 @@
   :root {
     --text: #5c626d;
     --text-h: #444549;
-    --bg: #F2EFFF;
+    --bg: #f2efff;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #c084fc;
