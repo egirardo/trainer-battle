@@ -3,6 +3,7 @@ import type { Trainer, TrainerGender } from '@/models/models';
 import femaleTrainer from '@/assets/sprites/trainers/test-avatar-f.svg';
 import maleTrainer from '@/assets/sprites/trainers/test-avatar-m.svg';
 import nbTrainer from '@/assets/sprites/trainers/test-avatar-nb.png';
+import { Link } from 'react-router-dom';
 
 const trainerImages: Record<TrainerGender, string> = {
     female: femaleTrainer,
@@ -27,6 +28,9 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
         <div className={styles.profilePreviewCard}>
             <h2>{trainer.name}</h2>
             <p>{trainer.creature.name}</p>
+            <Link to={`/trainers/${trainer.id}`} className={styles.viewProfileLink}>
+                View Full Profile
+            </Link>
             <div className={styles.imageContainer}>
                 <img src={trainer.creature.image} alt={`${trainer.creature.name} avatar`} />
                 <img src={trainerImages[trainer.gender]} alt={`${trainer.name} avatar`} />
