@@ -8,9 +8,9 @@ interface CreaturePreviewProps {
 export default function CreaturePreview({ creature }: CreaturePreviewProps) {
     if (!creature) {
         return (
-            <div className={styles.creatureAvatarPreview}>
+            <div className={styles.creatureAvatarPreview} aria-label="No creature selected">
                 <div className={styles.emptyState}>
-                    <span className={styles.questionMark}>?</span>
+                    <span className={styles.questionMark} aria-hidden="true">?</span>
                 </div>
             </div>
         );

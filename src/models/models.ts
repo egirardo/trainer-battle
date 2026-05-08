@@ -4,10 +4,12 @@ export interface Player {
     username: string;
 }
 
+export type CreatureType = 'fire' | 'water' | 'grass'
+
 export interface Creature {
     id: number;
     name: string;
-    type: string;
+    type: CreatureType;
     base_hp: number;
     base_attack: number;
     base_defence: number;
