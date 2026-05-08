@@ -35,3 +35,41 @@ export interface Item {
     effect: string;
     price: number;
 }
+
+// Lobby and matchmaking related types
+
+export type SessionStatus = "pending" | "waiting" | "active" | "finished" | "declined";
+
+export interface ApiError {
+    message: string;
+    status?: number;
+}
+
+export interface GameSession {
+    id: number;
+    player1_id: string;
+    player2_id: string | null;
+    player1_creature_id: number | null;
+    player2_creature_id: number | null;
+    is_cpu: boolean;
+    status: SessionStatus;
+    winner_id: string | null;
+    current_turn: string | null;
+    created_at: string | null;
+    updated_at: string | null;
+}
+
+export interface LobbyPlayer {
+    userId: string;
+    username: string;
+    creatureId: number;
+    creatureName: string;
+    level: number;
+}
+
+export interface IncomingInvitation {
+    sessionId: number;
+    fromUserId: string;
+    fromUsername: string;
+    creatureId: number;
+}
