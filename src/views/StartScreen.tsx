@@ -28,9 +28,7 @@ export default function StartScreen(){
                 </Button>
             </div>
             <div className={styles.extrasContainer}>
-                {
-                    // TODO: Pop up creds and instructions
-                }
+                {/* TODO: Pop up creds and instructions */}
                 <Button className={`${styles.startButton} ${styles.small}`}>
                     Credits
                 </Button>                       
