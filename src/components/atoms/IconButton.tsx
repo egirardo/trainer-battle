@@ -25,7 +25,7 @@ export default function IconButton({
             type={type}
             {...props}
             aria-label={ariaLabel}
-            aria-pressed={ariaPressed}
+            aria-pressed={ariaPressed ?? isSelected}
         >
         <img className={styles.image} src={image} alt="" />
         </button>

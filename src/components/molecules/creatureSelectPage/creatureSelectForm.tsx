@@ -41,7 +41,6 @@ export default function CreatureSelectForm() {
                             image={ballImages[creature.type]}
                             iconSize='L'
                             ariaLabel={`Select ${creature.name}`}
-                            ariaPressed={selectedCreature?.id === creature.id}
                             onClick={() => { setSelectedCreature(creature); setCreatureError(undefined); }}
                             isSelected={selectedCreature?.id === creature.id}
                         />
