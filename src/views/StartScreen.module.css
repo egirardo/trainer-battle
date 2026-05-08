@@ -38,7 +38,7 @@
   flex: 1;
 }
 
-/* Gets rid of underscore in Link component */
+/* Removes underline from Link component */
 .navContainer a {
   text-decoration: none;
 }
