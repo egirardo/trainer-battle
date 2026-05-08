@@ -15,8 +15,8 @@ export default function StartScreen(){
                     <span className={styles.gameLogo}>Battle</span>
                 </h1>
                 <div className={styles.logoImgContainer}>
-                    <img className={styles.logoImg} src={testcreature1} />
-                    <img className={styles.logoImg} src={testcreature2} />
+                    <img className={styles.logoImg} src={testcreature1} alt="Creature image" aria-hidden="true"/>
+                    <img className={styles.logoImg} src={testcreature2} alt="Creature image" aria-hidden="true"/>
                 </div>
             </div>
             <div className={styles.navContainer}>
