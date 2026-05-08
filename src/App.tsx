@@ -15,7 +15,7 @@ import Register from './views/Register'
 import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
-import UserLandingPage from './views/UserLandingPage'
+
 
 function App() {
 
