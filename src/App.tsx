@@ -33,6 +33,7 @@ function App() {
         <Route path={ROUTES.gameMenu} element={<GameMenuScreen />}></Route>
         <Route path={ROUTES.lobby} element={<LobbyScreen/>}></Route>
         <Route path={ROUTES.battle} element={<BattleScreen />}></Route>
+        <Route path={ROUTES.battleSession} element={<BattleScreen />}></Route>
         <Route path={ROUTES.battleResult} element={<ResultScreen />}></Route>
         <Route path={ROUTES.adminLogin} element={<AdminLogin/>}></Route>
         <Route path={ROUTES.adminPanel} element={<AdminPanel/>}></Route>

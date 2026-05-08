@@ -8,6 +8,7 @@ export const ROUTES = {
   gameMenu: '/game-menu',
   lobby: '/lobby',
   battle: '/battle',
+  battleSession: '/battle/:sessionId',
   battleResult: '/battle-result',
   adminLogin: '/admin-login',
   adminPanel: '/admin-panel',
