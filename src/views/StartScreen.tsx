@@ -1,10 +1,11 @@
-import { Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import styles from './StartScreen.module.css'
 import testcreature1 from '@/assets/sprites/creatures/fire-creature.png';
 import testcreature2 from '@/assets/sprites/creatures/water-creature.png';
 import Button from "@/components/atoms/button";
 
 export default function StartScreen(){
+    const navigate = useNavigate();
     return(
         <main className={styles.mainScreen}>
             <div>
@@ -18,16 +19,12 @@ export default function StartScreen(){
                 </div>
             </div>
             <div className={styles.navContainer}>
-                <Link to={"/character-select"}>
-                       <Button className={styles.startButton}>
-                            New game
-                        </Button>
-                </Link>
-                <Link to={"/login"}>
-                       <Button className={styles.startButton}>
-                            Continue
-                        </Button>
-                </Link>
+                <Button className={styles.startButton} onClick={() => navigate("/character-select")}>
+                    New game
+                </Button>
+                <Button className={styles.startButton} onClick={() => navigate("/login")}>
+                    Continue
+                </Button>
             </div>
             <div className={styles.extrasContainer}>
                 {
