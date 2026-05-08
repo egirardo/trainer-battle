@@ -3,12 +3,7 @@ import type { User } from '@supabase/supabase-js'
 import type { Database } from '../types/database.types'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from './authContextDef'
-
-interface ApiError {
-    message: string
-    code?: string
-    status?: number
-}
+import { fetchFromSupabase } from '../lib/fetchSupabase'
 
 type Profile = Database['public']['Tables']['profiles']['Row']
 
@@ -19,22 +14,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         async function fetchProfile(userId: string): Promise<void> {
-            const { data, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', userId)
-                .single()
+            const { data, error } = await fetchFromSupabase(() =>
+                supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', userId)
+                    .single()
+            );
 
-            if (error) {
-                const apiError: ApiError = {
-                    message: error.message,
-                    code: error.code
-                }
-                console.error('Error fetching profile:', apiError)
-                setProfile(null)
-            } else {
-                setProfile(data)
-            }
+            setProfile(error ? null : data);
         }
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
