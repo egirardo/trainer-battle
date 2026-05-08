@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTrainerCreation } from '@/hooks/useTrainerCreation'
+import { ROUTES } from '@/routes'
 import IconButton from '@/components/atoms/IconButton'
 import backArrow from '@/assets/sprites/components/back-arrow.svg'
 import forwardArrow from '@/assets/sprites/components/forward-arrow.svg'
@@ -7,9 +8,9 @@ import styles from './CreationFlowLayout.module.css'
 import { validateTrainerName } from '@/utils/trainerValidation'
 
 const steps = [
-    { path: '/character-select', label: '- Step 1 of 3 -', back: null,                  next: '/creature-select' },
-    { path: '/creature-select',   label: '- Step 2 of 3 -', back: '/character-select',   next: '/profile-confirmation' },
-    { path: '/profile-confirmation', label: '- Step 3 of 3 -', back: '/creature-select', next: null },
+    { path: ROUTES.characterSelect, label: '- Step 1 of 3 -', back: null,                        next: ROUTES.creatureSelect },
+    { path: ROUTES.creatureSelect,  label: '- Step 2 of 3 -', back: ROUTES.characterSelect,       next: ROUTES.profileConfirmation },
+    { path: ROUTES.profileConfirmation, label: '- Step 3 of 3 -', back: ROUTES.creatureSelect,    next: null },
 ]
 // Need to add a guard later so that users cannot navigate to these routes without going through the flow in order, but for now this is fine since there are no other links to these pages. Copilot feedback: The PR description says the flow enforces step completion before navigation, but this layout only blocks the Next button. A user can still deep-link directly to /creature-select or /profile-confirmation and bypass earlier steps. Add a guard (e.g., useEffect on pathname) to redirect to the first incomplete step when prerequisites aren’t met.
 
@@ -26,11 +27,11 @@ export default function CreationFlowLayout() {
 
     function handleNext() {
         if (!currentStep?.next) return
-        if (pathname === '/character-select') {
+        if (pathname === ROUTES.characterSelect) {
             const error = validateTrainerName(trainerName)
             if (error) { setTrainerNameError(error); return }
         }
-        if (pathname === '/creature-select') {
+        if (pathname === ROUTES.creatureSelect) {
             if (selectedCreature === null) { setCreatureError('You must select a creature to proceed'); return }
             setCreatureError(undefined)
         }
