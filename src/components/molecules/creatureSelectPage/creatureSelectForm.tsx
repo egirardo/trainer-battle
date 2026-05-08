@@ -7,10 +7,10 @@ import { localCreatures } from '@/data/localCreatures';
 import fireBall from '@/assets/sprites/creatures/fire-ball.png';
 import waterBall from '@/assets/sprites/creatures/water-ball.png';
 import grassBall from '@/assets/sprites/creatures/grass-ball.png';
-import type { Creature } from '@/models/models';
+import type { Creature, CreatureType } from '@/models/models';
 import CreatureInfo from './creatureInfo';
 
-const ballImages: Record<string, string> = {
+const ballImages: Record<CreatureType, string> = {
     fire: fireBall,
     water: waterBall,
     grass: grassBall,
@@ -27,7 +27,7 @@ export default function CreatureSelectForm() {
 
     return (
         <div className={styles.creatureSelectFormContainer}>
-            <div className={styles.instructions}>
+            <div>
                 <h1>Your Creature</h1>
             </div>
             <CreaturePreview creature={selectedCreature} />
@@ -41,6 +41,7 @@ export default function CreatureSelectForm() {
                             image={ballImages[creature.type]}
                             iconSize='L'
                             ariaLabel={`Select ${creature.name}`}
+                            ariaPressed={selectedCreature?.id === creature.id}
                             onClick={() => { setSelectedCreature(creature); setCreatureError(undefined); }}
                             isSelected={selectedCreature?.id === creature.id}
                         />
