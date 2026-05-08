@@ -14,27 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin: {
-        Row: {
-          created_at: string | null
-          id: string
-          password: string | null
-          username: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id: string
-          password?: string | null
-          username?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          password?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
       battle_state: {
         Row: {
           id: number
@@ -375,18 +354,21 @@ export type Database = {
           centralbank_uuid: string | null
           created_at: string
           id: string
+          is_admin: boolean
           username: string | null
         }
         Insert: {
           centralbank_uuid?: string | null
           created_at?: string
           id: string
+          is_admin?: boolean
           username?: string | null
         }
         Update: {
           centralbank_uuid?: string | null
           created_at?: string
           id?: string
+          is_admin?: boolean
           username?: string | null
         }
         Relationships: []
