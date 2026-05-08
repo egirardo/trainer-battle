@@ -12,7 +12,7 @@
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
+  --heading: 'Pixelify Sans Bold', sans-serif;
   --mono: ui-monospace, Consolas, monospace;
   --pixel-bold: 'Pixelify Sans Bold', sans-serif;
   --pixel-regular: 'Pixelify Sans Regular', sans-serif;
@@ -58,9 +58,9 @@
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
+    --text: #5c626d;
+    --text-h: #444549;
+    --bg: #F2EFFF;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #c084fc;
@@ -103,6 +103,7 @@ h1 {
   font-size: 56px;
   letter-spacing: -1.68px;
   margin: 32px 0;
+  text-transform: uppercase;
   @media (max-width: 1024px) {
     font-size: 36px;
     margin: 20px 0;
