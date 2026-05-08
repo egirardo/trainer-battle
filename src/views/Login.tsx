@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 
@@ -17,11 +17,11 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    function handleChange(e: ChangeEvent<HTMLInputElement>): void {
         setForm({ ...form, [e.target.name]: e.target.value });
     }
 
-    async function handleLogin(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+    async function handleLogin(e: FormEvent<HTMLFormElement>): Promise<void> {
         e.preventDefault();
         setError(null);
 

@@ -42,12 +42,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setUser(session?.user ?? null)
 
                 if (session?.user) {
-                    await fetchProfile(session.user.id)
+                    setLoading(true)
+                    try {
+                        await fetchProfile(session.user.id)
+                    } finally {
+                        setLoading(false)
+                    }
                 } else {
                     setProfile(null)
+                    setLoading(false)
                 }
-
-                setLoading(false)
             }
         )
 
