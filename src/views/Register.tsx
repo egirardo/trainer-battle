@@ -1,6 +1,7 @@
 import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
+import { ROUTES } from '../routes';
 
 interface RegisterForm {
     email: string;
@@ -85,7 +86,7 @@ export default function Register() {
             }
         }
 
-        navigate("/game-menu");
+        navigate(ROUTES.gameMenu);
         setLoading(false);
     }
 

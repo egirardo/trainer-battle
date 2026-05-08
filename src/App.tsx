@@ -1,6 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
-import { useAuth } from './hooks/useAuth'
 import './App.css'
+import { ROUTES } from './routes'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
 import GameMenuScreen from './views/GameMenuScreen'
@@ -8,6 +8,7 @@ import LobbyScreen from './views/LobbyScreen'
 import BattleScreen from './views/BattleScreen'
 import CreatureSelectScreen from './views/CreatureSelectScreen'
 import ResultScreen from './views/ResultScreen'
+import AdminLogin from './views/AdminLogin'
 import AdminPanel from './views/AdminPanel'
 import Login from './views/Login'
 import Register from './views/Register'
@@ -16,30 +17,28 @@ import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 
 function App() {
-  const { loading } = useAuth();
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>
     <Routes>
-        <Route path="/" element={<StartScreen />}></Route>
-        <Route path="/login" element={<Login />}></Route>
-        <Route path="/register" element={<Register />}></Route>
+        <Route path={ROUTES.start} element={<StartScreen />}></Route>
+        <Route path={ROUTES.login} element={<Login />}></Route>
+        <Route path={ROUTES.register} element={<Register />}></Route>
         <Route element={<TrainerCreationProvider><CreationFlowLayout /></TrainerCreationProvider>}>
-            <Route path="/character-select" element={<CharacterSelectScreen />} />
-            <Route path="/creature-select" element={<CreatureSelectScreen />} />
-            <Route path="/profile-confirmation" element={<ProfileConfirmation />} />
+            <Route path={ROUTES.characterSelect} element={<CharacterSelectScreen />} />
+            <Route path={ROUTES.creatureSelect} element={<CreatureSelectScreen />} />
+            <Route path={ROUTES.profileConfirmation} element={<ProfileConfirmation />} />
         </Route>
-        <Route path="/game-menu" element={<GameMenuScreen />}></Route>
-        <Route path="/lobby" element={<LobbyScreen/>}></Route>
-        <Route path="/battle" element={<BattleScreen />}></Route>
-        <Route path="/battle-result" element={<ResultScreen />}></Route>
-        <Route path="/admin-panel" element={<AdminPanel/>}></Route>
-        <Route path="*" element={<Navigate to="/" replace />}></Route>
-        <Route path="/battle/:sessionId" element={<BattleScreen />} />
+        <Route path={ROUTES.gameMenu} element={<GameMenuScreen />}></Route>
+        <Route path={ROUTES.lobby} element={<LobbyScreen/>}></Route>
+        <Route path={ROUTES.battle} element={<BattleScreen />}></Route>
+        <Route path={ROUTES.battleSession} element={<BattleScreen />}></Route>
+        <Route path={ROUTES.battleResult} element={<ResultScreen />}></Route>
+        <Route path={ROUTES.adminLogin} element={<AdminLogin/>}></Route>
+        <Route path={ROUTES.adminPanel} element={<AdminPanel/>}></Route>
+        <Route path={ROUTES.battle + "/:sessionId"} element={<BattleScreen />} />
+        <Route path="*" element={<Navigate to={ROUTES.start} replace />}></Route>
     </Routes>
 
     </>

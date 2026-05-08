@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ROUTES } from '@/routes';
 
 export default function StartScreen(){
     return(
@@ -10,7 +11,7 @@ export default function StartScreen(){
                 Main screen
             </h2>
             <p>Login or start new game</p>
-            <Link to={"/character-select"}>Start - Char select</Link>
+            <Link to={ROUTES.characterSelect}>Start - Char select</Link>
         </main>
     )
 }

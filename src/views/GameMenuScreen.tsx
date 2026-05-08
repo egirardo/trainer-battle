@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
+import { ROUTES } from '../routes';
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
@@ -14,7 +15,7 @@ export default function GameMenuScreen(){
             return;
         }
 
-        navigate("/");
+        navigate(ROUTES.start);
     }
 
     if (loading) {
@@ -27,7 +28,7 @@ export default function GameMenuScreen(){
             <p>Inventory</p>
             <p>Your creatures</p>
             <p>Shop</p>
-            <Link to="/lobby">Play - go to lobby</Link>
+            <Link to={ROUTES.lobby}>Play - go to lobby</Link>
             <button onClick={handleLogout}>Logout</button>
         </main>
     )
