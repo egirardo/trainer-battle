@@ -1,30 +1,33 @@
 /* Reasoning for px vs rem in some places is to maintain pixelated style in certain areas without any unwanted blurriness **/
 
 .button {
-    border: 8px solid transparent;
-    border-image: url('../../assets/sprites/components/button.png') 4 fill / 8px / 0 stretch;
-    image-rendering: pixelated;
-    background: none;
-    color: white;
-    padding: .5rem .65rem;
-    font-family: var(--pixel-bold);
-    font-size: 1.5rem;
-    text-align: center;
-    cursor: pointer;
-    min-width: 1.5rem;
-    min-height: 1rem;
-    border-radius: 4px;
+  border: 8px solid transparent;
+  border-image: url("../../assets/sprites/components/button.png") 4 fill / 8px /
+    0 stretch;
+  image-rendering: pixelated;
+  background: none;
+  color: white;
+  padding: 0.5rem 0.65rem;
+  font-family: var(--pixel-regular);
+  font-size: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  min-width: 1.5rem;
+  min-height: 1rem;
+  border-radius: 4px;
 }
 
 .button:hover {
-    filter: brightness(1.15);
+  filter: brightness(1.15);
 }
 
 .button:active {
-    filter: brightness(0.9);
+  filter: brightness(0.9);
 }
 
 .button:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--outline), 0 0 0 6px rgba(0,0,0,0.8);
+  outline: none;
+  box-shadow:
+    0 0 0 3px var(--outline),
+    0 0 0 6px rgba(0, 0, 0, 0.8);
 }

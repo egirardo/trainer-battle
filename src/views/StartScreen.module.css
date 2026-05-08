@@ -1,3 +1,16 @@
+.mainScreen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-content: space-around;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.logoContainer {
+  margin-bottom: 0;
+}
+
 .gameLogo {
   display: block;
   color: var(--secondary);
@@ -13,17 +26,21 @@
   font-weight: 800;
 }
 
-.startButton {
+.navContainer .startButton {
   text-transform: uppercase;
-  text-decoration: none;
   color: white;
-  background-color: var(--accent);
-  padding: 1.5em;
+  background-color: #6366f1;
+  padding: 1em 2em;
   min-width: 8em;
   display: block;
   border-radius: 1em;
-  font-size: 1.5em;
+  font-size: 1.6em;
   flex: 1;
+}
+
+/* Gets rid of underscore in Link component */
+.navContainer a {
+  text-decoration: none;
 }
 
 .navContainer {
@@ -63,4 +80,13 @@
   left: 80px;
   bottom: -1.4em;
   z-index: 3;
+}
+
+.extrasContainer .small {
+  font-size: 1em;
+  margin: 0.5em;
+  min-width: 140px;
+}
+.extrasContainer {
+  margin-bottom: 2em;
 }
