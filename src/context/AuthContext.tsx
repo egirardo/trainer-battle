@@ -35,50 +35,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             } else {
                 setProfile(data)
             }
-            setLoading(false)
         }
-
-        const loadSession = async () => {
-            try {
-                const { data: { session }, error } = await supabase.auth.getSession()
-
-                if (error) {
-                    const apiError: ApiError = {
-                        message: error.message,
-                        status: error.status
-                    }
-                    console.error('Error getting session:', apiError)
-                    setUser(null)
-                    setProfile(null)
-                    setLoading(false)
-                    return
-                }
-
-                setUser(session?.user ?? null)
-                if (session?.user) {
-                    await fetchProfile(session.user.id)
-                } else {
-                    setLoading(false)
-                }
-            } catch (error) {
-                const apiError: ApiError = {
-                    message: error instanceof Error ? error.message : 'Unknown error'
-                }
-                console.error('Error getting session:', apiError)
-                setUser(null)
-                setProfile(null)
-                setLoading(false)
-            }
-        }
-
-        loadSession()
 
         const { data: authListener } = supabase.auth.onAuthStateChange(
             async (_event, session) => {
                 setUser(session?.user ?? null)
+
                 if (session?.user) {
                     setLoading(true)
-                    await fetchProfile(session.user.id)
+                    try {
+                        await fetchProfile(session.user.id)
+                    } finally {
+                        setLoading(false)
+                    }
                 } else {
                     setProfile(null)
                     setLoading(false)

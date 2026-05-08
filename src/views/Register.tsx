@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, type ChangeEvent, type FormEvent } from "react"
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
 
@@ -19,69 +19,51 @@ async function verifyCentralbankStartCode(email: string, startcode: string): Pro
 export default function Register() {
     const navigate = useNavigate();
 
-    const [step, setStep] = useState<"details" | "otp">("details");
     const [form, setForm] = useState<RegisterForm>({
-        email:"",
-        username:"",
-        startcode:"",
+        email: "",
+        username: "",
+        startcode: "",
     });
-    const [ otp, setOtp ] = useState<string>("");
-    const [centralbankUuid, setCentralbankUuid] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    function handleChange(e: React.ChangeEvent<HTMLInputElement>): void {
+    function handleChange(e: ChangeEvent<HTMLInputElement>): void {
         setForm({ ...form, [e.target.name]: e.target.value });
     }
 
-    async function handleRegister(): Promise<void> {
+    async function handleRegister(e: FormEvent<HTMLFormElement>): Promise<void> {
+        e.preventDefault();
         setError(null);
+
+        if (!form.email || !form.username || !form.startcode) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
         setLoading(true);
 
         // Verify startcode with centralbank
-        const uuid = await verifyCentralbankStartCode(form.email, form.startcode);
-        if (!uuid) {
+        // TODO: Move this server-side via Edge Function
+        const centralbankUuid = await verifyCentralbankStartCode(form.email, form.startcode);
+        if (!centralbankUuid) {
             setError("Invalid start code or email. Please check your details and try again.");
             setLoading(false);
             return;
         }
-        setCentralbankUuid(uuid);
 
-        // send OTP via Supabase + Resend
-        const { error } = await supabase.auth.signInWithOtp({
+        // Create Supabase auth account with startcode as password
+        const { data, error: authError } = await supabase.auth.signUp({
             email: form.email,
-            options: {
-                shouldCreateUser: true
-            }
+            password: form.startcode,
         });
 
-        if (error) {
-            setError(error.message);
+        if (authError) {
+            setError(authError.message);
             setLoading(false);
             return;
         }
 
-        setStep("otp");
-        setLoading(false);
-    }
-
-    async function handleVerifyOtp(): Promise<void> {
-        setError(null);
-        setLoading(true);
-
-        const { data, error } = await supabase.auth.verifyOtp({
-            email: form.email,
-            token: otp,
-            type: "email"
-        });
-
-        if (error) {
-            setError(error.message);
-            setLoading(false);
-            return;
-        }
-
-        // Save username and centralbankUuid to profile
+        // Save username and centralbank_uuid to profile
         if (data.user) {
             const { error: profileError } = await supabase
                 .from("profiles")
@@ -95,7 +77,10 @@ export default function Register() {
                 );
 
             if (profileError) {
-                setError(profileError.message);
+                // Auth user was created but profile setup failed — sign out to avoid
+                // leaving the user in a half-initialised authenticated state.
+                await supabase.auth.signOut();
+                setError("Account creation failed. Please try again.");
                 setLoading(false);
                 return;
             }
@@ -105,63 +90,43 @@ export default function Register() {
         setLoading(false);
     }
 
-    if (step === "otp") {
-        return (
-            <main>
-                <h1>Check your email</h1>
-                <p>We sent an eight digit code to {form.email}</p>
-                <label htmlFor="otp">Enter code</label>
-                <input
-                    id="otp"
-                    type="text"
-                    placeholder="Enter code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    maxLength={8}
-                />
-                {error && <p role="alert">{error}</p>}
-                <button onClick={handleVerifyOtp} disabled={loading}>
-                    {loading ? "Verifying..." : "Verify"}
-                </button>
-                <button onClick={() => setStep("details")}>Back</button>
-            </main>
-        );
-    }
-
     return (
         <main>
             <h1>Register</h1>
-            <label htmlFor="email">Email</label>
-            <input
-                id="email"
-                type="email"
-                name="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={handleChange}
-            />
-            <label htmlFor="username">Username</label>
-            <input
-                id="username"
-                type="text"
-                name="username"
-                placeholder="Username"
-                value={form.username}
-                onChange={handleChange}
-            />
-            <label htmlFor="startcode">Start code</label>
-            <input
-                id="startcode"
-                type="text"
-                name="startcode"
-                placeholder="Start code"
-                value={form.startcode}
-                onChange={handleChange}
-            />
-            {error && <p role="alert">{error}</p>}
-            <button onClick={handleRegister} disabled={loading}>
-                {loading ? "Sending code..." : "Register"}
-            </button>
+            <form onSubmit={handleRegister}>
+                <label htmlFor="email">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                />
+                <label htmlFor="username">Username</label>
+                <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    placeholder="Username"
+                    value={form.username}
+                    onChange={handleChange}
+                />
+                <label htmlFor="startcode">Start code</label>
+                <input
+                    id="startcode"
+                    type="password"
+                    name="startcode"
+                    placeholder="Start code"
+                    value={form.startcode}
+                    onChange={handleChange}
+                />
+                {error && <p role="alert">{error}</p>}
+                <button type="submit" disabled={loading}>
+                    {loading ? "Registering..." : "Register"}
+                </button>
+            </form>
+            <Link to="/login">Already have an account? Login</Link>
         </main>
     );
 }

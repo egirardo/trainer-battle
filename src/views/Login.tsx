@@ -1,49 +1,45 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
 
+interface LoginForm {
+    email: string;
+    startcode: string;
+}
+
 export default function Login() {
     const navigate = useNavigate();
 
-    const [step, setStep] = useState<"email" | "otp">("email");
-    const [email, setEmail] = useState<string>("");
-    const [otp, setOtp] = useState<string>("");
+    const [form, setForm] = useState<LoginForm>({
+        email: "",
+        startcode: "",
+    });
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
-    async function handleRequestOtp(): Promise<void> {
-        setError(null)
+    function handleChange(e: ChangeEvent<HTMLInputElement>): void {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    }
+
+    async function handleLogin(e: FormEvent<HTMLFormElement>): Promise<void> {
+        e.preventDefault();
+        setError(null);
+
+        if (!form.email || !form.startcode) {
+            setError("Please fill in all fields.");
+            return;
+        }
+
         setLoading(true);
 
-        const { error: authError } = await supabase.auth.signInWithOtp({
-            email,
-            options: {
-                shouldCreateUser: false
-            }
+        const { error: authError } = await supabase.auth.signInWithPassword({
+            email: form.email,
+            password: form.startcode,
         });
 
         if (authError) {
             setError(authError.message);
-            setLoading(false);
-            return;
-        }
-        setStep("otp");
-        setLoading(false);
-    }
-
-    async function handleVerifyOtp(): Promise<void> {
-        setError(null);
-        setLoading(true);
-
-        const { error: verifyError } = await supabase.auth.verifyOtp({
-            email,
-            token: otp,
-            type: "email"
-        });
-
-        if (verifyError) {
-            setError(verifyError.message);
             setLoading(false);
             return;
         }
@@ -52,45 +48,34 @@ export default function Login() {
         setLoading(false);
     }
 
-    if (step === "otp") {
-        return (
-            <main>
-                <h1>Check your email</h1>
-                <p>We sent an eight digit code to {email}</p>
-                <label htmlFor="otp">Enter code</label>
-                <input
-                    id="otp"
-                    type="text"
-                    placeholder="Enter code"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    maxLength={8}
-                />
-                {error && <p role="alert">{error}</p>}
-                <button onClick={handleVerifyOtp} disabled={loading}>
-                    {loading ? "Verifying..." : "Verify"}
-                </button>
-                <button onClick={() => setStep("email")}>Back</button>
-            </main>
-        );
-    }
-
     return (
         <main>
             <h1>Login</h1>
-            <label htmlFor="email">Email</label>
-            <input
-                id="email"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            {error && <p role="alert">{error}</p>}
-            <button onClick={handleRequestOtp} disabled={loading}>
-                {loading ? "Sending code..." : "Send code"}
-            </button>
-            <Link to={ROUTES.register}>Don't have an account? Register</Link>
+            <form onSubmit={handleLogin}>
+                <label htmlFor="email">Email</label>
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    value={form.email}
+                    onChange={handleChange}
+                />
+                <label htmlFor="startcode">Start code</label>
+                <input
+                    id="startcode"
+                    type="password"
+                    name="startcode"
+                    placeholder="Start code"
+                    value={form.startcode}
+                    onChange={handleChange}
+                />
+                {error && <p role="alert">{error}</p>}
+                <button type="submit" disabled={loading}>
+                    {loading ? "Logging in..." : "Login"}
+                </button>
+            </form>
+            <Link to="/register">Don't have an account? Register</Link>
         </main>
     );
 }
