@@ -25,7 +25,7 @@ const mockTrainer = {
 export default function UserHomeBody() {
   return (
     <div className={styles.userHomeBody}>
-      <h1>Welcome to the Trainer Battle Arena!</h1>
+      <h3>Welcome to the Trainer Battle Arena!</h3>
       <ProfilePreview trainer={mockTrainer} />
     </div>
   );
