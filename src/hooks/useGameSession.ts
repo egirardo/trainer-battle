@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./useAuth";
-import { GameSession, ApiError } from "@/models/models";
+import { GameSession } from "@/models/models";
+import { fetchFromSupabase } from "@/lib/fetchSupabase";
 
 
 export function useGameSession() {
@@ -23,23 +24,23 @@ export function useGameSession() {
         setLoading(true);
         setError(null);
 
-        const { data, error: createError } = await supabase
-            .from("game_sessions")
-            .insert({
-                player1_id: user.id,
-                player2_id: opponentId,
-                player1_creature_id: myCreatureId,
-                is_cpu: false,
-                status: "pending",
-                current_turn: user.id,
-            })
-            .select()
-            .single();
+        const { data, error } = await fetchFromSupabase(() =>
+            supabase
+                .from("game_sessions")
+                .insert({
+                    player1_id: user.id,
+                    player2_id: opponentId,
+                    player1_creature_id: myCreatureId,
+                    is_cpu: false,
+                    status: "pending",
+                    current_turn: user.id,
+                })
+                .select()
+                .single()
+        );
 
-        if (createError) {
-            const apiError: ApiError = { message: createError.message };
-            console.error("Error creating session:", apiError);
-            setError(createError.message);
+        if (error || !data) {
+            setError(error?.message ?? "Unknown error");
             setLoading(false);
             return null;
         }
@@ -55,22 +56,22 @@ export function useGameSession() {
         setError(null);
         setLoading(true);
 
-        const { data, error: createError } = await supabase
-            .from("game_sessions")
-            .insert({
-                player1_id: user.id,
-                player1_creature_id: myCreatureId,
-                is_cpu: true,
-                status: "active",
-                current_turn: user.id,
-            })
-            .select()
-            .single();
+        const { data, error } = await fetchFromSupabase(() =>
+            supabase
+                .from("game_sessions")
+                .insert({
+                    player1_id: user.id,
+                    player1_creature_id: myCreatureId,
+                    is_cpu: true,
+                    status: "active",
+                    current_turn: user.id,
+                })
+                .select()
+                .single()
+        );
 
-        if (createError) {
-            const apiError: ApiError = { message: createError.message };
-            console.error("Error creating CPU session:", apiError);
-            setError(createError.message);
+        if (error || !data) {
+            setError(error?.message ?? "Unknown error");
             setLoading(false);
             return;
         }
@@ -89,20 +90,20 @@ export function useGameSession() {
         setLoading(true);
         setError(null);
 
-        const { data, error: acceptError } = await supabase
-            .from("game_sessions")
-            .update({
-                player2_creature_id: myCreatureId,
-                status: "active", 
-            })
-            .eq("id", sessionId)
-            .select()
-            .single();
+        const { data, error } = await fetchFromSupabase(() =>
+            supabase
+                .from("game_sessions")
+                .update({
+                    player2_creature_id: myCreatureId,
+                    status: "active",
+                })
+                .eq("id", sessionId)
+                .select()
+                .single()
+        );
 
-        if (acceptError) {
-            const apiError: ApiError = { message: acceptError.message };
-            console.error("Error accepting session:", apiError);
-            setError(acceptError.message);
+        if (error || !data) {
+            setError(error?.message ?? "Unknown error");
             setLoading(false);
             return;
         }
@@ -118,15 +119,14 @@ export function useGameSession() {
         setLoading(true);
         setError(null);
 
-        const { error: declineError } = await supabase
+        const { error } = await supabase
             .from("game_sessions")
             .update({ status: "declined" })
             .eq("id", sessionId);
 
-        if (declineError) {
-            const apiError: ApiError = { message: declineError.message };
-            console.error("Error declining session:", apiError);
-            setError(declineError.message);
+        if (error) {
+            console.error("Error declining session:", error.message);
+            setError(error.message);
             setLoading(false);
             return;
         }
@@ -140,16 +140,16 @@ export function useGameSession() {
         setError(null);
         setLoading(true);
 
-        const { data, error: fetchError } = await supabase
-            .from("game_sessions")
-            .select()
-            .eq("id", sessionId)
-            .single();
+        const { data, error } = await fetchFromSupabase(() =>
+            supabase
+                .from("game_sessions")
+                .select()
+                .eq("id", sessionId)
+                .single()
+        );
 
-        if (fetchError) {
-            const apiError: ApiError = { message: fetchError.message };
-            console.error("Error fetching session:", apiError);
-            setError(fetchError.message);
+        if (error || !data) {
+            setError(error?.message ?? "Unknown error");
             setLoading(false);
             return;
         }
