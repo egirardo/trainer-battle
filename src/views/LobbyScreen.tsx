@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -6,6 +6,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 export default function LobbyScreen() {
     const navigate = useNavigate();
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
+    const [inviteSent, setInviteSent] = useState<boolean>(false);
 
     const {
         playersInLobby,
@@ -28,11 +29,20 @@ export default function LobbyScreen() {
     }, []);
 
     async function handleInvite(opponentId: string): Promise<void> {
-        if (!myCreatureId) return;
+        if (!myCreatureId || inviteSent) return;
+
+        // Unsubscribe from any existing session channel before subscribing to the new one
+        sessionChannelRef.current?.unsubscribe();
+        sessionChannelRef.current = null;
+
+        setInviteSent(true);
+
         const sessionId = await createPvpSession(opponentId, myCreatureId);
 
         if (sessionId) {
             sessionChannelRef.current = subscribeToSessionAccepted(sessionId);
+        } else {
+            setInviteSent(false);
         }
     }
 
@@ -70,9 +80,9 @@ export default function LobbyScreen() {
                                 <span>Lv. {player.level}</span>
                                 <button
                                     onClick={() => handleInvite(player.userId)}
-                                    disabled={!!incomingInvitation}
+                                    disabled={!!incomingInvitation || inviteSent}
                                 >
-                                    Invite
+                                    {inviteSent ? "Waiting..." : "Invite"}
                                 </button>
                             </li>
                         ))}

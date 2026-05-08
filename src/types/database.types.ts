@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin: {
+        Row: {
+          created_at: string | null
+          id: string
+          password: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          password?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          password?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       battle_state: {
         Row: {
           id: number
@@ -134,6 +155,7 @@ export type Database = {
           base_speed: number | null
           description: string | null
           id: number
+          image: string | null
           name: string | null
           type: string | null
         }
@@ -144,6 +166,7 @@ export type Database = {
           base_speed?: number | null
           description?: string | null
           id?: number
+          image?: string | null
           name?: string | null
           type?: string | null
         }
@@ -154,6 +177,7 @@ export type Database = {
           base_speed?: number | null
           description?: string | null
           id?: number
+          image?: string | null
           name?: string | null
           type?: string | null
         }
@@ -348,21 +372,18 @@ export type Database = {
       }
       profiles: {
         Row: {
-          admin: boolean | null
           centralbank_uuid: string | null
           created_at: string
           id: string
           username: string | null
         }
         Insert: {
-          admin?: boolean | null
           centralbank_uuid?: string | null
           created_at?: string
           id: string
           username?: string | null
         }
         Update: {
-          admin?: boolean | null
           centralbank_uuid?: string | null
           created_at?: string
           id?: string

@@ -17,27 +17,26 @@ export function useLobby() {
     const [error, setError] = useState<string | null>(null);
 
     // Fetch players active creature
-    async function fetchMyCreature(): Promise<number | null> {
+    const fetchMyCreature = useCallback(async (): Promise<number | null> => {
         if (!user) return null;
 
         const { data, error: fetchError } = await supabase
             .from("player_creatures")
             .select("id, level")
             .eq("player_id", user.id)
-            .limit(1);
+            .single();
 
-        if (fetchError || !data || data.length === 0) {
-            if (fetchError) {
-                const apiError: ApiError = { message: fetchError.message };
-                console.error("Error fetching active creature:", apiError);
-                setError(fetchError.message);
-            }
+        if (fetchError) {
+            const apiError: ApiError = { message: fetchError.message };
+            console.error("Error fetching active creature:", apiError);
+            setError(fetchError.message);
             return null;
+
         }
 
-        setMyCreatureId(data[0].id);
-        return data[0].id;
-    }
+        setMyCreatureId(data.id);
+        return data.id;
+    }, [user]);
 
 
 
@@ -91,7 +90,7 @@ export function useLobby() {
         return channel;
     }, [user]);
 
-    function subscribeToSessionAccepted(sessionId: number): ReturnType<typeof supabase.channel> {
+    const subscribeToSessionAccepted = useCallback((sessionId: number): ReturnType<typeof supabase.channel> => {
         const channel = supabase
             .channel(`session_accepted:${sessionId}`)
             .on(
@@ -112,7 +111,7 @@ export function useLobby() {
             .subscribe();
 
         return channel;
-    }
+    }, [navigate]);
 
     useEffect(() => {
         if (!user || !profile) return;
@@ -185,7 +184,7 @@ export function useLobby() {
             presenceChannel?.unsubscribe();
             invitationChannel?.unsubscribe();
         };
-    }, [user, profile]);
+    }, [user, profile, fetchMyCreature, subscribeToInvitations]);
 
     async function handleAccept(): Promise<void> {
         if (!incomingInvitation || !myCreatureId) return;
