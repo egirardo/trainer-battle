@@ -119,16 +119,13 @@ export function useGameSession() {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() =>
-            supabase
-                .from("game_sessions")
-                .update({ status: "declined" })
-                .eq("id", sessionId)
-                .select()
-                .single()
-        );
+        const { error } = await supabase
+            .from("game_sessions")
+            .update({ status: "declined" })
+            .eq("id", sessionId);
 
         if (error) {
+            console.error("Error declining session:", error.message);
             setError(error.message);
             setLoading(false);
             return;
