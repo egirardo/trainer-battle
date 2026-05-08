@@ -8,7 +8,7 @@ export default function ProfileConfirmation() {
     function handleSubmit() {
         console.log({ trainerName, trainerGender, selectedCreature })
         // TODO: replace with Supabase insert
-        navigate('/game-menu')
+        navigate('/user-home')
     }
 
     return (

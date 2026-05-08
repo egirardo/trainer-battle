@@ -14,6 +14,7 @@ import Register from './views/Register'
 import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
+import UserLandingPage from './views/UserLandingPage'
 
 function App() {
   const { loading } = useAuth();
@@ -33,6 +34,7 @@ function App() {
             <Route path="/creature-select" element={<CreatureSelectScreen />} />
             <Route path="/profile-confirmation" element={<ProfileConfirmation />} />
         </Route>
+        <Route path="/user-home" element={<UserLandingPage />} />
         <Route path="/game-menu" element={<GameMenuScreen />}></Route>
         <Route path="/lobby" element={<LobbyScreen/>}></Route>
         <Route path="/battle" element={<BattleScreen />}></Route>

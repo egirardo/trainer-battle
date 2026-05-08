@@ -4,6 +4,15 @@ export interface Player {
     username: string;
 }
 
+export type TrainerGender = 'male' | 'female' | 'nb';
+
+
+export interface Trainer extends Player {
+    name: string;
+    creature: Creature;
+    gender: TrainerGender;
+}
+
 export type CreatureType = 'fire' | 'water' | 'grass'
 
 export interface Creature {
