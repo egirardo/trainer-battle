@@ -14,9 +14,32 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin: {
+        Row: {
+          created_at: string | null
+          id: string
+          password: string | null
+          username: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id: string
+          password?: string | null
+          username?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          password?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
       battle_state: {
         Row: {
           id: number
+          is_finished: boolean
+          last_move_description: string | null
           player1_hp: number | null
           player1_status: string | null
           player2_hp: number | null
@@ -26,6 +49,8 @@ export type Database = {
         }
         Insert: {
           id?: number
+          is_finished?: boolean
+          last_move_description?: string | null
           player1_hp?: number | null
           player1_status?: string | null
           player2_hp?: number | null
@@ -35,6 +60,8 @@ export type Database = {
         }
         Update: {
           id?: number
+          is_finished?: boolean
+          last_move_description?: string | null
           player1_hp?: number | null
           player1_status?: string | null
           player2_hp?: number | null
@@ -128,6 +155,7 @@ export type Database = {
           base_speed: number | null
           description: string | null
           id: number
+          image: string | null
           name: string | null
           type: string | null
         }
@@ -138,6 +166,7 @@ export type Database = {
           base_speed?: number | null
           description?: string | null
           id?: number
+          image?: string | null
           name?: string | null
           type?: string | null
         }
@@ -148,6 +177,7 @@ export type Database = {
           base_speed?: number | null
           description?: string | null
           id?: number
+          image?: string | null
           name?: string | null
           type?: string | null
         }
@@ -158,10 +188,12 @@ export type Database = {
           created_at: string | null
           current_turn: string | null
           id: number
-          is_cpu: boolean | null
+          is_cpu: boolean
+          player1_creature_id: number | null
           player1_id: string
+          player2_creature_id: number | null
           player2_id: string | null
-          status: string | null
+          status: string
           updated_at: string | null
           winner_id: string | null
         }
@@ -169,10 +201,12 @@ export type Database = {
           created_at?: string | null
           current_turn?: string | null
           id?: number
-          is_cpu?: boolean | null
+          is_cpu?: boolean
+          player1_creature_id?: number | null
           player1_id: string
+          player2_creature_id?: number | null
           player2_id?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string | null
           winner_id?: string | null
         }
@@ -180,14 +214,31 @@ export type Database = {
           created_at?: string | null
           current_turn?: string | null
           id?: number
-          is_cpu?: boolean | null
+          is_cpu?: boolean
+          player1_creature_id?: number | null
           player1_id?: string
+          player2_creature_id?: number | null
           player2_id?: string | null
-          status?: string | null
+          status?: string
           updated_at?: string | null
           winner_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "game_sessions_player1_creature_id_fkey"
+            columns: ["player1_creature_id"]
+            isOneToOne: false
+            referencedRelation: "player_creatures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "game_sessions_player2_creature_id_fkey"
+            columns: ["player2_creature_id"]
+            isOneToOne: false
+            referencedRelation: "player_creatures"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       items: {
         Row: {
