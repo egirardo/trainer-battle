@@ -8,6 +8,7 @@ import LobbyScreen from './views/LobbyScreen'
 import BattleScreen from './views/BattleScreen'
 import CreatureSelectScreen from './views/CreatureSelectScreen'
 import ResultScreen from './views/ResultScreen'
+import AdminLogin from './views/AdminLogin'
 import AdminPanel from './views/AdminPanel'
 import Login from './views/Login'
 import Register from './views/Register'
@@ -33,6 +34,7 @@ function App() {
         <Route path={ROUTES.lobby} element={<LobbyScreen/>}></Route>
         <Route path={ROUTES.battle} element={<BattleScreen />}></Route>
         <Route path={ROUTES.battleResult} element={<ResultScreen />}></Route>
+        <Route path={ROUTES.adminLogin} element={<AdminLogin/>}></Route>
         <Route path={ROUTES.adminPanel} element={<AdminPanel/>}></Route>
         <Route path="*" element={<Navigate to={ROUTES.start} replace />}></Route>
     </Routes>

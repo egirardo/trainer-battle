@@ -9,5 +9,6 @@ export const ROUTES = {
   lobby: '/lobby',
   battle: '/battle',
   battleResult: '/battle-result',
+  adminLogin: '/admin-login',
   adminPanel: '/admin-panel',
 } as const
