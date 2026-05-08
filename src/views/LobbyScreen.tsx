@@ -1,12 +1,8 @@
-<<<<<<< routing
-import { Link } from "react-router-dom";
 import { ROUTES } from '../routes';
-=======
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
->>>>>>> dev
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
