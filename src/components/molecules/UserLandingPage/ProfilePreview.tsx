@@ -30,7 +30,7 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
                 <h2 className={styles.name}>{trainer.name}</h2>
                 <p className={styles.creatureName}>{trainer.creature.name}</p>
             </div>
-            <p className={styles.otherInfo}>some other info (undecided)</p>
+            <p className={styles.otherInfo}>Wins: {trainer.wins} | Losses: {trainer.losses}</p>
             <Link to={`/trainers/${trainer.id}`} className={styles.viewProfileLink}>
                 View Full Profile
             </Link>

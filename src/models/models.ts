@@ -11,6 +11,8 @@ export interface Trainer extends Player {
     name: string;
     creature: Creature;
     gender: TrainerGender;
+    wins: number | 0;
+    losses: number | 0;
 }
 
 export type CreatureType = 'fire' | 'water' | 'grass'

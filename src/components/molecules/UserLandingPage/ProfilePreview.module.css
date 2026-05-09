@@ -64,3 +64,15 @@
     font-weight: bold;
     text-align: center;
 }
+
+.name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 0;
+}
+
+.creatureName {
+    font-size: 1rem;
+    color: var(--text-h);
+    margin: 0;
+}

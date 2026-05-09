@@ -1,4 +1,5 @@
 import ProfilePreview from './ProfilePreview';
+import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 
@@ -19,6 +20,8 @@ const mockTrainer = {
   id: '1',
   centralbank_uuid: 'centralbank-uuid',
   username: 'ash-ketchum',
+  wins: 2,
+  losses: 0,
     // Add more mock data as needed
 };
 
@@ -27,6 +30,7 @@ export default function UserHomeBody() {
     <div className={styles.userHomeBody}>
       <h3>Welcome to the Trainer Battle Arena!</h3>
       <ProfilePreview trainer={mockTrainer} />
+      <ProgressPreview wins={mockTrainer.wins} />
     </div>
   );
 }
