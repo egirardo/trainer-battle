@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import { ROUTES } from "@/routes";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
