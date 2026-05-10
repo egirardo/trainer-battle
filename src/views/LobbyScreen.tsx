@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import { ROUTES } from "@/routes";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
@@ -96,7 +97,7 @@ export default function LobbyScreen() {
                 <button onClick={handleCpu}>Fight CPU</button>
             </section>
 
-            <button onClick={() => navigate("/game-menu")}>
+            <button onClick={() => navigate(ROUTES.gameMenu)}>
                 Back to Menu
             </button>
         </main>
