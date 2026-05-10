@@ -3,6 +3,7 @@ import swordBadge from '@/assets/sprites/badges/sword-badge.svg';
 import swordBadgeShadow from '@/assets/sprites/badges/sword-badge-shadow.svg';
 import starBadge from '@/assets/sprites/badges/star-badge.svg';
 import starBadgeShadow from '@/assets/sprites/badges/star-badge-shadow.svg';
+import Button from '@/components/atoms/button';
 
 const BADGE_DEFINITIONS = [
     { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
@@ -35,6 +36,12 @@ export default function ProgressPreview({ wins }: ProgressPreviewProps) {
                         </div>
                     );
                 })}
+            {wins >= BADGE_DEFINITIONS.length && (
+                <Button onClick={() => alert('Congratulations! You have earned all badges and can now challenge the gym leader!')}> 
+                    Challenge Gym Leader
+                </Button>
+            )} 
+            {/* temporary alert, replace with actual navigation to gym leader battle when implemented. You can change the number of wins in the mockTrainer object in UserHomeBody.tsx to test the button */}
             </div>
         </div>
     );
