@@ -2,6 +2,7 @@ export interface Player {
     id: string;
     centralbank_uuid: string;
     username: string;
+    is_admin: boolean;
 }
 
 export type CreatureType = 'fire' | 'water' | 'grass'
@@ -21,7 +22,7 @@ export interface Creature {
 export interface Move {
     id: number;
     name: string;
-    type: string;
+    type: CreatureType;
     power: number;
     accuracy: number;
     effect: string;
@@ -72,4 +73,28 @@ export interface IncomingInvitation {
     fromUserId: string;
     fromUsername: string;
     creatureId: number;
+}
+
+export interface PlayerCreature {
+    id: number;
+    player_id: string;
+    creature_id: number;
+    nickname: string | null;
+    level: number;
+    experience: number;
+    current_hp: number;
+    attack: number;
+    defence: number;
+    speed: number;
+}
+
+export interface PlayerStats {
+    id: number;
+    player_id: string;
+    total_battles: number;
+    total_wins: number;
+    total_losses: number;
+    total_runs: number;
+    lives: number;
+    tutorial_complete: boolean;
 }
