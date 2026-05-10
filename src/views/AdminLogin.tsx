@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import Button from "../components/atoms/button";
 import InputField from "../components/atoms/InputField";
-import { useAuth } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 
 export default function AdminLogin() {
@@ -17,12 +16,19 @@ export default function AdminLogin() {
         setLoading(true);
 
         const formData = new FormData(e.currentTarget);
-        const email = formData.get("email") as string;
-        const password = formData.get("password") as string;
+        const email = formData.get("email");
+        const password = formData.get("password");
 
-        const { data, error: authError } = await supabase.auth.signInWithPassword({ 
-            email, 
-            password 
+        // Runtime validation
+        if (!email || !password || typeof email !== "string" || typeof password !== "string") {
+            setError("Please fill in all fields.");
+            setLoading(false);
+            return;
+        }
+
+        const { data, error: authError } = await supabase.auth.signInWithPassword({
+            email,
+            password
         });
 
         if (authError) {
@@ -31,12 +37,19 @@ export default function AdminLogin() {
             return;
         }
 
-        // Check is_admin
-        const { data: profile } = await supabase
+        // Check is_admin — handle error separately
+        const { data: profile, error: profileError } = await supabase
             .from("profiles")
             .select("is_admin")
             .eq("id", data.user.id)
             .single();
+
+        if (profileError) {
+            setError("Failed to verify admin access. Please try again.");
+            await supabase.auth.signOut();
+            setLoading(false);
+            return;
+        }
 
         if (!profile?.is_admin) {
             await supabase.auth.signOut();

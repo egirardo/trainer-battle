@@ -2,7 +2,7 @@ import CreatureFormRow from "../components/molecules/CreatureFormRow";
 import MoveFormRow from "../components/molecules/MoveFormRow";
 import ItemFormRow from "../components/molecules/ItemFormRow";
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import type { Tables } from "@/types/database.types";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +14,6 @@ type Move = Tables<'moves'>;
 type Item = Tables<'items'>;
 
 export default function AdminPanel() {
-    const navigate = useNavigate();
     const { profile, loading: authLoading } = useAuth();
     const {
         addCreature, updateCreature, deleteCreature,
@@ -29,9 +28,11 @@ export default function AdminPanel() {
     const [editingMoveId, setEditingMoveId] = useState<number | null>(null);
     const [editingItemId, setEditingItemId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
 
+    // Gate data fetching behind auth check
     useEffect(() => {
+        if (authLoading || !profile?.is_admin) return;
+
         let ignore = false;
 
         async function fetchData() {
@@ -45,7 +46,6 @@ export default function AdminPanel() {
 
             const err = cRes.error ?? mRes.error ?? iRes.error;
             if (err) {
-                console.error('Failed to fetch admin data:', err);
                 setError(err.message);
                 return;
             }
@@ -59,63 +59,65 @@ export default function AdminPanel() {
         return () => { ignore = true; };
     }, [authLoading, profile]);
 
+    // Conditional returns after all hooks
     if (authLoading) return <p>Loading...</p>;
+    if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
 
-    // Redirect non-admins
-    if (!profile?.is_admin) {
-        navigate(ROUTES.start);
-        return null;
-    }
-
-    // Creature handlers
+    // Creature handlers — use real DB id
     async function handleAddCreature(data: Omit<Creature, 'id'>): Promise<void> {
-        await addCreature(data);
-        setCreatures(prev => [...prev, { ...data, id: Date.now() }]);
+        const inserted = await addCreature(data);
+        if (inserted) setCreatures(prev => [...prev, inserted]);
     }
 
     async function handleUpdateCreature(id: number, data: Omit<Creature, 'id'>): Promise<void> {
-        await updateCreature(id, data);
-        setCreatures(prev => prev.map(c => c.id === id ? { ...data, id } : c));
-        setEditingCreatureId(null);
+        const updated = await updateCreature(id, data);
+        if (updated) {
+            setCreatures(prev => prev.map(c => c.id === id ? updated : c));
+            setEditingCreatureId(null);
+        }
     }
 
     async function handleDeleteCreature(id: number): Promise<void> {
-        await deleteCreature(id);
-        setCreatures(prev => prev.filter(c => c.id !== id));
+        const success = await deleteCreature(id);
+        if (success) setCreatures(prev => prev.filter(c => c.id !== id));
     }
 
-    // Move handlers
+    // Move handlers — use real DB id
     async function handleAddMove(data: Omit<Move, 'id'>): Promise<void> {
-        await addMove(data);
-        setMoves(prev => [...prev, { ...data, id: Date.now() }]);
+        const inserted = await addMove(data);
+        if (inserted) setMoves(prev => [...prev, inserted]);
     }
 
     async function handleUpdateMove(id: number, data: Omit<Move, 'id'>): Promise<void> {
-        await updateMove(id, data);
-        setMoves(prev => prev.map(m => m.id === id ? { ...data, id } : m));
-        setEditingMoveId(null);
+        const updated = await updateMove(id, data);
+        if (updated) {
+            setMoves(prev => prev.map(m => m.id === id ? updated : m));
+            setEditingMoveId(null);
+        }
     }
 
     async function handleDeleteMove(id: number): Promise<void> {
-        await deleteMove(id);
-        setMoves(prev => prev.filter(m => m.id !== id));
+        const success = await deleteMove(id);
+        if (success) setMoves(prev => prev.filter(m => m.id !== id));
     }
 
-    // Item handlers
+    // Item handlers — use real DB id
     async function handleAddItem(data: Omit<Item, 'id'>): Promise<void> {
-        await addItem(data);
-        setItems(prev => [...prev, { ...data, id: Date.now() }]);
+        const inserted = await addItem(data);
+        if (inserted) setItems(prev => [...prev, inserted]);
     }
 
     async function handleUpdateItem(id: number, data: Omit<Item, 'id'>): Promise<void> {
-        await updateItem(id, data);
-        setItems(prev => prev.map(i => i.id === id ? { ...data, id } : i));
-        setEditingItemId(null);
+        const updated = await updateItem(id, data);
+        if (updated) {
+            setItems(prev => prev.map(i => i.id === id ? updated : i));
+            setEditingItemId(null);
+        }
     }
 
     async function handleDeleteItem(id: number): Promise<void> {
-        await deleteItem(id);
-        setItems(prev => prev.filter(i => i.id !== id));
+        const success = await deleteItem(id);
+        if (success) setItems(prev => prev.filter(i => i.id !== id));
     }
 
     return (
@@ -123,21 +125,14 @@ export default function AdminPanel() {
             <h1>Admin Panel</h1>
             {error && <p role="alert">{error}</p>}
 
-            {/* Creatures */}
             <section>
                 <h2>Creatures</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>HP</th>
-                            <th>Attack</th>
-                            <th>Defence</th>
-                            <th>Speed</th>
-                            <th>Description</th>
-                            <th>Image</th>
+                            <th>ID</th><th>Name</th><th>Type</th>
+                            <th>HP</th><th>Attack</th><th>Defence</th>
+                            <th>Speed</th><th>Description</th><th>Image</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -174,20 +169,14 @@ export default function AdminPanel() {
                 </table>
             </section>
 
-            {/* Moves */}
             <section>
                 <h2>Moves</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Power</th>
-                            <th>Accuracy</th>
-                            <th>Effect</th>
-                            <th>Description</th>
-                            <th>Actions</th>
+                            <th>ID</th><th>Name</th><th>Type</th>
+                            <th>Power</th><th>Accuracy</th><th>Effect</th>
+                            <th>Description</th><th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -221,18 +210,13 @@ export default function AdminPanel() {
                 </table>
             </section>
 
-            {/* Items */}
             <section>
                 <h2>Items</h2>
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Effect</th>
-                            <th>Price</th>
-                            <th>Actions</th>
+                            <th>ID</th><th>Name</th><th>Description</th>
+                            <th>Effect</th><th>Price</th><th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>

@@ -8,36 +8,38 @@ type Creature = Tables<"creatures">;
 type Move = Tables<"moves">;
 type Item = Tables<"items">;
 
-export function useAdmin(){
+export function useAdmin() {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     // Creatures
-    async function addCreature(creature: Omit<Creature, "id">): Promise<void> {
+    async function addCreature(creature: Omit<Creature, 'id'>): Promise<Creature | null> {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() => 
+        const { data, error } = await fetchFromSupabase<Creature>(() =>
             supabase.from('creatures').insert(creature).select().single()
         );
 
-        if (error) setError(error.message);
         setLoading(false);
+        if (error) { setError(error.message); return null; }
+        return data;
     }
 
-    async function updateCreature(id: number, updates: Partial<Omit<Creature, "id">>): Promise<void> {
+    async function updateCreature(id: number, creature: Partial<Omit<Creature, 'id'>>): Promise<Creature | null> {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() => 
-            supabase.from('creatures').update(updates).eq('id', id).select().single()
+        const { data, error } = await fetchFromSupabase<Creature>(() =>
+            supabase.from('creatures').update(creature).eq('id', id).select().single()
         );
 
-        if (error) setError(error.message);
         setLoading(false);
+        if (error) { setError(error.message); return null; }
+        return data;
     }
 
-    async function deleteCreature(id: number): Promise<void> {
+    async function deleteCreature(id: number): Promise<boolean> {
         setLoading(true);
         setError(null);
 
@@ -46,41 +48,44 @@ export function useAdmin(){
             .delete()
             .eq('id', id);
 
+        setLoading(false);
         if (deleteError) {
             const apiError: ApiError = { message: deleteError.message };
             console.error('Error deleting creature:', apiError);
             setError(deleteError.message);
+            return false;
         }
-
-        setLoading(false);
+        return true;
     }
 
     // Moves
-    async function addMove(move: Omit<Move, "id">): Promise<void> {
+    async function addMove(move: Omit<Move, 'id'>): Promise<Move | null> {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() => 
+        const { data, error } = await fetchFromSupabase<Move>(() =>
             supabase.from('moves').insert(move).select().single()
         );
 
-        if (error) setError(error.message);
         setLoading(false);
+        if (error) { setError(error.message); return null; }
+        return data;
     }
 
-    async function updateMove(id: number, updates: Partial<Omit<Move, "id">>): Promise<void> {
+    async function updateMove(id: number, move: Partial<Omit<Move, 'id'>>): Promise<Move | null> {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() => 
-            supabase.from('moves').update(updates).eq('id', id).select().single()
+        const { data, error } = await fetchFromSupabase<Move>(() =>
+            supabase.from('moves').update(move).eq('id', id).select().single()
         );
 
-        if (error) setError(error.message);
         setLoading(false);
+        if (error) { setError(error.message); return null; }
+        return data;
     }
 
-    async function deleteMove(id: number): Promise<void> {
+    async function deleteMove(id: number): Promise<boolean> {
         setLoading(true);
         setError(null);
 
@@ -89,69 +94,67 @@ export function useAdmin(){
             .delete()
             .eq('id', id);
 
+        setLoading(false);
         if (deleteError) {
             const apiError: ApiError = { message: deleteError.message };
             console.error('Error deleting move:', apiError);
             setError(deleteError.message);
+            return false;
         }
-
-        setLoading(false);
+        return true;
     }
 
     // Items
-    async function addItem(item: Omit<Item, "id">): Promise<void> {
+    async function addItem(item: Omit<Item, 'id'>): Promise<Item | null> {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() => 
+        const { data, error } = await fetchFromSupabase<Item>(() =>
             supabase.from('items').insert(item).select().single()
         );
 
-        if (error) setError(error.message);
         setLoading(false);
+        if (error) { setError(error.message); return null; }
+        return data;
     }
 
-    async function updateItem(id: number, updates: Partial<Omit<Item, "id">>): Promise<void> {
+    async function updateItem(id: number, item: Partial<Omit<Item, 'id'>>): Promise<Item | null> {
         setLoading(true);
         setError(null);
 
-        const { error } = await fetchFromSupabase(() => 
-            supabase.from('items').update(updates).eq('id', id).select().single()
+        const { data, error } = await fetchFromSupabase<Item>(() =>
+            supabase.from('items').update(item).eq('id', id).select().single()
         );
 
-        if (error) setError(error.message);
         setLoading(false);
+        if (error) { setError(error.message); return null; }
+        return data;
     }
 
-    async function deleteItem(id: number): Promise<void> {
+    async function deleteItem(id: number): Promise<boolean> {
         setLoading(true);
         setError(null);
-        
+
         const { error: deleteError } = await supabase
             .from('items')
             .delete()
             .eq('id', id);
 
+        setLoading(false);
         if (deleteError) {
             const apiError: ApiError = { message: deleteError.message };
             console.error('Error deleting item:', apiError);
             setError(deleteError.message);
+            return false;
         }
-
-        setLoading(false);
+        return true;
     }
 
     return {
         loading,
         error,
-        addCreature,
-        updateCreature,
-        deleteCreature,
-        addMove,
-        updateMove,
-        deleteMove,
-        addItem,
-        updateItem,
-        deleteItem,
+        addCreature, updateCreature, deleteCreature,
+        addMove, updateMove, deleteMove,
+        addItem, updateItem, deleteItem,
     };
 }
