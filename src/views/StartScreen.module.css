@@ -43,19 +43,6 @@
   text-decoration: none;
 }
 
-.startButton {
-  text-transform: uppercase;
-  text-decoration: none;
-  color: white;
-  background-color: var(--accent);
-  padding: 1.5em;
-  min-width: 8em;
-  display: block;
-  border-radius: 1em;
-  font-size: 1.5em;
-  flex: 1;
-}
-
 .navContainer {
   display: flex;
   flex-direction: column;
@@ -100,6 +87,15 @@
   margin: 0.5em;
   min-width: 140px;
 }
+
 .extrasContainer {
   margin-bottom: 2em;
+}
+
+.instructionsOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg);
+  overflow-y: auto;
+  z-index: 10;
 }

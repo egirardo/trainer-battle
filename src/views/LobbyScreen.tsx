@@ -1,4 +1,3 @@
-import { ROUTES } from '../routes';
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
@@ -97,7 +96,7 @@ export default function LobbyScreen() {
                 <button onClick={handleCpu}>Fight CPU</button>
             </section>
 
-            <button onClick={() => navigate(ROUTES.gameMenu)}>
+            <button onClick={() => navigate("/game-menu")}>
                 Back to Menu
             </button>
         </main>
