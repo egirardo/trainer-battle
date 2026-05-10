@@ -18,7 +18,8 @@ export default function AdminPanel() {
     const {
         addCreature, updateCreature, deleteCreature,
         addMove, updateMove, deleteMove,
-        addItem, updateItem, deleteItem,
+        addItem, updateItem, deleteItem, 
+        error: adminError,
     } = useAdmin();
 
     const [creatures, setCreatures] = useState<Creature[]>([]);
@@ -124,6 +125,7 @@ export default function AdminPanel() {
         <main>
             <h1>Admin Panel</h1>
             {error && <p role="alert">{error}</p>}
+            {adminError && <p role="alert">{adminError}</p>}
 
             <section>
                 <h2>Creatures</h2>
