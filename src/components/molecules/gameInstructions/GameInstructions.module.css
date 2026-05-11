@@ -2,10 +2,12 @@
   text-align: left;
   padding: 0 1.5em 1.5em;
 }
+
 .nav {
   width: 100%;
 }
-.hFixed {
+
+.stickyHeader {
   display: flex;
   justify-content: space-between;
   position: sticky;
@@ -17,22 +19,27 @@
     rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 }
 
-h2,
-h3 {
+.stickyHeader h2 {
+  font-size: 2em;
+  text-transform: uppercase;
+}
+
+.contentContainer h2,
+.contentContainer h3 {
   text-transform: uppercase;
   font-family: var(--pixel-bold);
 }
 
-h2 {
+.contentContainer h2 {
   font-size: 2em;
   margin: 0;
 }
 
-h3 {
+.contentContainer h3 {
   font-size: 1.35em;
 }
 
-p {
+.contentContainer p {
   margin: 0.35em 0;
 }
 
@@ -47,7 +54,7 @@ p {
 .contentSection {
   margin: 1.5em 0;
 }
-.strong {
+.accentText {
   font-family: var(--pixel-bold);
   color: var(--accent);
 }
