@@ -26,6 +26,7 @@
   font-weight: 800;
 }
 
+.extrasContainer .startButton,
 .navContainer .startButton {
   text-transform: uppercase;
   color: white;
@@ -43,19 +44,6 @@
   text-decoration: none;
 }
 
-.startButton {
-  text-transform: uppercase;
-  text-decoration: none;
-  color: white;
-  background-color: var(--accent);
-  padding: 1.5em;
-  min-width: 8em;
-  display: block;
-  border-radius: 1em;
-  font-size: 1.5em;
-  flex: 1;
-}
-
 .navContainer {
   display: flex;
   flex-direction: column;
@@ -63,6 +51,8 @@
   gap: 1.5em;
   width: 100%;
   margin: 1em 0;
+}
+.extrasContainer {
 }
 
 .logoImgContainer {
@@ -97,9 +87,22 @@
 
 .extrasContainer .small {
   font-size: 1em;
-  margin: 0.5em;
-  min-width: 140px;
+  padding: 0.25em 0;
+  max-width: 10em;
 }
+
 .extrasContainer {
   margin-bottom: 2em;
+  gap: 1em;
+  display: flex;
+  justify-content: center;
+  min-height: 50px;
+}
+
+.instructionsOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg);
+  overflow-y: auto;
+  z-index: 10;
 }

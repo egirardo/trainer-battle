@@ -38,7 +38,6 @@ function App() {
         <Route path={ROUTES.battleResult} element={<ResultScreen />}></Route>
         <Route path={ROUTES.adminLogin} element={<AdminLogin/>}></Route>
         <Route path={ROUTES.adminPanel} element={<AdminPanel/>}></Route>
-        <Route path={ROUTES.battle + "/:sessionId"} element={<BattleScreen />} />
         <Route path="*" element={<Navigate to={ROUTES.start} replace />}></Route>
     </Routes>
 
