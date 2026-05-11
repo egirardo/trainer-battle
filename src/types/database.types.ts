@@ -349,6 +349,36 @@ export type Database = {
           },
         ]
       }
+      player_stats: {
+        Row: {
+          id: number
+          lives: number
+          player_id: string
+          total_battles: number
+          total_forfeits: number
+          total_losses: number
+          total_wins: number
+        }
+        Insert: {
+          id?: number
+          lives?: number
+          player_id: string
+          total_battles?: number
+          total_forfeits?: number
+          total_losses?: number
+          total_wins?: number
+        }
+        Update: {
+          id?: number
+          lives?: number
+          player_id?: string
+          total_battles?: number
+          total_forfeits?: number
+          total_losses?: number
+          total_wins?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           centralbank_uuid: string | null
