@@ -1,9 +1,6 @@
-export interface Player {
-    id: string;
-    centralbank_uuid: string;
-    username: string;
-    is_admin: boolean;
-}
+import type { Tables } from "@/types/database.types";
+
+export type Player = Tables<'profiles'>;
 
 export type CreatureType = 'fire' | 'water' | 'grass'
 
@@ -80,12 +77,12 @@ export interface PlayerCreature {
     player_id: string;
     creature_id: number;
     nickname: string | null;
-    level: number;
-    experience: number;
-    current_hp: number;
-    attack: number;
-    defence: number;
-    speed: number;
+    level: number | null;
+    experience: number | null;
+    current_hp: number | null;
+    attack: number | null;
+    defence: number | null;
+    speed: number | null;
 }
 
 export interface PlayerStats {
@@ -94,7 +91,7 @@ export interface PlayerStats {
     total_battles: number;
     total_wins: number;
     total_losses: number;
-    total_runs: number;
+    total_forfeits: number;
     lives: number;
     tutorial_complete: boolean;
 }

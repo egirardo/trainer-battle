@@ -355,8 +355,8 @@ export type Database = {
           lives: number
           player_id: string
           total_battles: number
+          total_forfeits: number
           total_losses: number
-          total_runs: number
           total_wins: number
           tutorial_complete: boolean
         }
@@ -365,8 +365,8 @@ export type Database = {
           lives?: number
           player_id: string
           total_battles?: number
+          total_forfeits?: number
           total_losses?: number
-          total_runs?: number
           total_wins?: number
           tutorial_complete?: boolean
         }
@@ -375,8 +375,8 @@ export type Database = {
           lives?: number
           player_id?: string
           total_battles?: number
+          total_forfeits?: number
           total_losses?: number
-          total_runs?: number
           total_wins?: number
           tutorial_complete?: boolean
         }
