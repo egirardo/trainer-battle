@@ -1,24 +1,28 @@
 import React from 'react';
 import styles from './Button.module.css';
 
- type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-   children: React.ReactNode;
- };
+type ButtonProps<C extends React.ElementType = 'button'> = {
+  as?: C;
+  children: React.ReactNode;
+  className?: string;
+} & Omit<React.ComponentPropsWithoutRef<C>, 'children' | 'className'>;
 
-export default function Button({
+export default function Button<C extends React.ElementType = 'button'>({
+  as,
   children,
   className,
-  type = 'button',
   ...props
-}: ButtonProps) {
+}: ButtonProps<C>) {
+  const Component = as ?? 'button';
+  const extraProps = !as ? { type: (props as React.ButtonHTMLAttributes<HTMLButtonElement>).type ?? 'button' } : {};
   return (
-    <button
+    <Component
       className={className ? `${styles.button} ${className}` : styles.button}
-      type={type}
+      {...extraProps}
       {...props}
     >
       {children}
-    </button>
+    </Component>
   );
 }
 

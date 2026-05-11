@@ -1,3 +1,4 @@
+import ButtonGroup from './ButtonGroup';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';
@@ -28,7 +29,7 @@ const mockTrainer = {
 export default function UserHomeBody() {
   return (
     <div className={styles.userHomeBody}>
-      <h3>Welcome to the Trainer Battle Arena!</h3>
+      <ButtonGroup />
       <ProfilePreview trainer={mockTrainer} />
       <ProgressPreview wins={mockTrainer.wins} />
     </div>

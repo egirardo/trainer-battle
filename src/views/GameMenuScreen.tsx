@@ -25,11 +25,6 @@ export default function GameMenuScreen(){
 
     return(
         <main>
-            <h1>Gameplay menu</h1>
-            <p>Inventory</p>
-            <p>Your creatures</p>
-            <p>Shop</p>
-      
             <UserHomeBody></UserHomeBody>
 
             <Link to={ROUTES.lobby}>Play - go to lobby</Link>
