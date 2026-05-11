@@ -1,8 +1,8 @@
 import { createContext } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
-import type { Creature } from '@/models/models'
+import type { Creature, TrainerGender } from '@/models/models'
 
-export type TrainerGender = 'male' | 'female' | 'nb'
+export type { TrainerGender }
 
 export interface TrainerCreationState {
     trainerName: string

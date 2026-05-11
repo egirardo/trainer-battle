@@ -1,0 +1,71 @@
+.profilePreviewCard {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: repeat(3, 1fr);
+    padding: 1rem;
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin: .5rem 1rem;
+}
+
+.imageContainer {
+    grid-column: 2;
+    grid-row: 1 / 4;
+    display: flex;
+    align-items: flex-end;
+    width: auto;
+}
+
+@media screen and (min-width: 317px) and (max-width: 489px) {
+    .imageContainer {
+        width: 150px;
+    }
+}
+
+.imageContainer img {
+    height: 100%;
+    width: 50%;
+    object-fit: contain;
+    image-rendering: pixelated;
+    position: relative;
+}
+
+.imageContainer img:first-child {
+    z-index: 1;
+}
+
+.imageContainer img:last-child {
+    z-index: 2;
+}
+
+
+.titleContainer {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: center;
+    text-align: center;
+    margin: 0;
+}
+
+.otherInfo {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: center;
+    align-self: center;
+    margin-top: 0.5rem;
+    color: var(--text-h);
+    text-align: center;
+}
+
+.viewProfileLink {
+    grid-column: 1;
+    grid-row: 3;
+    justify-self: center;
+    align-self: center;
+    margin-top: 0.5rem;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: bold;
+    text-align: center;
+}
