@@ -1,5 +1,5 @@
-import Button from "../../atoms/button";
-import InputField from "../../atoms/InputField";
+import Button from "../atoms/button";
+import InputField from "../atoms/InputField";
 
 type ItemFormRowProps = {
     idPrefix?: string;
