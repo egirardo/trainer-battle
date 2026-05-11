@@ -1,7 +1,9 @@
 .userHomeBody {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
     gap: .5rem;
     padding: 1rem;
+    max-width: 600px;
+    margin: 0 auto;
 }
