@@ -1,6 +1,6 @@
-import CreatureFormRow from "../components/molecules/adminPage/CreatureFormRow";
-import MoveFormRow from "../components/molecules/adminPage/MoveFormRow";
-import ItemFormRow from "../components/molecules/adminPage/ItemFormRow";
+import CreatureFormRow from "../components/molecules/CreatureFormRow";
+import MoveFormRow from "../components/molecules/MoveFormRow";
+import ItemFormRow from "../components/molecules/ItemFormRow";
 import { useEffect, useState } from 'react';
 import { Tables } from "@/types/database.types";
 import { supabase } from "@/lib/supabase";
