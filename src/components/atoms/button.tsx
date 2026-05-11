@@ -14,7 +14,10 @@ export default function Button<C extends React.ElementType = 'button'>({
   ...props
 }: ButtonProps<C>) {
   const Component = as ?? 'button';
-  const extraProps = !as ? { type: (props as React.ButtonHTMLAttributes<HTMLButtonElement>).type ?? 'button' } : {};
+  const extraProps =
+    Component === 'button'
+      ? { type: (props as React.ButtonHTMLAttributes<HTMLButtonElement>).type ?? 'button' }
+      : {};
   return (
     <Component
       className={className ? `${styles.button} ${className}` : styles.button}
