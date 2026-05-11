@@ -14,7 +14,7 @@ type Move = Tables<'moves'>;
 type Item = Tables<'items'>;
 
 export default function AdminPanel() {
-    const { profile, loading: authLoading } = useAuth();
+    const { user, profile, loading: authLoading } = useAuth();
     const {
         addCreature, updateCreature, deleteCreature,
         addMove, updateMove, deleteMove,
@@ -60,8 +60,8 @@ export default function AdminPanel() {
         return () => { ignore = true; };
     }, [authLoading, profile]);
 
-    // Conditional returns after all hooks
     if (authLoading) return <p>Loading...</p>;
+    if (user && !profile) return <p>Loading profile...</p>;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
 
     // Creature handlers — use real DB id

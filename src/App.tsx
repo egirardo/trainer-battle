@@ -25,46 +25,49 @@ function App() {
   return (
     <Routes>
         {/* Public routes */}
-        <Route path={ROUTES.start} element={<StartScreen />}></Route>
+        <Route 
+          path={ROUTES.start} 
+          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <StartScreen />}
+        />
 
         {/* Auth routes - redirect away if already logged in */}
         <Route 
-        path={ROUTES.login} 
-        element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <Login />}
+          path={ROUTES.login} 
+          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <Login />}
         />
         <Route 
-        path={ROUTES.register} 
-        element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <Register />}
+          path={ROUTES.register} 
+          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <Register />}
         />
         <Route 
-        path={ROUTES.adminLogin} 
-        element={user ? <Navigate to={ROUTES.adminPanel} replace /> : <AdminLogin/>}
+          path={ROUTES.adminLogin} 
+          element={<AdminLogin />}
         />
 
         {/* Protected routes - redirect to login if not logged in */}
         <Route 
-        path={ROUTES.gameMenu} 
-        element={!user ? <Navigate to={ROUTES.login} replace /> : <GameMenuScreen />}
+          path={ROUTES.gameMenu} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <GameMenuScreen />}
         />
         <Route 
-        path={ROUTES.lobby} 
-        element={!user ? <Navigate to={ROUTES.login} replace /> : <LobbyScreen />}
+          path={ROUTES.lobby} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <LobbyScreen />}
         />
         <Route 
-        path={ROUTES.battle} 
-        element={!user ? <Navigate to={ROUTES.login} replace /> : <BattleScreen />}
+          path={ROUTES.battle} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <BattleScreen />}
         />
         <Route 
-        path={ROUTES.battleSession} 
-        element={!user ? <Navigate to={ROUTES.login} replace /> : <BattleScreen />}
+          path={ROUTES.battleSession} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <BattleScreen />}
         />
         <Route 
-        path={ROUTES.battleResult} 
-        element={!user ? <Navigate to={ROUTES.login} replace /> : <ResultScreen />}
+          path={ROUTES.battleResult} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <ResultScreen />}
         />
         <Route 
-        path={ROUTES.adminPanel} 
-        element={!user ? <Navigate to={ROUTES.adminLogin} replace /> : <AdminPanel/>}
+          path={ROUTES.adminPanel} 
+          element={!user ? <Navigate to={ROUTES.adminLogin} replace /> : <AdminPanel />}
         />
 
         {/* Onboarding flow - protected */}
