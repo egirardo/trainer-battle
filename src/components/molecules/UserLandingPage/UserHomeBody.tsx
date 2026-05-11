@@ -20,7 +20,7 @@ const mockTrainer = {
   id: '1',
   centralbank_uuid: 'centralbank-uuid',
   username: 'ash-ketchum',
-  wins: 2,
+  wins: 6,
   losses: 0,
     // Add more mock data as needed
 };

@@ -36,12 +36,14 @@ export default function ProgressPreview({ wins }: ProgressPreviewProps) {
                         </div>
                     );
                 })}
-            {wins >= BADGE_DEFINITIONS.length && (
-                <Button onClick={() => alert('Congratulations! You have earned all badges and can now challenge the gym leader!')}> 
-                    Challenge Gym Leader
-                </Button>
-            )} 
-            {/* temporary alert, replace with actual navigation to gym leader battle when implemented. You can change the number of wins in the mockTrainer object in UserHomeBody.tsx to test the button */}
+            </div>
+            <div className={styles.buttonContainer}>
+                {wins >= BADGE_DEFINITIONS.length && (
+                    <Button onClick={() => alert('Congratulations! You have earned all badges and can now challenge the gym leader!')}> 
+                        Challenge Gym Leader
+                    </Button>
+                )} 
+                {/* temporary alert, replace with actual navigation to gym leader battle when implemented. You can change the number of wins in the mockTrainer object in UserHomeBody.tsx to test the button */}
             </div>
         </div>
     );
