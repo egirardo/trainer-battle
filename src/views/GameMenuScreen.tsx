@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
+import UserHomeBody from "@/components/molecules/UserLandingPage/UserHomeBody";
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
@@ -28,6 +29,9 @@ export default function GameMenuScreen(){
             <p>Inventory</p>
             <p>Your creatures</p>
             <p>Shop</p>
+      
+            <UserHomeBody></UserHomeBody>
+
             <Link to={ROUTES.lobby}>Play - go to lobby</Link>
             <button onClick={handleLogout}>Logout</button>
 

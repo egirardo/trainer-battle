@@ -2,6 +2,17 @@ import type { Tables } from "@/types/database.types";
 
 export type Player = Tables<'profiles'>;
 
+export type TrainerGender = 'male' | 'female' | 'nb';
+
+
+export interface Trainer extends Player {
+    name: string;
+    creature: Creature;
+    gender: TrainerGender;
+    wins: number;
+    losses: number;
+}
+
 export type CreatureType = 'fire' | 'water' | 'grass'
 
 export interface Creature {
