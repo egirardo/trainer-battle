@@ -93,5 +93,4 @@ export interface PlayerStats {
     total_losses: number;
     total_forfeits: number;
     lives: number;
-    tutorial_complete: boolean;
 }

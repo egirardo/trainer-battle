@@ -358,7 +358,6 @@ export type Database = {
           total_forfeits: number
           total_losses: number
           total_wins: number
-          tutorial_complete: boolean
         }
         Insert: {
           id?: number
@@ -368,7 +367,6 @@ export type Database = {
           total_forfeits?: number
           total_losses?: number
           total_wins?: number
-          tutorial_complete?: boolean
         }
         Update: {
           id?: number
@@ -378,7 +376,6 @@ export type Database = {
           total_forfeits?: number
           total_losses?: number
           total_wins?: number
-          tutorial_complete?: boolean
         }
         Relationships: []
       }
