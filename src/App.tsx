@@ -19,7 +19,7 @@ import CreationFlowLayout from './layouts/CreationFlowLayout'
 
 
 function App() {
-  const { user, loading } = useAuth();
+  const { user, loading } = useAuth()
 
   if (loading) return <div>Loading...</div>
 
@@ -89,4 +89,4 @@ function App() {
   )
 }
 
-export default App;
+export default App

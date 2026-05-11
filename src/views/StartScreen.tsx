@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../routes';
+import { useAuth } from '../hooks/useAuth';
 import styles from './StartScreen.module.css'
 import testcreature1 from '@/assets/sprites/creatures/fire-creature.png';
 import testcreature2 from '@/assets/sprites/creatures/water-creature.png';
@@ -10,6 +11,7 @@ import GameInstructions from "@/components/molecules/gameInstructions/GameInstru
 export default function StartScreen(){
     const navigate = useNavigate();
     const [showInstructions, setShowInstructions] = useState(false);
+    const user = useAuth().user;
 
     return(
         <main className={styles.mainScreen}>
@@ -24,7 +26,7 @@ export default function StartScreen(){
                 </div>
             </div>
             <div className={styles.navContainer}>
-                <Button className={styles.startButton} onClick={() => navigate(ROUTES.characterSelect)}>
+                <Button className={styles.startButton} onClick={() => user ? navigate(ROUTES.characterSelect) : navigate(ROUTES.register)}>
                     New game
                 </Button>
                 <Button className={styles.startButton} onClick={() => navigate(ROUTES.login)}>
