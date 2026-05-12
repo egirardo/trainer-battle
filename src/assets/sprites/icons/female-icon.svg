@@ -1,9 +1,9 @@
-<svg width="55" height="66" viewBox="0 0 55 66" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="55" height="62" viewBox="0 0 55 62" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M45 0H10V6H45V0Z" fill="#6366F1"/>
-<path d="M50 6H5V12H50V6Z" fill="#6366F1"/>
-<path d="M55 12H0V54H55V12Z" fill="#6366F1"/>
-<path d="M50 54H5V60H50V54Z" fill="#6366F1"/>
-<path d="M45 60H10V66H45V60Z" fill="#6366F1"/>
+<path d="M50 5H5V11H50V5Z" fill="#6366F1"/>
+<path d="M55 10H0V52H55V10Z" fill="#6366F1"/>
+<path d="M50 51H5V57H50V51Z" fill="#6366F1"/>
+<path d="M45 56H10V62H45V56Z" fill="#6366F1"/>
 <path d="M30 20H24V24H30V20Z" fill="white"/>
 <path d="M24 21H22V25H24V21Z" fill="white"/>
 <path d="M32 21H30V25H32V21Z" fill="white"/>
