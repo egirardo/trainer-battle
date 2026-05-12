@@ -34,8 +34,6 @@ export default function GameMenuScreen(){
 
             <Link to={ROUTES.lobby}>Play - go to lobby</Link>
             <button onClick={handleLogout}>Logout</button>
-
-            <Link to={ROUTES.adminPanel}>Admin panel</Link>
         </main>
     )
 }
