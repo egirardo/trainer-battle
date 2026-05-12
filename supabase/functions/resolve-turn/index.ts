@@ -54,7 +54,10 @@ Deno.serve(async (req) => {
 
 
         if (!sessionId || !playerId || !moveId) {
-            return errorResponse('Missing required parameters', 400)
+            return new Response(
+                JSON.stringify({ error: 'Missing required parameters' }),
+                { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
         }
 
         // Fetch game session
@@ -80,6 +83,8 @@ Deno.serve(async (req) => {
             .eq('session_id', sessionId)
             .single()
 
+        console.log('Battle state result:', JSON.stringify(battleState), 'Error:', JSON.stringify(stateErr))
+
         if (stateErr || !battleState) {
             return new Response(
                 JSON.stringify({ error: 'Battle state not found' }),
@@ -90,13 +95,10 @@ Deno.serve(async (req) => {
         // Determine current player and opponent
         const isPlayer1 = session.player1_id === playerId
         const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id
-        const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
+        const opponentCreatureId = (isPlayer1 ? session.player2_creature_id : session.player1_creature_id) ?? myCreatureId
 
         if (!myCreatureId || !opponentCreatureId) {
-            return new Response(
-                JSON.stringify({ error: 'Creature IDs missing from session' }),
-                { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Creature IDs missing from session', 400)
         }
 
         // Fetch both creatures with base stats
@@ -112,7 +114,11 @@ Deno.serve(async (req) => {
                 .select('*, creatures(*)')
                 .eq('id', opponentCreatureId)
                 .single()
+
         ])
+
+        console.log('Player creature result:', JSON.stringify(myPCResult), 'Opponent creature result:', JSON.stringify(oppPCResult))
+
 
         if (myPCResult.error || oppPCResult.error) {
             return new Response(
@@ -132,6 +138,8 @@ Deno.serve(async (req) => {
             .select('*')
             .eq('id', moveId)
             .single()
+
+        console.log('Move result:', JSON.stringify(move), 'Error:', JSON.stringify(moveErr))
 
         if (moveErr || !move) {
             return new Response(
@@ -177,6 +185,8 @@ Deno.serve(async (req) => {
                 is_finished: isFinished,
             })
             .eq('session_id', sessionId)
+        
+        console.log('Update battle state result:', JSON.stringify({ newPlayer1Hp, newPlayer2Hp, description, isFinished }), 'Error:', JSON.stringify(updateStateErr))
 
         if (updateStateErr) {
             return new Response(
@@ -188,6 +198,8 @@ Deno.serve(async (req) => {
         if (isFinished) {
             const winnerId = playerId
             const loserId = isPlayer1 ? session.player2_id : session.player1_id
+
+            console.log('Winner ID:', winnerId, 'Loser ID:', loserId)
 
             await supabase
                 .from('game_sessions')
