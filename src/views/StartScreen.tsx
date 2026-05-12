@@ -7,10 +7,12 @@ import testcreature1 from '@/assets/sprites/creatures/fire-creature.png';
 import testcreature2 from '@/assets/sprites/creatures/water-creature.png';
 import Button from "@/components/atoms/button";
 import GameInstructions from "@/components/molecules/gameInstructions/GameInstructions";
+import Credits from '@/components/molecules/Credits';
 
 export default function StartScreen(){
     const navigate = useNavigate();
     const [showInstructions, setShowInstructions] = useState(false);
+    const [showCredits, setShowCredits] = useState(false);
     const user = useAuth().user;
 
     return(
@@ -33,20 +35,28 @@ export default function StartScreen(){
                     Continue
                 </Button>
             </div>
+
             <div className={styles.extrasContainer}>
-                {/* TODO: Pop up creds and instructions */}
-                <Button className={`${styles.startButton} ${styles.small}`}>
+                <Button className={`${styles.startButton} ${styles.small}`} onClick={() => setShowCredits(true)}>
                     Credits
                 </Button>
                 <Button className={`${styles.startButton} ${styles.small}`} onClick={() => setShowInstructions(true)}>
                     How to play
                 </Button>
             </div>
+
+            {showCredits && (
+                <div className={styles.infoOverlay}>
+                    <Credits onClose={() => setShowCredits(false)} />
+                </div>
+            )}
+
             {showInstructions && (
-                <div className={styles.instructionsOverlay}>
+                <div className={styles.infoOverlay}>
                     <GameInstructions onClose={() => setShowInstructions(false)} />
                 </div>
             )}
+        
         </main>
     )
 }

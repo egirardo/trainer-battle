@@ -13,7 +13,7 @@
 
 .gameLogo {
   display: block;
-  color: var(--secondary);
+  color: var(--accent);
   line-height: 0.85em;
 }
 
@@ -100,7 +100,7 @@
   min-height: 50px;
 }
 
-.instructionsOverlay {
+.infoOverlay {
   position: fixed;
   inset: 0;
   background-color: var(--ui-bg);
