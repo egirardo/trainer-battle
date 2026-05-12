@@ -76,19 +76,70 @@ export function useGameSession() {
             return;
         }
 
+        const { data: myCreature } = await supabase
+            .from('player_creatures')
+            .select('current_hp')
+            .eq('id', myCreatureId)
+            .single();
+
+        await supabase.from('battle_state').insert({
+            session_id: data.id,
+            player1_hp: myCreature?.current_hp ?? 0,
+            player2_hp: myCreature?.current_hp ?? 0, // CPU matches player level
+            player1_status: 'normal',
+            player2_status: 'normal',
+            turn_number: 1,
+            is_finished: false,
+        });
+
         setSession(data as GameSession);
         navigate(`/battle/${data.id}`);
         setLoading(false);
     }
 
     // Accept a PVP session
-    async function acceptInvitation (
-        sessionId: number,
-        myCreatureId: number
+    async function acceptInvitation(sessionId: number, myCreatureId: number
     ): Promise<void> {
         if (!user) return;
         setLoading(true);
         setError(null);
+
+        // Fetch session to get player1 creature
+        const { data: sessionData } = await supabase
+            .from('game_sessions')
+            .select('player1_creature_id')
+            .eq('id', sessionId)
+            .single();
+
+        if (!sessionData?.player1_creature_id) {
+            setError('Could not find opponent creature')
+            setLoading(false);
+            return;
+        }
+
+        // Fetch both creatures current HP
+        const [myCreature, opponentCreature] = await Promise.all([
+            supabase
+                .from('player_creatures')
+                .select('current_hp')
+                .eq('id', myCreatureId)
+                .single(),
+            supabase
+                .from('player_creatures')
+                .select('current_hp')
+                .eq('id', sessionData.player1_creature_id)
+                .single(),
+        ]);
+
+        await supabase.from('battle_state').insert({
+            session_id: sessionId,
+            player1_hp: opponentCreature.data?.current_hp ?? 0,
+            player2_hp: myCreature.data?.current_hp ?? 0,
+            player1_status: 'normal',
+            player2_status: 'normal',
+            turn_number: 1,
+            is_finished: false,
+        });
 
         const { data, error } = await fetchFromSupabase(() =>
             supabase

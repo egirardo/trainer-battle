@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
@@ -21,7 +21,7 @@ interface UseBattleReturn {
 export function useBattle(sessionId: number): UseBattleReturn {
     const { user } = useAuth();
     const navigate = useNavigate();
-
+    const isPlayer1Ref = useRef<boolean>(false)
     const [player, setPlayer] = useState<BattleParticipantInfo | null>(null);
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
     const [messages, setMessages] = useState<string[]>([]);
@@ -49,10 +49,18 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const isPlayer2 = session.player2_id === user.id;
                 if (!isPlayer1 && !isPlayer2) throw new Error('You are not a participant in this session');
 
-                const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
-                const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id;
+                // Store player slot for later use in updates
+                isPlayer1Ref.current = isPlayer1
 
-                if (!myCreatureId || !opponentCreatureId) throw new Error('Creature IDs missing from session');
+                const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
+                const effectiveOpponentCreatureId = (isPlayer1 ? session.player2_creature_id : session.player1_creature_id) ?? myCreatureId
+
+                // For CPU battles, opponent creature ID can be null
+                if (!myCreatureId) throw new Error('Creature IDs missing from session');
+                if (!session.is_cpu && !effectiveOpponentCreatureId) throw new Error('Creature IDs missing from session');
+
+                const safeMyCreatureId = myCreatureId
+                const safeOpponentCreatureId = effectiveOpponentCreatureId!
                 
                 // First turn hardcoded to player1 (session creator)
                 setIsMyTurn(session.current_turn === user.id);
@@ -64,12 +72,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     supabase
                         .from('player_creatures')
                         .select('*, creatures(*)')
-                        .eq('id', myCreatureId)
+                        .eq('id', safeMyCreatureId)
                         .single(),
                     supabase
                         .from('player_creatures')
                         .select('*, creatures(*)')
-                        .eq('id', opponentCreatureId)
+                        .eq('id', safeOpponentCreatureId)
                         .single(),
                 ]);
                 if (myPCResult.error || !myPCResult.data) throw new Error('Could not load your creature');
@@ -146,7 +154,14 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         last_move_description: string | null;
                         is_finished: boolean;
                     };
-                    // TODO: determine which slot (1 or 2) is "me" and update accordingly
+
+                    // Use ref to determine which HP belongs to the current player
+                    const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
+                    const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
+
+                    setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+                    setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+
                     if (state.last_move_description) {
                         setMessages((prev) => [...prev, state.last_move_description!]);
                     }
@@ -176,22 +191,36 @@ export function useBattle(sessionId: number): UseBattleReturn {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [navigate, sessionId, user?.id]);
 
-    async function onFight(_moveId: number) {
+    async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
-        // TODO: call Supabase edge function 'execute-move'
-        // await supabase.functions.invoke('execute-move', { body: { sessionId, moveId: _moveId, userId: user.id } });
+
+        console.log('onFight called:', { sessionId, playerId: user.id, moveId })
+
+        const { data, error } = await supabase.functions.invoke('resolve-turn', {
+            body: { sessionId, playerId: user.id, moveId }
+        })
+
+        if (error) {
+            setError(error.message)
+            console.error('resolve-turn error:', error)
+        }
     }
 
     function onBag() {
         // TODO: open item selection UI
     }
 
-    async function onRun() {
-        if (!user) return;
-        await supabase
+    async function onRun(): Promise<void> {
+        if (!user || !opponentUserId) return;
+        const { error: runError } = await supabase
             .from('game_sessions')
             .update({ status: 'finished', winner_id: opponentUserId })
             .eq('id', sessionId);
+
+        if (runError) {
+            setError(runError.message);
+            return
+        }
         navigate(ROUTES.battleResult);
     }
 

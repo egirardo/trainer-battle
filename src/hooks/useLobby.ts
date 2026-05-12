@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./useAuth";
@@ -16,6 +16,8 @@ export function useLobby() {
     const [myCreatureId, setMyCreatureId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const hasJoinedLobby = useRef(false);
+    const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
     // Fetch players active creature
     const fetchMyCreature = useCallback(async (): Promise<number | null> => {
@@ -119,6 +121,7 @@ export function useLobby() {
         let presenceChannel: ReturnType<typeof supabase.channel>;
 
         async function joinLobby() {
+            console.log("joinLobby called");
             setLoading(true);
             
             const creatureId = await fetchMyCreature();
@@ -135,14 +138,18 @@ export function useLobby() {
                 .eq("id", creatureId)
                 .single();
 
-            // Set up presence channel
-            presenceChannel = supabase.channel("lobby", {
-                config: { presence: { key: user!.id } }
-            });
+            if (presenceChannelRef.current) {
+                await supabase.removeChannel(presenceChannelRef.current)
+                presenceChannelRef.current = null
+            }
 
-            presenceChannel
+            presenceChannelRef.current = supabase.channel('lobby', {
+                config: { presence: { key: user!.id } }
+            })
+
+            presenceChannelRef.current
                 .on("presence", { event: "sync" }, () => {
-                const state = presenceChannel.presenceState<LobbyPlayer>();
+                const state = presenceChannelRef.current!.presenceState<LobbyPlayer>();
                 const players = Object.values(state)
                     .flat()
                     .map((p) => p as unknown as LobbyPlayer)
@@ -164,7 +171,7 @@ export function useLobby() {
                 })
                 .subscribe(async (status) => {
                     if (status === "SUBSCRIBED") {
-                        await presenceChannel.track({
+                        await presenceChannelRef.current!.track({
                             userId: user!.id,
                             username: profile!.username ?? "Unknown",
                             creatureId: creatureId,
@@ -181,7 +188,8 @@ export function useLobby() {
         const invitationChannel = subscribeToInvitations();
 
         return () => {
-            presenceChannel?.unsubscribe();
+            hasJoinedLobby.current = false;
+            presenceChannelRef.current?.unsubscribe();
             invitationChannel?.unsubscribe();
         };
     }, [user, profile, fetchMyCreature, subscribeToInvitations]);
