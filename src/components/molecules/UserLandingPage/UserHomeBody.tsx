@@ -1,9 +1,10 @@
+import type { Trainer } from '@/models/models';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 
-const mockTrainer = {
+const mockTrainer: Omit<Trainer, "is_admin" | "created_at"> = {
   name: 'Ash Ketchum',
   gender: 'male' as const,
   creature: {

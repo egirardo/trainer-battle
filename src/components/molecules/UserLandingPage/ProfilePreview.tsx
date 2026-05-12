@@ -12,7 +12,7 @@ const trainerImages: Record<TrainerGender, string> = {
 };
 
 interface ProfilePreviewProps {
-    trainer: Trainer | null;
+    trainer: Omit<Trainer, "is_admin" | "created_at"> | null;
 }
 
 export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
