@@ -1,8 +1,8 @@
 import styles from './ProfilePreview.module.css';
 import type { Trainer, TrainerGender } from '@/models/models';
-import femaleTrainer from '@/assets/sprites/trainers/test-avatar-f.svg';
-import maleTrainer from '@/assets/sprites/trainers/test-avatar-m.svg';
-import nbTrainer from '@/assets/sprites/trainers/test-avatar-nb.png';
+import femaleTrainer from '@/assets/sprites/trainers/avatar-f.svg';
+import maleTrainer from '@/assets/sprites/trainers/avatar-m.svg';
+import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
 import { Link } from 'react-router-dom';
 
 const trainerImages: Record<TrainerGender, string> = {
