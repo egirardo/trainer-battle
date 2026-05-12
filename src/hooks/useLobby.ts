@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./useAuth";
 import { useGameSession } from "./useGameSession";
-import { LobbyPlayer, IncomingInvitation, ApiError } from "@/models/models";
+import { LobbyPlayer, IncomingInvitation } from "@/models/models";
+import { fetchFromSupabase } from "@/lib/fetchSupabase";
 
 export function useLobby() {
     const navigate = useNavigate();
@@ -20,18 +21,17 @@ export function useLobby() {
     const fetchMyCreature = useCallback(async (): Promise<number | null> => {
         if (!user) return null;
 
-        const { data, error: fetchError } = await supabase
-            .from("player_creatures")
-            .select("id, level")
-            .eq("player_id", user.id)
-            .single();
+        const { data, error } = await fetchFromSupabase(() =>
+            supabase
+                .from("player_creatures")
+                .select("id, level")
+                .eq("player_id", user.id)
+                .single()
+        );
 
-        if (fetchError) {
-            const apiError: ApiError = { message: fetchError.message };
-            console.error("Error fetching active creature:", apiError);
-            setError(fetchError.message);
+        if (error || !data) {
+            setError(error?.message ?? "Unknown error");
             return null;
-
         }
 
         setMyCreatureId(data.id);

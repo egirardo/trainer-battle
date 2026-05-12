@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
+import { useAuth } from './hooks/useAuth'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
 import GameMenuScreen from './views/GameMenuScreen'
@@ -18,31 +19,73 @@ import CreationFlowLayout from './layouts/CreationFlowLayout'
 
 
 function App() {
+  const { user, loading } = useAuth()
 
+  if (loading) return <div>Loading...</div>
 
   return (
-    <>
     <Routes>
-        <Route path={ROUTES.start} element={<StartScreen />}></Route>
-        <Route path={ROUTES.login} element={<Login />}></Route>
-        <Route path={ROUTES.register} element={<Register />}></Route>
-        <Route element={<TrainerCreationProvider><CreationFlowLayout /></TrainerCreationProvider>}>
-            <Route path={ROUTES.characterSelect} element={<CharacterSelectScreen />} />
-            <Route path={ROUTES.creatureSelect} element={<CreatureSelectScreen />} />
-            <Route path={ROUTES.profileConfirmation} element={<ProfileConfirmation />} />
-        </Route>
-        <Route path={ROUTES.gameMenu} element={<GameMenuScreen />}></Route>
-        <Route path={ROUTES.lobby} element={<LobbyScreen/>}></Route>
-        <Route path={ROUTES.battle} element={<BattleScreen />}></Route>
-        <Route path={ROUTES.battleSession} element={<BattleScreen />}></Route>
-        <Route path={ROUTES.battleResult} element={<ResultScreen />}></Route>
-        <Route path={ROUTES.adminLogin} element={<AdminLogin/>}></Route>
-        <Route path={ROUTES.adminPanel} element={<AdminPanel/>}></Route>
-        <Route path={ROUTES.battle + "/:sessionId"} element={<BattleScreen />} />
-        <Route path="*" element={<Navigate to={ROUTES.start} replace />}></Route>
-    </Routes>
+        {/* Public routes */}
+        <Route 
+          path={ROUTES.start} 
+          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <StartScreen />}
+        />
 
-    </>
+        {/* Auth routes - redirect away if already logged in */}
+        <Route 
+          path={ROUTES.login} 
+          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <Login />}
+        />
+        <Route 
+          path={ROUTES.register} 
+          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <Register />}
+        />
+        <Route 
+          path={ROUTES.adminLogin} 
+          element={<AdminLogin />}
+        />
+
+        {/* Protected routes - redirect to login if not logged in */}
+        <Route 
+          path={ROUTES.gameMenu} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <GameMenuScreen />}
+        />
+        <Route 
+          path={ROUTES.lobby} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <LobbyScreen />}
+        />
+        <Route 
+          path={ROUTES.battle} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <BattleScreen />}
+        />
+        <Route 
+          path={ROUTES.battleSession} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <BattleScreen />}
+        />
+        <Route 
+          path={ROUTES.battleResult} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <ResultScreen />}
+        />
+        <Route 
+          path={ROUTES.adminPanel} 
+          element={!user ? <Navigate to={ROUTES.adminLogin} replace /> : <AdminPanel />}
+        />
+
+        {/* Onboarding flow - protected */}
+        <Route 
+          element={
+            !user
+              ? <Navigate to={ROUTES.login} replace />
+              : <TrainerCreationProvider><CreationFlowLayout /></TrainerCreationProvider>
+          }
+        > 
+          <Route path={ROUTES.characterSelect} element={<CharacterSelectScreen />} />
+          <Route path={ROUTES.creatureSelect} element={<CreatureSelectScreen />} />
+          <Route path={ROUTES.profileConfirmation} element={<ProfileConfirmation />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to={ROUTES.start} replace />} />
+    </Routes>
   )
 }
 

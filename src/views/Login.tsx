@@ -33,7 +33,7 @@ export default function Login() {
 
         setLoading(true);
 
-        const { error: authError } = await supabase.auth.signInWithPassword({
+        const { data, error: authError } = await supabase.auth.signInWithPassword({
             email: form.email,
             password: form.startcode,
         });
@@ -42,6 +42,16 @@ export default function Login() {
             setError(authError.message);
             setLoading(false);
             return;
+        }
+
+        const { data: profileData } = await supabase
+            .from("profiles")
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+        if (profileData) {
+            sessionStorage.setItem('profile', JSON.stringify(profileData));
         }
 
         navigate(ROUTES.gameMenu);
