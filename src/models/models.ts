@@ -41,8 +41,12 @@ export interface Item {
     id: number;
     name: string;
     description: string;
-    effect: string;
+    effect: number;
     price: number;
+}
+
+export interface PlayerItem extends Item {
+    quantity: number;
 }
 
 // Lobby and matchmaking related types
