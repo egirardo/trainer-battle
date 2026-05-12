@@ -140,7 +140,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                                     id: row.item_id,
                                     name: item.name ?? '',
                                     description: item.description ?? '',
-                                    effect: item.effect ?? '',
+                                    effect: item.effect ?? 0,
                                     price: item.price ?? 0,
                                     quantity: row.quantity ?? 0,
                                 };
