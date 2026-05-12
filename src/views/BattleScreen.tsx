@@ -1,4 +1,5 @@
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
+import { ROUTES } from '@/routes';
 import { useBattle } from '@/hooks/useBattle';
 import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
@@ -33,19 +34,35 @@ export default function BattleScreen() {
     const { sessionId } = useParams<{ sessionId: string }>();
     const id = Number(sessionId);
 
-    const { player: livePlayer, opponent: liveOpponent, messages, isMyTurn, loading, moves, onFight, onBag, onRun } =
-        useBattle(id);
+    if (!sessionId || isNaN(id)) {
+        return <Navigate to={ROUTES.lobby} replace />;
+    }
+
+    return <BattleContent sessionId={id} />;
+}
+
+function BattleContent({ sessionId }: { sessionId: number }) {
+    const { player: livePlayer, opponent: liveOpponent, messages, isMyTurn, loading, error, moves, onFight, onBag, onRun } =
+        useBattle(sessionId);
 
     const player = livePlayer ?? MOCK_PLAYER;
     const opponent = liveOpponent ?? MOCK_OPPONENT;
 
-    // if (loading) {
-    //     return (
-    //         <main className={styles.screen}>
-    //             <div className={styles.centered}>Loading battle…</div>
-    //         </main>
-    //     );
-    // }
+    if (loading) {
+        return (
+            <main className={styles.screen}>
+                <div className={styles.centered}>Loading battle…</div>
+            </main>
+        );
+    }
+
+    if (error) {
+        return (
+            <main className={styles.screen}>
+                <div className={styles.centered}>{error}</div>
+            </main>
+        );
+    }
 
     return (
         <main className={styles.screen}>
@@ -70,7 +87,6 @@ export default function BattleScreen() {
                     <CreatureSprite
                         image={opponent.creatureImage}
                         name={opponent.name}
-                        type={opponent.creatureType}
                         isOpponent
                     />
                 </div>
@@ -79,7 +95,6 @@ export default function BattleScreen() {
                     <CreatureSprite
                         image={player.creatureImage}
                         name={player.name}
-                        type={player.creatureType}
                     />
                 </div>
 

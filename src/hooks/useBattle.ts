@@ -45,8 +45,10 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     .single();
                 if (sessionErr || !session) throw new Error(sessionErr?.message ?? 'Session not found');
 
-                // Figures out which side of the session players are
                 const isPlayer1 = session.player1_id === user.id;
+                const isPlayer2 = session.player2_id === user.id;
+                if (!isPlayer1 && !isPlayer2) throw new Error('You are not a participant in this session');
+
                 const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
                 const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id;
 
@@ -172,7 +174,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         return () => { channel.unsubscribe(); };
     //Prevents the subscription from re-running on every render
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [sessionId, user?.id]);
+    }, [navigate, sessionId, user?.id]);
 
     async function onFight(_moveId: number) {
         if (!user || !isMyTurn) return;

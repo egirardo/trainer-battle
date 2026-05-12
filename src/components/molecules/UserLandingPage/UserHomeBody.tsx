@@ -1,4 +1,4 @@
-import { Trainer } from '@/models/models';
+import type { Trainer } from '@/models/models';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';

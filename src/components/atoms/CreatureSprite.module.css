@@ -1,18 +1,18 @@
 .sprite {
-    image-rendering: pixelated;
-    display: block;
-    height: auto;
-    /* slight drop shadow so sprites pop off the arena background */
-    filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.25));
+  image-rendering: pixelated;
+  display: block;
+  height: auto;
+  /* slight drop shadow so sprites pop off the arena background */
+  filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.25));
 }
 
 /* opponent is shown larger (closer perspective) */
 .opponent {
-    width: 150px;
+  width: 150px;
 }
 
 /* player is shown smaller (further perspective), flipped to face opponent */
 .player {
-    width: 120px;
-    transform: scaleX(-1);
+  width: 120px;
+  transform: scaleX(-1);
 }

@@ -16,7 +16,7 @@ export default function HealthBar({
   showHpNumbers = true,
 }: HealthBarProps) {
   // Bar color thresholds 
-  const percentage = Math.max(0, Math.min(100, (currentHp / maxHp) * 100));
+  const percentage = maxHp > 0 ? Math.max(0, Math.min(100, (currentHp / maxHp) * 100)) : 0;
   const fillClass =
     percentage > 50
       ? styles.healthy
