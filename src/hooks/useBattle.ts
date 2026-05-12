@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { ROUTES } from '@/routes';
-import type { BattleParticipantInfo, Move } from '@/models/models';
+import type { BattleParticipantInfo, Move, PlayerItem } from '@/models/models';
 
 interface UseBattleReturn {
     player: BattleParticipantInfo | null;
@@ -13,9 +13,11 @@ interface UseBattleReturn {
     loading: boolean;
     error: string | null;
     moves: Move[];
+    playerItems: PlayerItem[];
     onFight: (moveId: number) => Promise<void>;
     onBag: () => void;
     onRun: () => Promise<void>;
+    onUseItem: (itemId: number) => Promise<void>;
 }
 
 export function useBattle(sessionId: number): UseBattleReturn {
@@ -30,6 +32,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [moves, setMoves] = useState<Move[]>([]);
+    const [playerItems, setPlayerItems] = useState<PlayerItem[]>([]);
 
     useEffect(() => {
         if (!user) return;
@@ -120,6 +123,30 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 if (movesData) {
                     setMoves(movesData.map((row: { moves: unknown }) => row.moves as Move));
                 }
+
+                // 5. Fetch player's bag items
+                const { data: itemsData } = await supabase
+                    .from('player_items')
+                    .select('id, item_id, quantity, items(name, description, effect, price)')
+                    .eq('player_id', user.id)
+                    .gt('quantity', 0);
+                if (itemsData) {
+                    setPlayerItems(
+                        itemsData
+                            .filter((row) => row.items !== null)
+                            .map((row) => {
+                                const item = row.items as { name: string; description: string; effect: number; price: number };
+                                return {
+                                    id: row.item_id,
+                                    name: item.name ?? '',
+                                    description: item.description ?? '',
+                                    effect: item.effect ?? 0,
+                                    price: item.price ?? 0,
+                                    quantity: row.quantity ?? 0,
+                                };
+                            })
+                    );
+                }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Unknown error');
             } finally {
@@ -182,8 +209,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
         // await supabase.functions.invoke('execute-move', { body: { sessionId, moveId: _moveId, userId: user.id } });
     }
 
-    function onBag() {
-        // TODO: open item selection UI
+    function onBag() {}
+
+    async function onUseItem(_itemId: number) {
+        if (!user || !isMyTurn) return;
+        // TODO: decrement player_items.quantity and apply item effect via edge function
     }
 
     async function onRun() {
@@ -195,5 +225,5 @@ export function useBattle(sessionId: number): UseBattleReturn {
         navigate(ROUTES.battleResult);
     }
 
-    return { player, opponent, messages, isMyTurn, loading, error, moves, onFight, onBag, onRun };
+    return { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem };
 }
