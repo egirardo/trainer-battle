@@ -1,36 +1,44 @@
 .actions {
-    padding: 1rem;
-    background: #e8e5f8;
-    display: flex;
-    gap: 0.5rem;
-    border-top: 3px solid var(--border);
-    flex-wrap: wrap;
+  padding: 1rem;
+  background: white;
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  border-top: 3px solid var(--border);
+  flex-wrap: wrap;
 }
 
 .actionBtn {
-    flex: 1;
-    text-transform: uppercase;
+  flex: 1;
+  max-width: 10em;
+  text-transform: uppercase;
 }
 
 /* fight submenu */
 .moveGrid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-    width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
 }
 
 .moveBtn {
-    text-transform: uppercase;
-    font-size: 1rem;
+  text-transform: uppercase;
+  font-size: 1rem;
 }
 
 .backBtn {
-    width: 100%;
-    margin-top: 0.25rem;
+  width: 100%;
+  margin-top: 0.25rem;
 }
 
 /* type-coloured move buttons */
-.fire   { background: #ef4444; }
-.water  { background: #3b82f6; }
-.grass  { background: #22c55e; }
+.fire {
+  background: #ef4444;
+}
+.water {
+  background: #3b82f6;
+}
+.grass {
+  background: #22c55e;
+}

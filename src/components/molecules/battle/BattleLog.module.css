@@ -1,25 +1,25 @@
 .log {
-    padding: 1rem 1.25rem;
-    background: var(--bg);
-    min-height: 5rem;
-    text-align: left;
-    border-top: 3px solid var(--border);
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    justify-content: center;
+  padding: 1rem 1.25rem;
+  background: white;
+  min-height: 5rem;
+  text-align: left;
+  border-top: 3px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  justify-content: center;
 }
 
 .message {
-    font-family: var(--pixel-regular);
-    font-size: 1rem;
-    color: var(--text-h);
-    line-height: 1.5;
+  font-family: var(--pixel-regular);
+  font-size: 1rem;
+  color: var(--text-h);
+  line-height: 1.5;
 }
 
 .prompt {
-    font-family: var(--pixel-regular);
-    font-size: 1rem;
-    color: var(--text);
-    line-height: 1.5;
+  font-family: var(--pixel-regular);
+  font-size: 1rem;
+  color: var(--text);
+  line-height: 1.5;
 }
