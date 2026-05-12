@@ -1,9 +1,6 @@
 .actions {
   padding: 1rem;
   background: white;
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
   border-top: 3px solid var(--border);
   flex-wrap: wrap;
 }
@@ -13,7 +10,12 @@
   max-width: 10em;
   text-transform: uppercase;
 }
-
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5em;
+}
 /* fight submenu */
 .moveGrid {
   display: grid;
