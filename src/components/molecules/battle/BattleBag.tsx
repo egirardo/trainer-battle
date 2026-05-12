@@ -21,8 +21,17 @@ export default function BattleBag({ items, isMyTurn, onBack, onUse }: BattleBagP
                     {items.map((item) => (
                         <li
                             key={item.id}
+                            role="button"
+                            tabIndex={0}
+                            aria-selected={selectedId === item.id}
                             className={`${styles.itemRow} ${selectedId === item.id ? styles.selected : ''}`}
                             onClick={() => setSelectedId(item.id)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setSelectedId(item.id);
+                                }
+                            }}
                         >
                             <span className={styles.itemName}>
                                 {item.name}
