@@ -8,7 +8,7 @@ interface Props {
 export default function StickyHeader({ label, action }: Props) {
     return(
         <div className={styles.stickyHeader}>
-            <h2>{label}</h2>
+            <h1>{label}</h1>
             {action}
         </div>
     )
