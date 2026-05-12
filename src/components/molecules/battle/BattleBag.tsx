@@ -36,7 +36,7 @@ export default function BattleBag({ items, isMyTurn, onBack, onUse }: BattleBagP
                             <span className={styles.itemName}>
                                 {item.name}
                             </span>
-                            <span className={styles.itemEffect}>
+                            <span>
                                 +{item.effect} HP
                             </span>
                             <span className={styles.itemQty}>
