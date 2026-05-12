@@ -60,8 +60,8 @@ export default function AdminPanel() {
         return () => { ignore = true; };
     }, [authLoading, profile]);
 
-    // Conditional returns after all hooks
     if (authLoading) return <p>Loading...</p>;
+    if (profile === undefined) return <p>Loading...</p>;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
 
     // Creature handlers — use real DB id

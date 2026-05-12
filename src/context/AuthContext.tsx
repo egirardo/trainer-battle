@@ -1,44 +1,50 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import type { User } from '@supabase/supabase-js'
-import type { Database } from '../types/database.types'
 import { supabase } from '../lib/supabase'
 import { AuthContext } from './authContextDef'
-import { fetchFromSupabase } from '../lib/fetchSupabase'
+import type { CachedProfile } from './authContextDef'
 
-type Profile = Database['public']['Tables']['profiles']['Row']
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
-    const [profile, setProfile] = useState<Profile | null>(null)
+    const [profile, setProfile] = useState<CachedProfile | null | undefined>(undefined)
     const [loading, setLoading] = useState<boolean>(true)
 
     useEffect(() => {
-        async function fetchProfile(userId: string): Promise<void> {
-            const { data, error } = await fetchFromSupabase(() =>
-                supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', userId)
-                    .single()
-            );
-
-            setProfile(error ? null : data);
-        }
-
         const { data: authListener } = supabase.auth.onAuthStateChange(
             async (_event, session) => {
                 setUser(session?.user ?? null)
 
-                if (session?.user) {
-                    setLoading(true)
-                    try {
-                        await fetchProfile(session.user.id)
-                    } finally {
-                        setLoading(false)
-                    }
-                } else {
+                if (!session) {
+                    sessionStorage.removeItem('profile')
                     setProfile(null)
                     setLoading(false)
+                    return
+                }
+
+                setLoading(false)
+
+                if (session.user) {
+                    const cached = sessionStorage.getItem('profile')
+                    if (cached) {
+                        try {
+                            const parsed = JSON.parse(cached)
+                            if (parsed.id === session.user.id && parsed.username !== undefined && parsed.is_admin !== undefined) {
+                                setProfile(parsed)
+                                return
+                            }
+                        } catch {
+                            sessionStorage.removeItem('profile')
+                        }
+                    }
+
+                    const { data } = await supabase
+                        .from('profiles')
+                        .select('id, username, is_admin')
+                        .eq('id', session.user.id)
+                        .single()
+                    if (data) sessionStorage.setItem('profile', JSON.stringify(data))
+                    setProfile(data)
                 }
             }
         )
