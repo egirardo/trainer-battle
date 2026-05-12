@@ -39,7 +39,7 @@ export default function StartScreen(){
                     Credits
                 </Button>
                 <Button className={`${styles.startButton} ${styles.small}`} onClick={() => setShowInstructions(true)}>
-                    How do I play?
+                    How to play
                 </Button>
             </div>
             {showInstructions && (
