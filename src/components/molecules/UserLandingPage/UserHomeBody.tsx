@@ -1,3 +1,4 @@
+import ButtonGroup from './ButtonGroup';
 import type { Trainer } from '@/models/models';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
@@ -29,7 +30,7 @@ const mockTrainer: Omit<Trainer, "is_admin" | "created_at"> = {
 export default function UserHomeBody() {
   return (
     <div className={styles.userHomeBody}>
-      <h3>Welcome to the Trainer Battle Arena!</h3>
+      <ButtonGroup />
       <ProfilePreview trainer={mockTrainer} />
       <ProgressPreview wins={mockTrainer.wins} />
     </div>
