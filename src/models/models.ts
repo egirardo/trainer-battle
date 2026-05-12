@@ -96,6 +96,15 @@ export interface PlayerCreature {
     speed: number | null;
 }
 
+export interface BattleParticipantInfo {
+    name: string;
+    level: number;
+    currentHp: number;
+    maxHp: number;
+    creatureImage: string;
+    creatureType: CreatureType;
+}
+
 export interface PlayerStats {
     id: number;
     player_id: string;
