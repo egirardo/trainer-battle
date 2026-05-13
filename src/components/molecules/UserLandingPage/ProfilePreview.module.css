@@ -3,9 +3,12 @@
     grid-template-columns: 1fr auto;
     grid-template-rows: repeat(3, 1fr);
     padding: 1rem;
-    background-color: var(--card-bg);
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 21px solid transparent;
+    border-radius: 35px;
+    border-image: url('../../../assets/sprites/components/purple-dialog-box.png') 21 / 21px stretch;
+    background-color: var(--purp-card-bg);
+    background-clip: border-box;
+    image-rendering: pixelated;
     margin: .5rem 1rem;
 }
 

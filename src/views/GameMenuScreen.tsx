@@ -16,7 +16,7 @@ export default function GameMenuScreen(){
             return;
         }
 
-        navigate(ROUTES.start);
+        void navigate(ROUTES.start);
     }
 
     if (loading) {
@@ -27,7 +27,7 @@ export default function GameMenuScreen(){
         <main>
             <UserHomeBody></UserHomeBody>
             <Link to={ROUTES.lobby}>Play - go to lobby</Link>
-            <button onClick={handleLogout}>Logout</button>
+            <button onClick={() => void handleLogout()}>Logout</button>
         </main>
     )
 }
