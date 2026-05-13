@@ -18,10 +18,12 @@ type Phase = 'main' | 'fight' | 'bag';
 
 export default function BattleActions({ moves, isMyTurn, playerItems, onFight, onBag, onRun, onUseItem }: BattleActionsProps) {
     const [phase, setPhase] = useState<Phase>('main');
+    const [selectedMoveId, setSelectedMoveId] = useState<number | null>(null);
 
     function handleMoveClick(moveId: number) {
         void onFight(moveId);
         setPhase('main');
+        setSelectedMoveId(null);
     }
 
     function handleUseItem(itemId: number) {
@@ -32,21 +34,38 @@ export default function BattleActions({ moves, isMyTurn, playerItems, onFight, o
     if (phase === 'fight') {
         return (
             <div className={styles.actions}>
-                <div className={styles.moveGrid}>
+                <ul className={styles.moveList}>
                     {moves.map((move) => (
-                        <BattleButton
+                        <li
                             key={move.id}
-                            className={`${styles.moveBtn} ${styles[move.type]}`}
-                            onClick={() => handleMoveClick(move.id)}
-                            disabled={!isMyTurn}
+                            role="button"
+                            tabIndex={0}
+                            aria-selected={selectedMoveId === move.id}
+                            className={`${styles.moveRow} ${selectedMoveId === move.id ? styles.selected : ''}`}
+                            onClick={() => setSelectedMoveId(move.id)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                    e.preventDefault();
+                                    setSelectedMoveId(move.id);
+                                }
+                            }}
                         >
-                            {move.name}
-                        </BattleButton>
+                            <span className={styles.moveName}>{move.name}</span>
+                            <span className={`${styles.moveType} ${styles[move.type]}`}>{move.type}</span>
+                            <span className={styles.movePower}>PWR {move.power}</span>
+                        </li>
                     ))}
+                </ul>
+                <div className={styles.btns}>
+                    <BattleButton className={styles.backBtn} onClick={() => setPhase('main')}>Back</BattleButton>
+                    <BattleButton
+                        className={styles.fightBtn}
+                        disabled={!isMyTurn || selectedMoveId === null}
+                        onClick={() => selectedMoveId !== null && handleMoveClick(selectedMoveId)}
+                    >
+                        Fight
+                    </BattleButton>
                 </div>
-                <BattleButton className={styles.backBtn} onClick={() => setPhase('main')}>
-                    Back
-                </BattleButton>
             </div>
         );
     }

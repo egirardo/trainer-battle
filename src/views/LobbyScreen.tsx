@@ -63,8 +63,8 @@ export default function LobbyScreen() {
                 <section aria-label="Incoming battle invitation">
                     <h2>Battle Invitation!</h2>
                     <p>{incomingInvitation.fromUsername} wants to battle you!</p>
-                    <button onClick={void handleAccept}>Accept</button>
-                    <button onClick={void handleDecline}>Decline</button>
+                    <button onClick={() => void handleAccept()}>Accept</button>
+                    <button onClick={() => void handleDecline()}>Decline</button>
                 </section>
             )}
 
@@ -94,7 +94,7 @@ export default function LobbyScreen() {
             <section aria-label="CPU battle">
                 <h2>Battle against CPU</h2>
                 <p>Your opponent will match your skill level.</p>
-                <button onClick={void handleCpu}>Fight CPU</button>
+                <button onClick={() => void handleCpu()}>Fight CPU</button>
             </section>
 
             <button onClick={() => void navigate(ROUTES.gameMenu)}>
