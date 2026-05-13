@@ -8,6 +8,7 @@ export type TrainerGender = 'male' | 'female' | 'nb';
 export interface Trainer extends Player {
     name: string;
     creature: Creature;
+    playerCreature: PlayerCreature;
     gender: TrainerGender;
     wins: number;
     losses: number;

@@ -6,7 +6,7 @@ export default function BossDialog() {
         <div className={styles.bossDialog}>
             <h2>Congratz!</h2>
             <p>You have earned all six badges, thus qualifying you to take on the ultimate challenge!</p>
-            <Button variant='danger'>Fight the Boss</Button>
+            <Button variant='danger' onClick={() => alert('enter the boss fight!!')}>Fight the Boss</Button>
         </div>
     );
 }
