@@ -1,13 +1,12 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./useAuth";
 import { useGameSession } from "./useGameSession";
 import { LobbyPlayer, IncomingInvitation } from "@/models/models";
 import { fetchFromSupabase } from "@/lib/fetchSupabase";
+import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
 import { ROUTES } from "@/routes";
-import { REALTIME_SUBSCRIBE_STATES } from "@supabase/realtime-js";
-
 
 export function useLobby() {
     const navigate = useNavigate();
@@ -19,6 +18,7 @@ export function useLobby() {
     const [myCreatureId, setMyCreatureId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
     // Fetch players active creature
     const fetchMyCreature = useCallback(async (): Promise<number | null> => {
@@ -60,34 +60,36 @@ export function useLobby() {
                 (payload) => {
                     void (async () => {
                         try {
-                             const session = payload.new as {
-                                 id: number;
-                                 player1_id: string;
-                                 status: string;
-                             };
-                             if (session.status !== "pending") return;
-                             // Fetch the inviter's profile
-                             const { data: inviterProfile } = await supabase
-                                 .from("profiles")
-                                 .select("username")
-                                 .eq("id", session.player1_id)
-                                 .single();
-                             // Fetch the inviter's active creature
-                             const { data: inviterCreature } = await supabase
-                                 .from("player_creatures")
-                                 .select("id")
-                                 .eq("player_id", session.player1_id)
-                                 .single();
-                             setIncomingInvitation({
-                                 sessionId: session.id,
-                                 fromUserId: session.player1_id,
-                                 fromUsername: inviterProfile?.username ?? "Unknown",
-                                 creatureId: inviterCreature?.id ?? 0,
-                             });
-                         } catch (err) {
-                             setError(err instanceof Error ? err.message : "Unknown error");
-                         }
-                    })();
+                            const session = payload.new as {
+                                id: number;
+                                player1_id: string;
+                                status: string;
+                            };
+
+                            if (session.status !== "pending") return;
+
+                            const { data: inviterProfile } = await supabase
+                                .from("profiles")
+                                .select("username")
+                                .eq("id", session.player1_id)
+                                .single();
+
+                            const { data: inviterCreature } = await supabase
+                                .from("player_creatures")
+                                .select("id")
+                                .eq("player_id", session.player1_id)
+                                .single();
+
+                            setIncomingInvitation({
+                                sessionId: session.id,
+                                fromUserId: session.player1_id,
+                                fromUsername: inviterProfile?.username ?? "Unknown",
+                                creatureId: inviterCreature?.id ?? 0,
+                            });
+                        } catch (err) {
+                            setError(err instanceof Error ? err.message : 'Failed to process invitation')
+                        }
+                    })()
                 }
             )
             .subscribe();
@@ -121,8 +123,6 @@ export function useLobby() {
     useEffect(() => {
         if (!user || !profile) return;
 
-        let presenceChannel: ReturnType<typeof supabase.channel>;
-
         async function joinLobby() {
             setLoading(true);
             
@@ -140,14 +140,18 @@ export function useLobby() {
                 .eq("id", creatureId)
                 .single();
 
-            // Set up presence channel
-            presenceChannel = supabase.channel("lobby", {
-                config: { presence: { key: user!.id } }
-            });
+            if (presenceChannelRef.current) {
+                await supabase.removeChannel(presenceChannelRef.current)
+                presenceChannelRef.current = null
+            }
 
-            presenceChannel
+            presenceChannelRef.current = supabase.channel('lobby', {
+                config: { presence: { key: user!.id } }
+            })
+
+            presenceChannelRef.current
                 .on("presence", { event: "sync" }, () => {
-                const state = presenceChannel.presenceState<LobbyPlayer>();
+                const state = presenceChannelRef.current!.presenceState<LobbyPlayer>();
                 const players = Object.values(state)
                     .flat()
                     .map((p) => p as unknown as LobbyPlayer)
@@ -169,7 +173,7 @@ export function useLobby() {
                 })
                 .subscribe((status) => {
                     if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
-                        void presenceChannel.track({
+                        void presenceChannelRef.current!.track({
                             userId: user!.id,
                             username: profile!.username ?? "Unknown",
                             creatureId: creatureId,
@@ -185,7 +189,10 @@ export function useLobby() {
         const invitationChannel = subscribeToInvitations();
 
         return () => {
-            void presenceChannel?.unsubscribe();
+            if (presenceChannelRef.current) {
+                void supabase.removeChannel(presenceChannelRef.current)
+                presenceChannelRef.current = null
+            }
             void invitationChannel?.unsubscribe();
         };
     }, [user, profile, fetchMyCreature, subscribeToInvitations]);

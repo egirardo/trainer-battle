@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
@@ -23,7 +23,7 @@ interface UseBattleReturn {
 export function useBattle(sessionId: number): UseBattleReturn {
     const { user } = useAuth();
     const navigate = useNavigate();
-
+    const isPlayer1Ref = useRef<boolean>(false)
     const [player, setPlayer] = useState<BattleParticipantInfo | null>(null);
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
     const [messages, setMessages] = useState<string[]>([]);
@@ -33,6 +33,13 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const [error, setError] = useState<string | null>(null);
     const [moves, setMoves] = useState<Move[]>([]);
     const [playerItems, setPlayerItems] = useState<PlayerItem[]>([]);
+    const navigateRef = useRef(navigate);
+    const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+    const sessionIdRef = useRef(sessionId);
+    const userIdRef = useRef(user?.id);
+    
+
+    navigateRef.current = navigate;
 
     useEffect(() => {
         if (!user) return;
@@ -52,10 +59,18 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const isPlayer2 = session.player2_id === user.id;
                 if (!isPlayer1 && !isPlayer2) throw new Error('You are not a participant in this session');
 
-                const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
-                const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id;
+                // Store player slot for later use in updates
+                isPlayer1Ref.current = isPlayer1
 
-                if (!myCreatureId || !opponentCreatureId) throw new Error('Creature IDs missing from session');
+                const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
+                const effectiveOpponentCreatureId = (isPlayer1 ? session.player2_creature_id : session.player1_creature_id) ?? myCreatureId
+
+                // For CPU battles, opponent creature ID can be null
+                if (!myCreatureId) throw new Error('Creature IDs missing from session');
+                if (!session.is_cpu && !effectiveOpponentCreatureId) throw new Error('Creature IDs missing from session');
+
+                const safeMyCreatureId = myCreatureId
+                const safeOpponentCreatureId = effectiveOpponentCreatureId!
                 
                 // First turn hardcoded to player1 (session creator)
                 setIsMyTurn(session.current_turn === user.id);
@@ -67,12 +82,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     supabase
                         .from('player_creatures')
                         .select('*, creatures(*)')
-                        .eq('id', myCreatureId)
+                        .eq('id', safeMyCreatureId)
                         .single(),
                     supabase
                         .from('player_creatures')
                         .select('*, creatures(*)')
-                        .eq('id', opponentCreatureId)
+                        .eq('id', safeOpponentCreatureId)
                         .single(),
                 ]);
                 if (myPCResult.error || !myPCResult.data) throw new Error('Could not load your creature');
@@ -156,57 +171,87 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
         loadBattle();
 
-        const channel = supabase
-            .channel(`battle:${sessionId}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'battle_state',
-                    filter: `session_id=eq.${sessionId}`,
-                },
-                (payload) => {
-                    const state = payload.new as {
-                        player1_hp: number;
-                        player2_hp: number;
-                        last_move_description: string | null;
-                        is_finished: boolean;
-                    };
-                    // TODO: determine which slot (1 or 2) is "me" and update accordingly
-                    if (state.last_move_description) {
-                        setMessages((prev) => [...prev, state.last_move_description!]);
-                    }
-                    if (state.is_finished) {
-                        navigate(ROUTES.battleResult);
-                    }
+    }, [sessionId, user?.id]);
+
+    sessionIdRef.current = sessionId
+    userIdRef.current = user?.id
+
+    useEffect(() => {
+        channelRef.current = supabase
+            .channel(`battle:${sessionIdRef.current}`)
+            .on('postgres_changes', {
+                filter: `session_id=eq.${sessionIdRef.current}`,
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'battle_state',
+            }, (payload) => {
+                const state = payload.new as {
+                    player1_hp: number;
+                    player2_hp: number;
+                    last_move_description: string | null;
+                    is_finished: boolean;
                 }
-            )
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    // Default schema
-                    schema: 'public',
-                    table: 'game_sessions',
-                    filter: `id=eq.${sessionId}`,
-                },
-                (payload) => {
-                    const session = payload.new as { current_turn: string };
-                    setIsMyTurn(session.current_turn === user.id);
+
+                const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
+                const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
+                setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+                setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+                if (state.last_move_description) {
+                    setMessages(prev => [...prev, state.last_move_description!]);
                 }
-            )
+                // TODO: re-enable when realtime channel stability is fixed for PVP
+                if (state.is_finished) {
+                    navigateRef.current(ROUTES.battleResult);
+                }
+            })
+            .on('postgres_changes', {
+                filter: `id=eq.${sessionIdRef.current}`,
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'game_sessions',
+            }, (payload) => {
+                const session = payload.new as { current_turn: string };
+                if (userIdRef.current) {
+                    setIsMyTurn(session.current_turn === userIdRef.current);
+                }
+            })
             .subscribe();
 
-        return () => { channel.unsubscribe(); };
-    //Prevents the subscription from re-running on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [navigate, sessionId, user?.id]);
+        return () => {
+            if (channelRef.current) {
+                channelRef.current.unsubscribe()
+                channelRef.current = null
+            }
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-    async function onFight(_moveId: number) {
+    async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
-        // TODO: call Supabase edge function 'execute-move'
-        // await supabase.functions.invoke('execute-move', { body: { sessionId, moveId: _moveId, userId: user.id } });
+
+        const { data, error } = await supabase.functions.invoke('resolve-turn', {
+            body: { sessionId, playerId: user.id, moveId }
+        })
+
+        if (error) {
+            setError(error.message)
+            return
+        }
+
+        if (data) {
+            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp
+            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp
+
+            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+            
+            if (data.description) {
+                setMessages(prev => [...prev, data.description])
+            }
+
+            if (data.isFinished) {
+                void navigate(ROUTES.battleResult)
+            }
+        }
     }
 
     function onBag() {}
@@ -216,13 +261,18 @@ export function useBattle(sessionId: number): UseBattleReturn {
         // TODO: decrement player_items.quantity and apply item effect via edge function
     }
 
-    async function onRun() {
-        if (!user) return;
-        await supabase
+    async function onRun(): Promise<void> {
+        if (!user || !opponentUserId) return;
+        const { error: runError } = await supabase
             .from('game_sessions')
             .update({ status: 'finished', winner_id: opponentUserId })
             .eq('id', sessionId);
-        navigate(ROUTES.battleResult);
+
+        if (runError) {
+            setError(runError.message);
+            return
+        }
+        void navigate(ROUTES.battleResult);
     }
 
     return { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem };
