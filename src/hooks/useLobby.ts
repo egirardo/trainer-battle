@@ -109,16 +109,10 @@ export function useLobby() {
                     filter: `id=eq.${sessionId}`,
                 },
                 (payload) => {
-                    void (async () => {
-                        try {
-                            const updated = payload.new as { status: string; id: number };
-                            if (updated.status === "active") {
-                                void navigate(`${ROUTES.battle}/${updated.id}`);
-                            }
-                        } catch (err) {
-                            setError(err instanceof Error ? err.message : 'Failed to process session update')
-                        }
-                    })()
+                    const updated = payload.new as { status: string; id: number };
+                    if (updated.status === "active") {
+                        void navigate(`${ROUTES.battle}/${updated.id}`);
+                    }
                 }
             )
             .subscribe();

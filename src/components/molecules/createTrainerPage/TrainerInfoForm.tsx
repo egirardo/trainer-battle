@@ -31,9 +31,6 @@ export default function TrainerInfoForm({ trainerGender, setTrainerGender, train
 
     return (
         <>
-        <div className={styles.instructions}>
-            <h1>Your Trainer</h1>
-        </div>
         <TrainerAvatarPreview trainerGender={trainerGender} />
         <form className={styles.trainerInfoForm} onSubmit={handleSubmit} noValidate>
             <InputField labelName='What is your name?' id="trainer-name" type="text" placeholder="Enter your name..." value={trainerName} onChange={e => { setTrainerName(e.target.value); setTrainerNameError(undefined); }} error={trainerNameError} />

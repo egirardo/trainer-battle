@@ -13,7 +13,7 @@
 
 .gameLogo {
   display: block;
-  color: var(--secondary);
+  color: var(--accent);
   line-height: 0.85em;
 }
 
@@ -31,12 +31,15 @@
   text-transform: uppercase;
   color: white;
   background-color: #6366f1;
-  padding: 1em 2em;
   min-width: 8em;
   display: block;
   border-radius: 1em;
   font-size: 1.6em;
   flex: 1;
+}
+
+.navContainer .startButton {
+  padding: 0.5em 1em;
 }
 
 /* Removes underline from Link component */
@@ -48,7 +51,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5em;
+  gap: 1em;
   width: 100%;
   margin: 1em 0;
 }
@@ -59,7 +62,7 @@
   align-items: center;
   position: relative;
   width: 20em;
-  height: 15em;
+  height: 13em;
   margin: 0 auto;
 }
 
@@ -70,23 +73,23 @@
 }
 
 .logoImg:first-child {
-  width: 275px;
+  width: 255px;
   right: 50px;
-  bottom: 20px;
+  bottom: 5px;
   z-index: 2;
 }
 
 .logoImg:last-child {
-  width: 255px;
+  width: 235px;
   left: 80px;
-  bottom: -1.4em;
+  bottom: -2.4em;
   z-index: 3;
 }
 
 .extrasContainer .small {
-  font-size: 1em;
+  font-size: 1.1em;
   padding: 0.25em 0;
-  max-width: 10em;
+  max-width: 9em;
 }
 
 .extrasContainer {
@@ -97,10 +100,10 @@
   min-height: 50px;
 }
 
-.instructionsOverlay {
+.infoOverlay {
   position: fixed;
   inset: 0;
-  background-color: var(--bg);
+  background-color: var(--ui-bg);
   overflow-y: auto;
   z-index: 10;
 }
