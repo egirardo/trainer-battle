@@ -31,10 +31,6 @@ export default function MoveFormRow({ idPrefix = "new",
         setForm({ ...form, [e.target.name]: value });
     }
 
-    async function handleSubmit(): Promise<void> {
-        await onSubmit(form);
-    }
-
     return (
         <tr>
             <td>{idPrefix === "new" ? "New" : idPrefix}</td>
@@ -44,7 +40,7 @@ export default function MoveFormRow({ idPrefix = "new",
             <td><InputField hasLabel={false} type="number" name="accuracy" id={`${idPrefix}-accuracy`} placeholder="Accuracy" value={form.accuracy} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="effect" id={`${idPrefix}-effect`} placeholder="Effect" value={form.effect} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" value={form.description} onChange={handleChange} /></td>
-            <td><Button type="button" onClick={handleSubmit}>{submitLabel}</Button></td>
+            <td><Button type="button" onClick={() => { void onSubmit(form); }}>{submitLabel}</Button></td>
         </tr>
     );
 }

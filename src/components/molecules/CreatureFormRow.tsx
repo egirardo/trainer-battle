@@ -34,10 +34,6 @@ export default function CreatureFormRow({
         setForm({ ...form, [e.target.name]: value });
     }
 
-    async function handleSubmit(): Promise<void> {
-        await onSubmit(form);
-    }
-
     return (
         <tr>
             <td>{idPrefix === "new" ? "New" : idPrefix}</td>
@@ -49,7 +45,7 @@ export default function CreatureFormRow({
             <td><InputField hasLabel={false} type="number" name="base_speed" id={`${idPrefix}-base_speed`} placeholder="Base speed" value={form.base_speed} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" value={form.description} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="image" id={`${idPrefix}-image`} placeholder="Image URL" value={form.image} onChange={handleChange} /></td>
-            <td><Button type="button" onClick={handleSubmit}>{submitLabel}</Button></td>
+            <td><Button type="button" onClick={() => { void onSubmit(form); }}>{submitLabel}</Button></td>
         </tr>
     );
 }

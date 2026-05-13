@@ -24,7 +24,7 @@ export default function CreationFlowLayout() {
     const currentStep = steps.find(s => s.path === pathname)
 
     function handleBack() {
-        if (currentStep?.back) navigate(currentStep.back)
+        if (currentStep?.back) void navigate(currentStep.back)
     }
 
     function handleNext() {
@@ -37,7 +37,7 @@ export default function CreationFlowLayout() {
             if (selectedCreature === null) { setCreatureError('You must select a creature to proceed'); return }
             setCreatureError(undefined)
         }
-        navigate(currentStep.next)
+        void navigate(currentStep.next)
     }
 
     return (

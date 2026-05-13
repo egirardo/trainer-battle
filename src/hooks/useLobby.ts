@@ -5,6 +5,9 @@ import { useAuth } from "./useAuth";
 import { useGameSession } from "./useGameSession";
 import { LobbyPlayer, IncomingInvitation } from "@/models/models";
 import { fetchFromSupabase } from "@/lib/fetchSupabase";
+import { ROUTES } from "@/routes";
+import { REALTIME_SUBSCRIBE_STATES } from "@supabase/realtime-js";
+
 
 export function useLobby() {
     const navigate = useNavigate();
@@ -54,35 +57,37 @@ export function useLobby() {
                     table: "game_sessions",
                     filter: `player2_id=eq.${user.id}`,
                 },
-                async (payload) => {
-                    const session = payload.new as {
-                        id: number;
-                        player1_id: string;
-                        status: string;
-                    };
-
-                    if (session.status !== "pending") return;
-
-                    // Fetch the inviter's profile
-                    const { data: inviterProfile } = await supabase
-                        .from("profiles")
-                        .select("username")
-                        .eq("id", session.player1_id)
-                        .single();
-
-                    // Fetch the inviter's active creature
-                    const { data: inviterCreature } = await supabase
-                        .from("player_creatures")
-                        .select("id")
-                        .eq("player_id", session.player1_id)
-                        .single();
-
-                    setIncomingInvitation({
-                        sessionId: session.id,
-                        fromUserId: session.player1_id,
-                        fromUsername: inviterProfile?.username ?? "Unknown",
-                        creatureId: inviterCreature?.id ?? 0,
-                    });
+                (payload) => {
+                    void (async () => {
+                        try {
+                             const session = payload.new as {
+                                 id: number;
+                                 player1_id: string;
+                                 status: string;
+                             };
+                             if (session.status !== "pending") return;
+                             // Fetch the inviter's profile
+                             const { data: inviterProfile } = await supabase
+                                 .from("profiles")
+                                 .select("username")
+                                 .eq("id", session.player1_id)
+                                 .single();
+                             // Fetch the inviter's active creature
+                             const { data: inviterCreature } = await supabase
+                                 .from("player_creatures")
+                                 .select("id")
+                                 .eq("player_id", session.player1_id)
+                                 .single();
+                             setIncomingInvitation({
+                                 sessionId: session.id,
+                                 fromUserId: session.player1_id,
+                                 fromUsername: inviterProfile?.username ?? "Unknown",
+                                 creatureId: inviterCreature?.id ?? 0,
+                             });
+                         } catch (err) {
+                             setError(err instanceof Error ? err.message : "Unknown error");
+                         }
+                    })();
                 }
             )
             .subscribe();
@@ -104,7 +109,7 @@ export function useLobby() {
                 (payload) => {
                     const updated = payload.new as { status: string; id: number };
                     if (updated.status === "active") {
-                        navigate(`/battle/${updated.id}`);
+                        void navigate(`${ROUTES.battle}/${updated.id}`);
                     }
                 }
             )
@@ -162,27 +167,26 @@ export function useLobby() {
                         prev.filter((p) => !left.find((l) => l.userId === p.userId))
                     );
                 })
-                .subscribe(async (status) => {
-                    if (status === "SUBSCRIBED") {
-                        await presenceChannel.track({
+                .subscribe((status) => {
+                    if (status === REALTIME_SUBSCRIBE_STATES.SUBSCRIBED) {
+                        void presenceChannel.track({
                             userId: user!.id,
                             username: profile!.username ?? "Unknown",
                             creatureId: creatureId,
                             creatureName: creature?.creatures?.name ?? "Unknown",
                             level: creature?.level ?? 1,
-                        });
-                        setLoading(false);
+                        }).then(() => setLoading(false));
                     }
                 });
                 
         }
-        joinLobby();
+        void joinLobby();
 
         const invitationChannel = subscribeToInvitations();
 
         return () => {
-            presenceChannel?.unsubscribe();
-            invitationChannel?.unsubscribe();
+            void presenceChannel?.unsubscribe();
+            void invitationChannel?.unsubscribe();
         };
     }, [user, profile, fetchMyCreature, subscribeToInvitations]);
 
