@@ -1,23 +1,31 @@
 import { useState } from 'react';
-import Button from '@/components/atoms/button';
-import type { Move } from '@/models/models';
+import BattleButton from '../../atoms/BattleButton';
+import BattleBag from './BattleBag';
+import type { Move, PlayerItem } from '@/models/models';
 import styles from './BattleActions.module.css';
 
 interface BattleActionsProps {
     moves: Move[];
     isMyTurn: boolean;
+    playerItems: PlayerItem[];
     onFight: (moveId: number) => void;
     onBag: () => void;
     onRun: () => void;
+    onUseItem: (itemId: number) => void;
 }
 
-type Phase = 'main' | 'fight';
+type Phase = 'main' | 'fight' | 'bag';
 
-export default function BattleActions({ moves, isMyTurn, onFight, onBag, onRun }: BattleActionsProps) {
+export default function BattleActions({ moves, isMyTurn, playerItems, onFight, onBag, onRun, onUseItem }: BattleActionsProps) {
     const [phase, setPhase] = useState<Phase>('main');
 
     function handleMoveClick(moveId: number) {
         onFight(moveId);
+        setPhase('main');
+    }
+
+    function handleUseItem(itemId: number) {
+        onUseItem(itemId);
         setPhase('main');
     }
 
@@ -26,45 +34,57 @@ export default function BattleActions({ moves, isMyTurn, onFight, onBag, onRun }
             <div className={styles.actions}>
                 <div className={styles.moveGrid}>
                     {moves.map((move) => (
-                        <Button
+                        <BattleButton
                             key={move.id}
                             className={`${styles.moveBtn} ${styles[move.type]}`}
                             onClick={() => handleMoveClick(move.id)}
                             disabled={!isMyTurn}
                         >
                             {move.name}
-                        </Button>
+                        </BattleButton>
                     ))}
                 </div>
-                <Button className={styles.backBtn} onClick={() => setPhase('main')}>
+                <BattleButton className={styles.backBtn} onClick={() => setPhase('main')}>
                     Back
-                </Button>
+                </BattleButton>
             </div>
+        );
+    }
+
+    if (phase === 'bag') {
+        return (
+            <BattleBag
+                items={playerItems}
+                isMyTurn={isMyTurn}
+                onBack={() => setPhase('main')}
+                onUse={handleUseItem}
+            />
         );
     }
 
     return (
         <div className={styles.actions}>
-            <Button
-                className={styles.actionBtn}
-                onClick={() => setPhase('fight')}
-                disabled={!isMyTurn}
-            >
-                Fight
-            </Button>
-            <Button
-                className={styles.actionBtn}
-                onClick={onBag}
-                disabled={!isMyTurn}
-            >
-                Bag
-            </Button>
-            <Button
-                className={styles.actionBtn}
-                onClick={onRun}
-            >
-                Run
-            </Button>
+            <div className={styles.btns}>
+                <BattleButton
+                    className={styles.actionBtn}
+                    onClick={() => setPhase('fight')}
+                    disabled={!isMyTurn}
+                    >
+                    Fight
+                </BattleButton>
+                <BattleButton
+                    className={styles.actionBtn}
+                    onClick={() => { onBag(); setPhase('bag'); }}
+                >
+                    Bag
+                </BattleButton>
+                <BattleButton
+                    className={styles.actionBtn}
+                    onClick={onRun}
+                    >
+                    Run
+                </BattleButton>
+            </div>
         </div>
     );
 }
