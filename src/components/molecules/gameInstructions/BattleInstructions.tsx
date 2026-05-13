@@ -9,6 +9,8 @@ export default function BattleInstructions(){
             <div className={styles.toolTip}>
                 <p>You can run from any battle, but you won't earn stamps. Save running for fights you can't win!</p>
             </div>
+            <p>Each creature has a type and some types beat others. Using the right matchup deals more damage.</p>
+            <p>Fire → Grass → Water → Fire.</p>
         </>
     )
 }
