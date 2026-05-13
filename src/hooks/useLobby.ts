@@ -16,7 +16,6 @@ export function useLobby() {
     const [myCreatureId, setMyCreatureId] = useState<number | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const hasJoinedLobby = useRef(false);
     const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
 
     // Fetch players active creature
@@ -118,10 +117,7 @@ export function useLobby() {
     useEffect(() => {
         if (!user || !profile) return;
 
-        let presenceChannel: ReturnType<typeof supabase.channel>;
-
         async function joinLobby() {
-            console.log("joinLobby called");
             setLoading(true);
             
             const creatureId = await fetchMyCreature();
@@ -188,7 +184,6 @@ export function useLobby() {
         const invitationChannel = subscribeToInvitations();
 
         return () => {
-            hasJoinedLobby.current = false;
             presenceChannelRef.current?.unsubscribe();
             invitationChannel?.unsubscribe();
         };

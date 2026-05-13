@@ -5,9 +5,6 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-console.log('SUPABASE_URL:', Deno.env.get('SUPABASE_URL'))
-console.log('SERVICE_KEY exists:', !!Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'))
-
 const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -38,7 +35,6 @@ function calculateDamage(
 }
 
 Deno.serve(async (req) => {
-    console.log('Function called:', req.method)
 
     // Handle CORS preflight
     if (req.method === 'OPTIONS') {
@@ -47,10 +43,8 @@ Deno.serve(async (req) => {
 
     try {
         const rawBody = await req.text()
-        console.log('Request body:', rawBody)
 
         const { sessionId, playerId, moveId } = JSON.parse(rawBody)
-        console.log('Parsed body:', { sessionId, playerId, moveId })
 
 
         if (!sessionId || !playerId || !moveId) {
@@ -61,7 +55,6 @@ Deno.serve(async (req) => {
         }
 
         // Fetch game session
-        console.log('Fetching game session...')
         const { data: session, error: sessionErr } = await supabase
             .from('game_sessions')
             .select('*')
@@ -76,14 +69,12 @@ Deno.serve(async (req) => {
         }
 
         // Fetch current battle state
-        console.log('Fetching battle state...')
         const { data: battleState, error: stateErr } = await supabase
             .from('battle_state')
             .select('*')
             .eq('session_id', sessionId)
             .single()
 
-        console.log('Battle state result:', JSON.stringify(battleState), 'Error:', JSON.stringify(stateErr))
 
         if (stateErr || !battleState) {
             return new Response(
@@ -98,11 +89,13 @@ Deno.serve(async (req) => {
         const opponentCreatureId = (isPlayer1 ? session.player2_creature_id : session.player1_creature_id) ?? myCreatureId
 
         if (!myCreatureId || !opponentCreatureId) {
-            return errorResponse('Creature IDs missing from session', 400)
+            return new Response(
+                JSON.stringify({ error: 'Creature IDs not set for both players' }),
+                { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
         }
 
         // Fetch both creatures with base stats
-        console.log('Fetching player creature...')
         const [myPCResult, oppPCResult] = await Promise.all([
             supabase
                 .from('player_creatures')
@@ -116,8 +109,6 @@ Deno.serve(async (req) => {
                 .single()
 
         ])
-
-        console.log('Player creature result:', JSON.stringify(myPCResult), 'Opponent creature result:', JSON.stringify(oppPCResult))
 
 
         if (myPCResult.error || oppPCResult.error) {
@@ -139,7 +130,6 @@ Deno.serve(async (req) => {
             .eq('id', moveId)
             .single()
 
-        console.log('Move result:', JSON.stringify(move), 'Error:', JSON.stringify(moveErr))
 
         if (moveErr || !move) {
             return new Response(
@@ -185,8 +175,6 @@ Deno.serve(async (req) => {
                 is_finished: isFinished,
             })
             .eq('session_id', sessionId)
-        
-        console.log('Update battle state result:', JSON.stringify({ newPlayer1Hp, newPlayer2Hp, description, isFinished }), 'Error:', JSON.stringify(updateStateErr))
 
         if (updateStateErr) {
             return new Response(
@@ -198,8 +186,6 @@ Deno.serve(async (req) => {
         if (isFinished) {
             const winnerId = playerId
             const loserId = isPlayer1 ? session.player2_id : session.player1_id
-
-            console.log('Winner ID:', winnerId, 'Loser ID:', loserId)
 
             await supabase
                 .from('game_sessions')
@@ -214,11 +200,14 @@ Deno.serve(async (req) => {
             })
 
             // Update loser stats
-            await supabase.rpc('increment_player_stats', {
-                p_player_id: loserId,
-                p_wins: 0,
-                p_battles: 1,
-            })
+            if (loserId) {
+                await supabase.rpc('increment_player_stats', {
+                    p_player_id: loserId,
+                    p_wins: 0,
+                    p_battles: 1,
+                })
+            }
+
         } else {
             await supabase
                 .from('game_sessions')

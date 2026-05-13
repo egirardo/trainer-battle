@@ -222,21 +222,21 @@ export type Database = {
       items: {
         Row: {
           description: string | null
-          effect: string | null
+          effect: number | null
           id: number
           name: string | null
           price: number | null
         }
         Insert: {
           description?: string | null
-          effect?: string | null
+          effect?: number | null
           id?: number
           name?: string | null
           price?: number | null
         }
         Update: {
           description?: string | null
-          effect?: string | null
+          effect?: number | null
           id?: number
           name?: string | null
           price?: number | null
@@ -408,7 +408,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      increment_player_stats: {
+        Args: { p_battles: number; p_player_id: string; p_wins: number }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

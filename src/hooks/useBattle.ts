@@ -30,6 +30,10 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [moves, setMoves] = useState<Move[]>([]);
+    const navigateRef = useRef(navigate);
+    const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
+    navigateRef.current = navigate;
 
     useEffect(() => {
         if (!user) return;
@@ -137,64 +141,55 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
         loadBattle();
 
-        const channel = supabase
+    }, [sessionId, user?.id]);
+
+    useEffect(() => {
+        channelRef.current = supabase
             .channel(`battle:${sessionId}`)
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    schema: 'public',
-                    table: 'battle_state',
-                    filter: `session_id=eq.${sessionId}`,
-                },
-                (payload) => {
-                    const state = payload.new as {
-                        player1_hp: number;
-                        player2_hp: number;
-                        last_move_description: string | null;
-                        is_finished: boolean;
-                    };
-
-                    // Use ref to determine which HP belongs to the current player
-                    const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
-                    const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
-
-                    setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
-                    setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
-
-                    if (state.last_move_description) {
-                        setMessages((prev) => [...prev, state.last_move_description!]);
-                    }
-                    if (state.is_finished) {
-                        navigate(ROUTES.battleResult);
-                    }
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'battle_state',
+                filter: `session_id=eq.${sessionId}`,
+            }, (payload) => {
+                const state = payload.new as {
+                    player1_hp: number;
+                    player2_hp: number;
+                    last_move_description: string | null;
+                    is_finished: boolean;
+                };
+                const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
+                const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
+                setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+                setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+                if (state.last_move_description) {
+                    setMessages(prev => [...prev, state.last_move_description!]);
                 }
-            )
-            .on(
-                'postgres_changes',
-                {
-                    event: 'UPDATE',
-                    // Default schema
-                    schema: 'public',
-                    table: 'game_sessions',
-                    filter: `id=eq.${sessionId}`,
-                },
-                (payload) => {
-                    const session = payload.new as { current_turn: string };
-                    setIsMyTurn(session.current_turn === user.id);
+                if (state.is_finished) {
+                    navigateRef.current(ROUTES.battleResult);
                 }
-            )
+            })
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'game_sessions',
+                filter: `id=eq.${sessionId}`,
+            }, (payload) => {
+                const session = payload.new as { current_turn: string };
+                setIsMyTurn(session.current_turn === user!.id);
+            })
             .subscribe();
 
-        return () => { channel.unsubscribe(); };
-    //Prevents the subscription from re-running on every render
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [navigate, sessionId, user?.id]);
+        return () => {
+            if (channelRef.current) {
+                channelRef.current.unsubscribe()
+                channelRef.current = null
+            }
+        }
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
-
-        console.log('onFight called:', { sessionId, playerId: user.id, moveId })
 
         const { data, error } = await supabase.functions.invoke('resolve-turn', {
             body: { sessionId, playerId: user.id, moveId }
@@ -202,7 +197,23 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
         if (error) {
             setError(error.message)
-            console.error('resolve-turn error:', error)
+            return
+        }
+
+        if (data) {
+            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp
+            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp
+
+            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+            
+            if (data.description) {
+                setMessages(prev => [...prev, data.description])
+            }
+
+            if (data.isFinished) {
+                navigate(ROUTES.battleResult)
+            }
         }
     }
 
