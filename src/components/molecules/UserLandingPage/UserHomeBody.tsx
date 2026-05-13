@@ -1,9 +1,10 @@
+import type { Trainer } from '@/models/models';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 
-const mockTrainer = {
+const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
   gender: 'male' as const,
   creature: {
@@ -22,13 +23,13 @@ const mockTrainer = {
   username: 'ash-ketchum',
   wins: 6,
   losses: 0,
-    // Add more mock data as needed
+  is_admin: false,
+  created_at: new Date().toISOString(),
 };
 
 export default function UserHomeBody() {
   return (
     <div className={styles.userHomeBody}>
-      <h3>Welcome to the Trainer Battle Arena!</h3>
       <ProfilePreview trainer={mockTrainer} />
       <ProgressPreview wins={mockTrainer.wins} />
     </div>
