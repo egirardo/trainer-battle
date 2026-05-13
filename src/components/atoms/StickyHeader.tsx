@@ -1,8 +1,9 @@
 import styles from './StickyHeader.module.css'
+import type { ReactNode } from 'react'
 
 interface Props {
     label: string;
-    action?: React.ReactNode;
+    action?: ReactNode;
 }
 
 export default function StickyHeader({ label, action }: Props) {

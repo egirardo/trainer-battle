@@ -1,13 +1,12 @@
 import styles from './HeaderButton.module.css'
+import closeIcon from '../../../assets/sprites/icons/close-icon.png'
+import type { ButtonHTMLAttributes } from 'react'
 
-interface Props {
-    onClick?: () => void;
-}
 
-export default function CloseButton({ onClick }: Props){
+export default function CloseButton(props: ButtonHTMLAttributes<HTMLButtonElement>){
     return(
-        <button type="button" className={styles.btnDef} aria-label="Close" onClick={onClick}>
-            <img src='src/assets/sprites/icons/close-icon.png' alt="" aria-hidden="true"/>
+        <button {...props} type="button" className={styles.btnDef} aria-label="Close">
+            <img src={closeIcon} alt="" aria-hidden="true"/>
         </button>
     )
 }

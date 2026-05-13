@@ -7,7 +7,7 @@ interface Props {
 
 export default function Credits({ onClose }: Props){
     return(
-        <main>
+        <div>
             <StickyHeader 
                 label="Credits"
                 action={<CloseButton onClick={onClose}/>}
@@ -16,6 +16,6 @@ export default function Credits({ onClose }: Props){
             <p>John Ahlenhed</p>
             <p>Laura Kotlinska</p>
             <p>Elsa Girardo</p>
-        </main>
+        </div>
     )
 }

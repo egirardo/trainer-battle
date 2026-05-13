@@ -1,9 +1,11 @@
 import styles from './HeaderButton.module.css'
+import helpIcon from '../../../assets/sprites/icons/help-icon.png'
+import type { ButtonHTMLAttributes } from 'react'
 
-export default function HelpButton(){
+export default function HelpButton(props: ButtonHTMLAttributes<HTMLButtonElement>){
     return(
-        <button type="button" className={styles.btnDef} aria-label="Help">
-            <img src='src/assets/sprites/icons/help-icon.png' alt="" aria-hidden="true"/>
+        <button {...props} type="button" className={styles.btnDef} aria-label="Help">
+            <img src={helpIcon} alt="" aria-hidden="true"/>
         </button>
     )
 }

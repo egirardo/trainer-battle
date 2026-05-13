@@ -2,7 +2,7 @@ import styles from './GameInstructions.module.css'
 export default function BattleInstructions(){
     return(
         <>
-            <p>Battles are turn-based. On your turn, choose one of four actions:</p>
+            <p>Battles are turn-based. On your turn, choose one of three actions:</p>
             <p><span className={styles.strong}>- Fight</span> to attack with one of your moves</p>
             <p><span className={styles.strong}>- Bag</span> to use an item on your creature</p>
             <p><span className={styles.strong}>- Run</span> to escape the battle</p>
