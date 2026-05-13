@@ -86,7 +86,7 @@ export default function Register() {
             }
         }
 
-        navigate(ROUTES.gameMenu);
+        void navigate(ROUTES.characterSelect);
         setLoading(false);
     }
 

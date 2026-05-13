@@ -385,6 +385,7 @@ export type Database = {
           created_at: string
           id: string
           is_admin: boolean
+          trainer_gender: string | null
           username: string | null
         }
         Insert: {
@@ -392,6 +393,7 @@ export type Database = {
           created_at?: string
           id: string
           is_admin?: boolean
+          trainer_gender?: string | null
           username?: string | null
         }
         Update: {
@@ -399,6 +401,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_admin?: boolean
+          trainer_gender?: string | null
           username?: string | null
         }
         Relationships: []
