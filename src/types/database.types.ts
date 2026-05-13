@@ -222,21 +222,21 @@ export type Database = {
       items: {
         Row: {
           description: string | null
-          effect: string | null
+          effect: number | null
           id: number
           name: string | null
           price: number | null
         }
         Insert: {
           description?: string | null
-          effect?: string | null
+          effect?: number | null
           id?: number
           name?: string | null
           price?: number | null
         }
         Update: {
           description?: string | null
-          effect?: string | null
+          effect?: number | null
           id?: number
           name?: string | null
           price?: number | null

@@ -1,0 +1,76 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  background: var(--bg);
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem 0.5rem;
+  background: white;
+}
+
+.title {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: 0;
+}
+
+/* ── Arena ── */
+.arena {
+  position: relative;
+  background: var(--bg);
+  flex: 1;
+  min-height: 240px;
+  overflow: hidden;
+}
+
+/* opponent health bar: upper-left */
+.opponentInfo {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 58%;
+  z-index: 2;
+}
+
+/* opponent sprite: upper-right, anchored to top edge */
+.opponentSpriteWrap {
+  position: absolute;
+  right: 0.5rem;
+  top: 0.5rem;
+  z-index: 1;
+}
+
+/* player sprite: lower-left, anchored to bottom edge */
+.playerSpriteWrap {
+  position: absolute;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  z-index: 1;
+}
+
+/* player health bar: lower-right */
+.playerInfo {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  width: 58%;
+  z-index: 2;
+}
+
+/* ── States ── */
+.centered {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  font-family: var(--pixel-regular);
+  font-size: 1.2rem;
+  color: var(--text);
+  padding: 2rem;
+}

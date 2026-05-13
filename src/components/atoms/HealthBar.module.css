@@ -1,0 +1,64 @@
+.card {
+  border: 8px solid transparent;
+  border-image: url('../../assets/sprites/components/input-field.png') 4 / 8px / 0 stretch;
+  image-rendering: pixelated;
+  background-color: #fff;
+  background-clip: padding-box;
+  padding: 0.4rem 0.75rem 0.5rem;
+  font-family: var(--pixel-regular);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.3rem;
+}
+
+.name {
+  font-family: var(--pixel-bold);
+  font-size: 1rem;
+  text-transform: uppercase;
+  color: var(--text-h);
+}
+
+.level {
+  font-family: var(--pixel-regular);
+  font-size: 0.85rem;
+  color: var(--text-h);
+}
+
+.barTrack {
+  background: #3a3a3a;
+  height: 10px;
+  width: 100%;
+  overflow: hidden;
+  image-rendering: pixelated;
+}
+
+.barFill {
+  height: 100%;
+  transition: width 0.4s ease;
+}
+
+.healthy {
+  background: #22c55e;
+}
+
+.warning {
+  background: #eab308;
+}
+
+.danger {
+  background: #ef4444;
+}
+
+.hpText {
+  text-align: right;
+  font-family: var(--pixel-regular);
+  font-size: 0.85rem;
+  color: var(--text-h);
+  margin-top: 0.25rem;
+}

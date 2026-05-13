@@ -1,0 +1,20 @@
+.buttonGroup {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.buttonGroup a {
+    text-decoration: none;
+}
+
+.lowerGroup {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}

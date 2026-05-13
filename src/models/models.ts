@@ -41,8 +41,12 @@ export interface Item {
     id: number;
     name: string;
     description: string;
-    effect: string;
+    effect: number;
     price: number;
+}
+
+export interface PlayerItem extends Item {
+    quantity: number;
 }
 
 // Lobby and matchmaking related types
@@ -94,6 +98,15 @@ export interface PlayerCreature {
     attack: number | null;
     defence: number | null;
     speed: number | null;
+}
+
+export interface BattleParticipantInfo {
+    name: string;
+    level: number;
+    currentHp: number;
+    maxHp: number;
+    creatureImage: string;
+    creatureType: CreatureType;
 }
 
 export interface PlayerStats {

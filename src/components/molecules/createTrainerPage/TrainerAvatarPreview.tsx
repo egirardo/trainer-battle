@@ -1,7 +1,7 @@
 import styles from './TrainerAvatarPreview.module.css';
-import maleTrainer from "@/assets/sprites/trainers/test-avatar-m.svg";
-import femaleTrainer from "@/assets/sprites/trainers/test-avatar-f.svg";
-import nbTrainer from "@/assets/sprites/trainers/test-avatar-nb.png";
+import maleTrainer from "@/assets/sprites/trainers/avatar-m.svg";
+import femaleTrainer from "@/assets/sprites/trainers/avatar-f.svg";
+import nbTrainer from "@/assets/sprites/trainers/avatar-nb.png";
 
 
 interface TrainerAvatarPreviewProps {
