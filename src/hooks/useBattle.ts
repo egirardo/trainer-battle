@@ -32,8 +32,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [moves, setMoves] = useState<Move[]>([]);
+    const [playerItems, setPlayerItems] = useState<PlayerItem[]>([]);
     const navigateRef = useRef(navigate);
     const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+    const sessionIdRef = useRef(sessionId);
+    const userIdRef = useRef(user?.id);
+    
 
     navigateRef.current = navigate;
 
@@ -169,21 +173,25 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     }, [sessionId, user?.id]);
 
+    sessionIdRef.current = sessionId
+    userIdRef.current = user?.id
+
     useEffect(() => {
         channelRef.current = supabase
-            .channel(`battle:${sessionId}`)
+            .channel(`battle:${sessionIdRef.current}`)
             .on('postgres_changes', {
+                filter: `session_id=eq.${sessionIdRef.current}`,
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'battle_state',
-                filter: `session_id=eq.${sessionId}`,
             }, (payload) => {
                 const state = payload.new as {
                     player1_hp: number;
                     player2_hp: number;
                     last_move_description: string | null;
                     is_finished: boolean;
-                };
+                }
+
                 const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
                 const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
@@ -191,18 +199,21 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 if (state.last_move_description) {
                     setMessages(prev => [...prev, state.last_move_description!]);
                 }
+                // TODO: re-enable when realtime channel stability is fixed for PVP
                 if (state.is_finished) {
                     navigateRef.current(ROUTES.battleResult);
                 }
             })
             .on('postgres_changes', {
+                filter: `id=eq.${sessionIdRef.current}`,
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'game_sessions',
-                filter: `id=eq.${sessionId}`,
             }, (payload) => {
                 const session = payload.new as { current_turn: string };
-                setIsMyTurn(session.current_turn === user!.id);
+                if (userIdRef.current) {
+                    setIsMyTurn(session.current_turn === userIdRef.current);
+                }
             })
             .subscribe();
 

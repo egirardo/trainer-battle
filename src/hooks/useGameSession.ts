@@ -82,7 +82,7 @@ export function useGameSession() {
             .eq('id', myCreatureId)
             .single();
 
-        await supabase.from('battle_state').insert({
+        const { error: battleStateError } = await supabase.from('battle_state').insert({
             session_id: data.id,
             player1_hp: myCreature?.current_hp ?? 0,
             player2_hp: myCreature?.current_hp ?? 0, // CPU matches player level
@@ -91,6 +91,12 @@ export function useGameSession() {
             turn_number: 1,
             is_finished: false,
         });
+
+        if (battleStateError) {
+            setError(battleStateError.message);
+            setLoading(false);
+            return;
+        }
 
         setSession(data as GameSession);
         navigate(`/battle/${data.id}`);
@@ -131,7 +137,7 @@ export function useGameSession() {
                 .single(),
         ]);
 
-        await supabase.from('battle_state').insert({
+        const { error: battleStateError } = await supabase.from('battle_state').insert({
             session_id: sessionId,
             player1_hp: opponentCreature.data?.current_hp ?? 0,
             player2_hp: myCreature.data?.current_hp ?? 0,
@@ -140,6 +146,12 @@ export function useGameSession() {
             turn_number: 1,
             is_finished: false,
         });
+
+        if (battleStateError) {
+            setError(battleStateError.message);
+            setLoading(false);
+            return;
+        }
 
         const { data, error } = await fetchFromSupabase(() =>
             supabase

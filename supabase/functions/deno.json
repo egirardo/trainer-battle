@@ -1,5 +1,12 @@
 {
-    "imports": {
-        "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2"
-    }
+    "deno.enablePaths": [
+        "supabase/functions"
+    ],
+    "deno.enable": false,
+    "json.schemas": [
+        {
+            "fileMatch": ["supabase/functions/deno.json"],
+            "url": "https://raw.githubusercontent.com/denoland/deno/main/cli/schemas/config-file.v1.json"
+        }
+    ]
 }

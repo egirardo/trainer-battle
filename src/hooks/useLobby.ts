@@ -184,7 +184,10 @@ export function useLobby() {
         const invitationChannel = subscribeToInvitations();
 
         return () => {
-            presenceChannelRef.current?.unsubscribe();
+            if (presenceChannelRef.current) {
+                supabase.removeChannel(presenceChannelRef.current)
+                presenceChannelRef.current = null
+            }
             invitationChannel?.unsubscribe();
         };
     }, [user, profile, fetchMyCreature, subscribeToInvitations]);
