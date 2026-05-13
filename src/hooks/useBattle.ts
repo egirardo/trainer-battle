@@ -249,7 +249,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             }
 
             if (data.isFinished) {
-                navigate(ROUTES.battleResult)
+                void navigate(ROUTES.battleResult)
             }
         }
     }
@@ -272,7 +272,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setError(runError.message);
             return
         }
-        navigate(ROUTES.battleResult);
+        void navigate(ROUTES.battleResult);
     }
 
     return { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem };

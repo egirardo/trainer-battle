@@ -99,7 +99,7 @@ export function useGameSession() {
         }
 
         setSession(data as GameSession);
-        navigate(`/battle/${data.id}`);
+        void navigate(`/battle/${data.id}`);
         setLoading(false);
     }
 
@@ -172,7 +172,7 @@ export function useGameSession() {
         }
 
         setSession(data as GameSession);
-        navigate(`/battle/${data.id}`);
+        void navigate(`/battle/${data.id}`);
         setLoading(false);
     }
 
@@ -188,7 +188,6 @@ export function useGameSession() {
             .eq("id", sessionId);
 
         if (error) {
-            console.error("Error declining session:", error.message);
             setError(error.message);
             setLoading(false);
             return;
