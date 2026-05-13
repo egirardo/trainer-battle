@@ -5,9 +5,11 @@ import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
 import BattleLog from '@/components/molecules/battle/BattleLog';
 import BattleActions from '@/components/molecules/battle/BattleActions';
-import Button from '@/components/atoms/button';
-import helpIcon from '@/assets/sprites/icons/help-icon.png';
 import styles from './BattleScreen.module.css';
+import StickyHeader from '@/components/atoms/StickyHeader';
+import HelpButton from '@/components/atoms/headerButtons/HelpButton';
+import { useState } from 'react';
+import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
 
 export default function BattleScreen() {
     const { sessionId } = useParams<{ sessionId: string }>();
@@ -21,6 +23,7 @@ export default function BattleScreen() {
 }
 
 function BattleContent({ sessionId }: { sessionId: number }) {
+    const [showInstructions, setShowInstructions] = useState(false);
     const { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
 
@@ -42,13 +45,11 @@ function BattleContent({ sessionId }: { sessionId: number }) {
 
     return (
         <main className={styles.screen}>
-            <header className={styles.header}>
-                <h1 className={styles.title}>Battle</h1>
-                <Button aria-label="Help" onClick={() => {}}>
-                    <img src={helpIcon} alt="" width={20} height={20} style={{ imageRendering: 'pixelated' }} />
-                </Button>
-            </header>
-
+            <StickyHeader 
+                label="Battle"
+                action={<HelpButton onClick={() => setShowInstructions(true)}/>}
+            />
+            
             <section className={styles.arena} aria-label="Battle arena">
                 <div className={styles.opponentInfo}>
                     <HealthBar
@@ -95,6 +96,11 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                 onRun={onRun}
                 onUseItem={onUseItem}
             />
+            {showInstructions && (
+                <div className={styles.infoOverlay}>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </div>
+            )}
         </main>
     );
 }
