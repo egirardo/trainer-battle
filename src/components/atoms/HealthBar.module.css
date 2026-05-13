@@ -1,6 +1,7 @@
 .card {
   border: 8px solid transparent;
-  border-image: url('../../assets/sprites/components/input-field.png') 4 / 8px / 0 stretch;
+  border-image: url("../../assets/sprites/components/white-fill.png") 4 / 8px /
+    0 stretch;
   image-rendering: pixelated;
   background-color: #fff;
   background-clip: padding-box;
@@ -8,6 +9,7 @@
   font-family: var(--pixel-regular);
   width: 100%;
   box-sizing: border-box;
+  box-shadow: var(--light-shadow);
 }
 
 .header {
@@ -31,7 +33,7 @@
 }
 
 .barTrack {
-  background: #3a3a3a;
+  background: #cac3c8;
   height: 10px;
   width: 100%;
   overflow: hidden;
