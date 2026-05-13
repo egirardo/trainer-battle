@@ -74,8 +74,7 @@ export function useLobby() {
                             .eq("id", session.player1_id)
                             .single();
 
-                                                // Fetch the inviter's active creature
-
+                        // Fetch the inviter's active creature
                         const { data: inviterCreature } = await supabase
                             .from("player_creatures")
                             .select("id")

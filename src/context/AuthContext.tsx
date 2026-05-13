@@ -11,6 +11,10 @@ function isCachedProfile(value: unknown): value is CachedProfile {
         value !== null &&
         'id' in value && typeof (value as Record<string, unknown>).id === 'string' &&
         'username' in value &&
+        (
+            typeof (value as Record<string, unknown>).username === 'string' ||
+             (value as Record<string, unknown>).username === null
+         ) &&
         'is_admin' in value && typeof (value as Record<string, unknown>).is_admin === 'boolean'
     )
 }
