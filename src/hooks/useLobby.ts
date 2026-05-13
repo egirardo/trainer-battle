@@ -59,34 +59,34 @@ export function useLobby() {
                 },
                 (payload) => {
                     void (async () => {
-                        const session = payload.new as {
-                            id: number;
-                            player1_id: string;
-                            status: string;
-                        };
-
-                        if (session.status !== "pending") return;
-
-                        // Fetch the inviter's profile
-                        const { data: inviterProfile } = await supabase
-                            .from("profiles")
-                            .select("username")
-                            .eq("id", session.player1_id)
-                            .single();
-
-                        // Fetch the inviter's active creature
-                        const { data: inviterCreature } = await supabase
-                            .from("player_creatures")
-                            .select("id")
-                            .eq("player_id", session.player1_id)
-                            .single();
-
-                        setIncomingInvitation({
-                            sessionId: session.id,
-                            fromUserId: session.player1_id,
-                            fromUsername: inviterProfile?.username ?? "Unknown",
-                            creatureId: inviterCreature?.id ?? 0,
-                        });
+                        try {
+                             const session = payload.new as {
+                                 id: number;
+                                 player1_id: string;
+                                 status: string;
+                             };
+                             if (session.status !== "pending") return;
+                             // Fetch the inviter's profile
+                             const { data: inviterProfile } = await supabase
+                                 .from("profiles")
+                                 .select("username")
+                                 .eq("id", session.player1_id)
+                                 .single();
+                             // Fetch the inviter's active creature
+                             const { data: inviterCreature } = await supabase
+                                 .from("player_creatures")
+                                 .select("id")
+                                 .eq("player_id", session.player1_id)
+                                 .single();
+                             setIncomingInvitation({
+                                 sessionId: session.id,
+                                 fromUserId: session.player1_id,
+                                 fromUsername: inviterProfile?.username ?? "Unknown",
+                                 creatureId: inviterCreature?.id ?? 0,
+                             });
+                         } catch (err) {
+                             setError(err instanceof Error ? err.message : "Unknown error");
+                         }
                     })();
                 }
             )
