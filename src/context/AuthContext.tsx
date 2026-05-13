@@ -5,6 +5,16 @@ import { AuthContext } from './authContextDef'
 import type { CachedProfile } from './authContextDef'
 
 
+function isCachedProfile(value: unknown): value is CachedProfile {
+    return (
+        typeof value === 'object' &&
+        value !== null &&
+        'id' in value && typeof (value as Record<string, unknown>).id === 'string' &&
+        'username' in value &&
+        'is_admin' in value && typeof (value as Record<string, unknown>).is_admin === 'boolean'
+    )
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<User | null>(null)
     const [profile, setProfile] = useState<CachedProfile | null | undefined>(undefined)
@@ -28,8 +38,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                     const cached = sessionStorage.getItem('profile')
                     if (cached) {
                         try {
-                            const parsed = JSON.parse(cached)
-                            if (parsed.id === session.user.id && parsed.username !== undefined && parsed.is_admin !== undefined) {
+                            const parsed: unknown = JSON.parse(cached)
+                            if (isCachedProfile(parsed) && parsed.id === session.user.id) {
                                 setProfile(parsed)
                                 return
                             }
