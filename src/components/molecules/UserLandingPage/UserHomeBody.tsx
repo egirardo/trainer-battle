@@ -5,7 +5,7 @@ import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 
-const mockTrainer: Omit<Trainer, "is_admin" | "created_at"> = {
+const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
   gender: 'male' as const,
   creature: {
@@ -24,7 +24,8 @@ const mockTrainer: Omit<Trainer, "is_admin" | "created_at"> = {
   username: 'ash-ketchum',
   wins: 6,
   losses: 0,
-    // Add more mock data as needed
+  is_admin: false,
+  created_at: new Date().toISOString(),
 };
 
 export default function UserHomeBody() {

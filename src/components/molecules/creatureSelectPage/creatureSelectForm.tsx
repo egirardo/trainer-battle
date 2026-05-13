@@ -27,9 +27,6 @@ export default function CreatureSelectForm() {
 
     return (
         <div className={styles.creatureSelectFormContainer}>
-            <div>
-                <h1>Your Creature</h1>
-            </div>
             <CreaturePreview creature={selectedCreature} />
             <form className={styles.creatureSelectForm} onSubmit={handleSubmit} noValidate>
                 <fieldset className={styles.creatureTypeSelect}>

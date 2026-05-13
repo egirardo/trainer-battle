@@ -14,7 +14,6 @@ export default function ProfileConfirmation() {
 
     return (
         <main>
-            <h1>Confirm Your Profile</h1>
             <p>Name: {trainerName}</p>
             <p>Gender: {trainerGender}</p>
             <p>Starter Creature: {selectedCreature?.name ?? 'None selected'}</p>

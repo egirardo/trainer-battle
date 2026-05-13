@@ -26,7 +26,6 @@ export default function GameMenuScreen(){
     return(
         <main>
             <UserHomeBody></UserHomeBody>
-
             <Link to={ROUTES.lobby}>Play - go to lobby</Link>
             <button onClick={handleLogout}>Logout</button>
         </main>
