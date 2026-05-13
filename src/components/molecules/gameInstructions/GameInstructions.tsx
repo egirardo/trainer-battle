@@ -1,6 +1,8 @@
 import styles from './GameInstructions.module.css'
 import BattleInstructions from './BattleInstructions'
 import TypeInstructions from './TypeInstructions'
+import StickyHeader from '@/components/atoms/StickyHeader';
+import CloseButton from '@/components/atoms/headerButtons/CloseButton';
 
 interface Props {
     onClose?: () => void;
@@ -9,10 +11,10 @@ interface Props {
 export default function GameInstructions({ onClose }: Props) {
     return(
         <section>
-            <div className={styles.stickyHeader}>
-                <h2>How to play</h2>
-                <button type="button" onClick={onClose}>Close</button>
-            </div>
+            <StickyHeader
+                label="How to play"
+                action={<CloseButton onClick={onClose} />}
+            />
             <article className={styles.contentContainer}>
                 <div className={styles.contentSection}>
                     <h3>

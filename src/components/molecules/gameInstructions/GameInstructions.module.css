@@ -7,23 +7,6 @@
   width: 100%;
 }
 
-.stickyHeader {
-  display: flex;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  padding: 1.5em 1.5em 1em;
-  background-color: var(--bg);
-  box-shadow:
-    rgba(50, 50, 93, 0.25) 0px 6px 12px -2px,
-    rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-}
-
-.stickyHeader h2 {
-  font-size: 2em;
-  text-transform: uppercase;
-}
-
 .contentContainer h2,
 .contentContainer h3 {
   text-transform: uppercase;
