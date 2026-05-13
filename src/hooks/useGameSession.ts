@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "./useAuth";
 import { GameSession } from "@/models/models";
 import { fetchFromSupabase } from "@/lib/fetchSupabase";
+import { ROUTES } from "@/routes";
 
 
 export function useGameSession() {
@@ -77,7 +78,7 @@ export function useGameSession() {
         }
 
         setSession(data as GameSession);
-        navigate(`/battle/${data.id}`);
+        await navigate(`${ROUTES.battle}/${data.id}`);
         setLoading(false);
     }
 
@@ -109,7 +110,7 @@ export function useGameSession() {
         }
 
         setSession(data as GameSession);
-        navigate(`/battle/${data.id}`);
+        await navigate(`${ROUTES.battle}/${data.id}`);
         setLoading(false);
     }
 
