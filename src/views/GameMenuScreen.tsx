@@ -2,9 +2,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
-import UserHomeBody from "@/components/molecules/UserLandingPage/UserHomeBody";
 import StickyHeader from "@/components/atoms/StickyHeader";
 import MenuButton from "@/components/atoms/headerButtons/MenuButton";
+import GameMenuBody from "@/components/molecules/gameMenuPage/GameMenuBody";
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
@@ -32,7 +32,7 @@ export default function GameMenuScreen(){
             </header>
             <main>
                 
-                <UserHomeBody></UserHomeBody>
+                <GameMenuBody />
                 <Link to={ROUTES.lobby}>Play - go to lobby</Link>
                 <button onClick={() => void handleLogout()}>Logout</button>
             </main>
