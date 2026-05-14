@@ -31,3 +31,8 @@
     0 0 0 3px var(--outline),
     0 0 0 6px rgba(0, 0, 0, 0.8);
 }
+
+.danger {
+  border-image: url("../../assets/sprites/components/red-button.png") 4 fill / 8px /
+    0 stretch;
+}

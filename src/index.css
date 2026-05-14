@@ -5,7 +5,8 @@
   --ui-bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --card-bg: rgba(244, 243, 236, 0.5);
+  --purp-card-bg: #D5D3FC;
+  --red-card-bg: #FCD3D3;
   --accent: #ee3252;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(244, 63, 94, 0.502);
@@ -66,7 +67,8 @@
     --ui-bg: #f2efff;
     --border: #2e303a;
     --code-bg: #1f2028;
-    --card-bg: rgba(80, 82, 107, 0.5);
+    --purp-card-bg: #D5D3FC;
+    --red-card-bg: #FCD3D3;
     --accent: #ee3252;
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);

@@ -4,6 +4,7 @@ import femaleTrainer from '@/assets/sprites/trainers/avatar-f.svg';
 import maleTrainer from '@/assets/sprites/trainers/avatar-m.svg';
 import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
 import { Link } from 'react-router-dom';
+import Button from '@/components/atoms/button';
 
 const trainerImages: Record<TrainerGender, string> = {
     female: femaleTrainer,
@@ -26,19 +27,25 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
 
     return (
         <div className={styles.profilePreviewCard}>
-            <div className={styles.titleContainer}>
-                <h2>{trainer.name}</h2>
-                <p>{trainer.creature.name}</p>
-            </div>
-            <p className={styles.otherInfo}>Wins: {trainer.wins} | Losses: {trainer.losses}</p>
-            <Link to={`/trainers/${trainer.id}`} className={styles.viewProfileLink}>
-                View Full Profile
-            </Link>
             <div className={styles.imageContainer}>
                 <img src={trainer.creature.image} alt={`${trainer.creature.name} avatar`} />
                 <img src={trainerImages[trainer.gender]} alt={`${trainer.name} avatar`} />
             </div>
-            {/* Add more trainer details here as needed */}
+            <div className={styles.titleContainer}>
+                <div className={styles.trainerInfo}>
+                    <h2>{trainer.name}</h2>
+                    <div className={styles.levelIcon}>
+                        <p className={styles.level}>{trainer.playerCreature.level}</p>
+                    </div>
+                </div>
+                <div className={styles.creatureInfo}>
+                    <p>{trainer.creature.name}</p>
+                    <p className={styles.creatureType}>Type: {trainer.creature.type}</p>
+                </div>
+                <Button as={Link} to={`/trainers/${trainer.id}`} className={styles.viewProfileLink}>
+                    View Full Profile
+                </Button>
+            </div>
         </div>
     );
 }
