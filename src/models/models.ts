@@ -9,7 +9,7 @@ export interface Trainer extends Player {
     name: string;
     creature: Creature;
     playerCreature: PlayerCreature;
-    gender: TrainerGender;
+    trainer_gender: TrainerGender;
     wins: number;
     losses: number;
 }
@@ -119,4 +119,5 @@ export interface PlayerStats {
     total_losses: number;
     total_forfeits: number;
     lives: number;
+    credits: number;
 }

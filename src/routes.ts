@@ -12,4 +12,5 @@ export const ROUTES = {
   battleResult: '/battle-result',
   adminLogin: '/admin-login',
   adminPanel: '/admin-panel',
+  shop: '/shop',
 } as const
