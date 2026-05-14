@@ -29,7 +29,7 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 1.25rem;
+    gap: 0.5rem;
 }
 
 .itemName {
@@ -58,8 +58,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px; /* using px because root font size was changed to accommodate new font, and we want the icon to stay the same size */
-    height: 44px;
+    width: 2.75rem;
+    height: 2.75rem;
     flex-shrink: 0;
 }
 
@@ -71,7 +71,7 @@
 .purchaseButtons {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
+    gap: 0.5rem;
 }
 
 .itemFooter {
@@ -80,7 +80,7 @@
     align-items: center;
     justify-content: center;
     gap: 1rem;
-    margin-top: 1rem;
+    margin-top: .5rem;
     align-self: flex-end;
 }
 

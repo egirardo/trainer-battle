@@ -21,7 +21,8 @@
   --pixel-bold: "Minecraft Bold", sans-serif;
   --pixel-regular: "Minecraft Standard", sans-serif;
 
-  font: 10px/145% var(--pixel-regular);
+  font-family: var(--pixel-regular);
+  line-height: 145%;
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -30,10 +31,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 10px;
-  }
 }
 
 @font-face {
@@ -50,6 +47,7 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+  size-adjust: 62.5%;
 }
 
 @font-face {
@@ -58,6 +56,7 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+  size-adjust: 62.5%;
 }
 @media (prefers-color-scheme: dark) {
   :root {
