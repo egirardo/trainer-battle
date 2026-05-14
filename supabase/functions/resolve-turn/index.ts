@@ -187,11 +187,16 @@ Deno.serve(async (req) => {
             )
         }
 
+        // Read modifiers — consumed on use
+        const myAttackMod: number = (isPlayer1 ? battleState.player1_attack_modifier : battleState.player2_attack_modifier) ?? 0
+        const myDefenceMod: number = (isPlayer1 ? battleState.player1_defence_modifier : battleState.player2_defence_modifier) ?? 0
+        const oppDefenceMod: number = (isPlayer1 ? battleState.player2_defence_modifier : battleState.player1_defence_modifier) ?? 0
+
         // --- Player's attack ---
         const playerDamage = calculateDamage(
             move.power ?? 0,
-            myPC.attack ?? 1,
-            oppDefence,
+            (myPC.attack ?? 1) + myAttackMod,
+            oppDefence + oppDefenceMod,
             myCreature.type,
             oppType
         )
@@ -228,7 +233,7 @@ Deno.serve(async (req) => {
                     const cpuDamage = calculateDamage(
                         cpuMove.power ?? 0,
                         oppAttack,
-                        myPC.defence ?? 1,
+                        (myPC.defence ?? 1) + myDefenceMod,
                         oppType,
                         myCreature.type
                     )
@@ -243,7 +248,7 @@ Deno.serve(async (req) => {
         const newPlayer1Hp = isPlayer1 ? finalMyHp : finalOppHp
         const newPlayer2Hp = isPlayer1 ? finalOppHp : finalMyHp
 
-        // Update battle state
+        // Update battle state — modifiers persist for the whole battle, no clearing needed
         const { error: updateStateErr } = await supabase
             .from('battle_state')
             .update({

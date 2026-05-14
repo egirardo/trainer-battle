@@ -60,6 +60,7 @@ Deno.serve(async (req) => {
 
         const itemData = playerItem.items as { name: string; description: string | null; effect: number | null; effect_type: string | null } | null
         const itemEffect = itemData?.effect ?? 0
+        const effectType = itemData?.effect_type ?? 'heal'
         const itemDescription = itemData?.description ?? itemData?.name ?? 'Used an item'
 
         // Fetch session and battle state
@@ -96,16 +97,34 @@ Deno.serve(async (req) => {
         const currentMyHp = (isPlayer1 ? battleState.player1_hp : battleState.player2_hp) ?? 0
         const currentOppHp = (isPlayer1 ? battleState.player2_hp : battleState.player1_hp) ?? 0
 
-        const healAmount = Math.min(itemEffect, maxHp - currentMyHp)
-        const healedHp = currentMyHp + healAmount
-        const descriptions: string[] = [itemDescription]
+        // Current modifier values — we'll mutate these based on the item and CPU counter-attack
+        let newP1AttackMod: number = battleState.player1_attack_modifier ?? 0
+        let newP2AttackMod: number = battleState.player2_attack_modifier ?? 0
+        let newP1DefMod: number = battleState.player1_defence_modifier ?? 0
+        let newP2DefMod: number = battleState.player2_defence_modifier ?? 0
 
-        let finalMyHp = healedHp
+        let finalMyHp = currentMyHp
         let finalOppHp = currentOppHp
+
+        // Apply item effect
+        if (effectType === 'heal') {
+            const healAmount = Math.min(itemEffect, maxHp - currentMyHp)
+            finalMyHp = currentMyHp + healAmount
+        } else if (effectType === 'attack_boost') {
+            if (isPlayer1) newP1AttackMod += itemEffect
+            else newP2AttackMod += itemEffect
+        } else if (effectType === 'defence_boost') {
+            if (isPlayer1) newP1DefMod += itemEffect
+            else newP2DefMod += itemEffect
+        }
+
+        const descriptions: string[] = [itemDescription]
         let isFinished = false
 
-        // CPU counter-attack
+        // CPU counter-attack — apply (and consume) the player's defence modifier
         if (session.is_cpu && session.cpu_creature_id) {
+            const myDefenceMod = isPlayer1 ? newP1DefMod : newP2DefMod
+
             const { data: cpuC } = await supabase
                 .from('creatures')
                 .select('id, type, base_attack, base_defence')
@@ -127,7 +146,7 @@ Deno.serve(async (req) => {
                         const cpuDamage = calculateDamage(
                             cpuMove.power ?? 0,
                             cpuC.base_attack ?? 1,
-                            myPC.defence ?? 1,
+                            (myPC.defence ?? 1) + myDefenceMod,
                             cpuC.type ?? 'fire',
                             myCreature.type
                         )
@@ -153,6 +172,10 @@ Deno.serve(async (req) => {
                 .update({
                     player1_hp: newPlayer1Hp,
                     player2_hp: newPlayer2Hp,
+                    player1_attack_modifier: newP1AttackMod,
+                    player2_attack_modifier: newP2AttackMod,
+                    player1_defence_modifier: newP1DefMod,
+                    player2_defence_modifier: newP2DefMod,
                     turn_number: (battleState.turn_number ?? 0) + 1,
                     last_move_description: descriptions.join('\n'),
                     is_finished: isFinished,

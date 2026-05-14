@@ -19,8 +19,12 @@ export type Database = {
           id: number
           is_finished: boolean
           last_move_description: string | null
+          player1_attack_modifier: number
+          player1_defence_modifier: number
           player1_hp: number | null
           player1_status: string | null
+          player2_attack_modifier: number
+          player2_defence_modifier: number
           player2_hp: number | null
           player2_status: string | null
           session_id: number | null
@@ -30,8 +34,12 @@ export type Database = {
           id?: number
           is_finished?: boolean
           last_move_description?: string | null
+          player1_attack_modifier?: number
+          player1_defence_modifier?: number
           player1_hp?: number | null
           player1_status?: string | null
+          player2_attack_modifier?: number
+          player2_defence_modifier?: number
           player2_hp?: number | null
           player2_status?: string | null
           session_id?: number | null
@@ -41,8 +49,12 @@ export type Database = {
           id?: number
           is_finished?: boolean
           last_move_description?: string | null
+          player1_attack_modifier?: number
+          player1_defence_modifier?: number
           player1_hp?: number | null
           player1_status?: string | null
+          player2_attack_modifier?: number
+          player2_defence_modifier?: number
           player2_hp?: number | null
           player2_status?: string | null
           session_id?: number | null
