@@ -14,7 +14,12 @@ type Move = Tables<'moves'>;
 type Item = Tables<'items'>;
 
 export default function AdminPanel() {
+    const maxVerificationRetries = 3;
     const { profile, loading: authLoading } = useAuth();
+    const [adminVerified, setAdminVerified] = useState<boolean | null>(null);
+    const [verificationError, setVerificationError] = useState<string | null>(null);
+    const [verificationTrigger, setVerificationTrigger] = useState(0);
+    const [verificationRetries, setVerificationRetries] = useState(0);
     const {
         addCreature, updateCreature, deleteCreature,
         addMove, updateMove, deleteMove,
@@ -33,6 +38,34 @@ export default function AdminPanel() {
     // Gate data fetching behind auth check
     useEffect(() => {
         if (authLoading || !profile?.is_admin) return;
+
+        let ignore = false;
+
+        async function verifyAdmin(): Promise<void> {
+            setVerificationError(null);
+            setAdminVerified(null);
+
+            const { data, error } = await supabase.functions.invoke<{ isAdmin: boolean }>('verify-is-admin')
+            if (ignore) return;
+
+            if (error) {
+                setVerificationError('Unable to verify admin access right now. Please try again.');
+                return;
+            }
+
+            if (!data?.isAdmin) {
+                setAdminVerified(false)
+                return
+            }
+            setAdminVerified(true)
+        }
+        void verifyAdmin();
+
+        return () => { ignore = true; };
+    }, [authLoading, profile, verificationTrigger]);
+
+    useEffect(() => {
+        if (!adminVerified) return
 
         let ignore = false;
 
@@ -56,13 +89,39 @@ export default function AdminPanel() {
             setItems(iRes.data ?? []);
         }
 
-        fetchData();
+        void fetchData();
+
         return () => { ignore = true; };
-    }, [authLoading, profile]);
+    }, [adminVerified]);
 
     if (authLoading) return <p>Loading...</p>;
     if (profile === undefined) return <p>Loading...</p>;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
+    if (verificationError) {
+        const canRetryVerification = verificationRetries < maxVerificationRetries;
+
+        return (
+            <main>
+                <div role='alert'>
+                    <p id='admin-verification-error'>{verificationError}</p>
+                    {!canRetryVerification && <p>Retry limit reached. Reload the page to try again.</p>}
+                </div>
+                {canRetryVerification && (
+                    <button
+                        aria-describedby='admin-verification-error'
+                        onClick={() => {
+                            setVerificationRetries(prev => prev + 1)
+                            setVerificationTrigger(prev => prev + 1)
+                        }}
+                    >
+                        Retry verification
+                    </button>
+                )}
+            </main>
+        );
+    }
+    if (adminVerified === null) return <p>Verifying admin access...</p>;
+    if (!adminVerified) return <Navigate to={ROUTES.start} replace />;
 
     // Creature handlers — use real DB id
     async function handleAddCreature(data: Omit<Creature, 'id'>): Promise<void> {
