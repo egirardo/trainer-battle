@@ -16,6 +16,8 @@ type Item = Tables<'items'>;
 export default function AdminPanel() {
     const { profile, loading: authLoading } = useAuth();
     const [adminVerified, setAdminVerified] = useState<boolean | null>(null);
+    const [verificationError, setVerificationError] = useState<string | null>(null);
+    const [verificationAttempt, setVerificationAttempt] = useState(0);
     const {
         addCreature, updateCreature, deleteCreature,
         addMove, updateMove, deleteMove,
@@ -35,16 +37,30 @@ export default function AdminPanel() {
     useEffect(() => {
         if (authLoading || !profile?.is_admin) return;
 
+        let ignore = false;
+
         async function verifyAdmin(): Promise<void> {
-            const { data, error } = await supabase.functions.invoke('verify-is-admin')
-            if (error || !data?.isAdmin) {
+            setVerificationError(null);
+            setAdminVerified(null);
+
+            const { data, error } = await supabase.functions.invoke<{ isAdmin: boolean }>('verify-is-admin')
+            if (ignore) return;
+
+            if (error) {
+                setVerificationError('Unable to verify admin access right now. Please try again.');
+                return;
+            }
+
+            if (!data?.isAdmin) {
                 setAdminVerified(false)
                 return
             }
             setAdminVerified(true)
         }
         void verifyAdmin();
-    }, [authLoading, profile]);
+
+        return () => { ignore = true; };
+    }, [authLoading, profile, verificationAttempt]);
 
     useEffect(() => {
         if (!adminVerified) return
@@ -79,6 +95,14 @@ export default function AdminPanel() {
     if (authLoading) return <p>Loading...</p>;
     if (profile === undefined) return <p>Loading...</p>;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
+    if (verificationError) {
+        return (
+            <main>
+                <p role='alert'>{verificationError}</p>
+                <button onClick={() => setVerificationAttempt(prev => prev + 1)}>Retry verification</button>
+            </main>
+        );
+    }
     if (adminVerified === null) return <p>Verifying admin access...</p>;
     if (!adminVerified) return <Navigate to={ROUTES.start} replace />;
 
