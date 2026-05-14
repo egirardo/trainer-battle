@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-redundant-type-constituents */
 export type Json =
   | string
   | number
@@ -234,21 +233,27 @@ export type Database = {
         Row: {
           description: string | null
           effect: number | null
+          effect_type: Database["public"]["Enums"]["item_effect_type"]
           id: number
+          image: string | null
           name: string | null
           price: number | null
         }
         Insert: {
           description?: string | null
           effect?: number | null
+          effect_type?: Database["public"]["Enums"]["item_effect_type"]
           id?: number
+          image?: string | null
           name?: string | null
           price?: number | null
         }
         Update: {
           description?: string | null
           effect?: number | null
+          effect_type?: Database["public"]["Enums"]["item_effect_type"]
           id?: number
+          image?: string | null
           name?: string | null
           price?: number | null
         }
@@ -431,7 +436,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      item_effect_type: "heal" | "attack_boost" | "defence_boost"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -558,6 +563,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      item_effect_type: ["heal", "attack_boost", "defence_boost"],
+    },
   },
 } as const

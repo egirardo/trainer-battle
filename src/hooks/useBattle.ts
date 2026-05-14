@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { ROUTES } from '@/routes';
-import type { BattleParticipantInfo, Move, PlayerItem } from '@/models/models';
+import type { BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
 import { getCreatureImage } from '@/lib/creatureImages';
 
 interface UseBattleReturn {
@@ -143,7 +143,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 // 5. Fetch player's bag items
                 const { data: itemsData } = await supabase
                     .from('player_items')
-                    .select('id, item_id, quantity, items(name, description, effect, price)')
+                    .select('id, item_id, quantity, items(name, description, effect, effect_type, price)')
                     .eq('player_id', user.id)
                     .gt('quantity', 0);
                 if (itemsData) {
@@ -151,12 +151,13 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         itemsData
                             .filter((row) => row.items !== null)
                             .map((row) => {
-                                const item = row.items as { name: string; description: string; effect: number; price: number };
+                                const item = row.items as { name: string; description: string; effect: number; effect_type: ItemEffectType; price: number };
                                 return {
                                     id: row.item_id,
                                     name: item.name ?? '',
                                     description: item.description ?? '',
                                     effect: item.effect ?? 0,
+                                    effect_type: item.effect_type ?? 'heal',
                                     price: item.price ?? 0,
                                     quantity: row.quantity ?? 0,
                                 };
@@ -250,9 +251,30 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     function onBag() {}
 
-    async function onUseItem(_itemId: number) {
+    async function onUseItem(itemId: number) {
         if (!user || !isMyTurn) return;
-        // TODO: decrement player_items.quantity and apply item effect via edge function
+        setIsMyTurn(false);
+
+        type InvokeResponse = { data: unknown; error: { message: string } | null };
+        const { error } = await supabase.functions.invoke('use-item', {
+            body: { sessionId, playerId: user.id, itemId }
+        }) as InvokeResponse;
+
+        if (error) {
+            setError(error.message);
+            setIsMyTurn(true);
+            return;
+        }
+
+        setPlayerItems(prev =>
+            prev
+                .map(item => item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item)
+                .filter(item => item.quantity > 0)
+        );
+
+        if (isCpuRef.current) {
+            setIsMyTurn(true);
+        }
     }
 
     async function onRun(): Promise<void> {
