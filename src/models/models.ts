@@ -57,6 +57,7 @@ export interface GameSession {
     player2_id: string | null;
     player1_creature_id: number | null;
     player2_creature_id: number | null;
+    cpu_creature_id: number | null;
     is_cpu: boolean;
     status: SessionStatus;
     winner_id: string | null;
