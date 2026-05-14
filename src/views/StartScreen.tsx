@@ -28,10 +28,10 @@ export default function StartScreen(){
                 </div>
             </div>
             <div className={styles.navContainer}>
-                <Button className={styles.startButton} onClick={() => user ? navigate(ROUTES.characterSelect) : navigate(ROUTES.register)}>
+                <Button className={styles.startButton} onClick={() => user ? void navigate(ROUTES.characterSelect) : void navigate(ROUTES.register)}>
                     New game
                 </Button>
-                <Button className={styles.startButton} onClick={() => navigate(ROUTES.login)}>
+                <Button className={styles.startButton} onClick={() => void navigate(ROUTES.login)}>
                     Continue
                 </Button>
             </div>

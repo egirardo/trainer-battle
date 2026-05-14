@@ -1,6 +1,5 @@
 import styles from './GameInstructions.module.css'
 import BattleInstructions from './BattleInstructions'
-import TypeInstructions from './TypeInstructions'
 import StickyHeader from '@/components/atoms/StickyHeader';
 import CloseButton from '@/components/atoms/headerButtons/CloseButton';
 
@@ -53,13 +52,6 @@ export default function GameInstructions({ onClose }: Props) {
                         Fighting
                     </h3>
                     <BattleInstructions/>
-                </div>
-                <div className={styles.contentSection}>
-                    <h3>
-                        <span className={styles.listNumber}>5</span>
-                        Type matchups
-                    </h3>
-                    <TypeInstructions/>
                 </div>
                 <div className={styles.contentSection}>
                     <h3>
