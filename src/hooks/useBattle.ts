@@ -40,8 +40,6 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const userIdRef = useRef(user?.id);
     
 
-    navigateRef.current = navigate;
-
     useEffect(() => {
         if (!user) return;
 
@@ -101,7 +99,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     const { data: cpuCreature, error: cpuErr } = await supabase
                         .from('creatures')
                         .select('name, type, image, base_hp')
-                        .eq('id', session.cpu_creature_id)
+                        .eq('id', session.cpu_creature_id as number)
                         .single();
                     if (cpuErr || !cpuCreature) throw new Error('Could not load CPU creature');
                     setOpponent({
@@ -171,14 +169,15 @@ export function useBattle(sessionId: number): UseBattleReturn {
             }
         }
 
-        loadBattle();
+        void loadBattle();
 
-    }, [sessionId, user?.id]);
+    }, [sessionId, user]);
 
     useEffect(() => {
-        sessionIdRef.current = sessionId
-        userIdRef.current = user?.id
-    }, [sessionId, user?.id]);
+        navigateRef.current = navigate;
+        sessionIdRef.current = sessionId;
+        userIdRef.current = user?.id;
+    }, [navigate, sessionId, user?.id]);
 
     useEffect(() => {
         channelRef.current = supabase
@@ -205,7 +204,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 }
                 // TODO: re-enable when realtime channel stability is fixed for PVP
                 if (state.is_finished) {
-                    navigateRef.current(ROUTES.battleResult);
+                    void navigateRef.current(ROUTES.battleResult);
                 }
             })
             .on('postgres_changes', {
@@ -223,19 +222,20 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
         return () => {
             if (channelRef.current) {
-                channelRef.current.unsubscribe()
+                void channelRef.current.unsubscribe()
                 channelRef.current = null
             }
         }
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, []);
 
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
         setIsMyTurn(false)
 
+        type InvokeResponse = { data: unknown; error: { message: string } | null };
         const { error } = await supabase.functions.invoke('resolve-turn', {
             body: { sessionId, playerId: user.id, moveId }
-        })
+        }) as InvokeResponse;
 
         if (error) {
             setError(error.message)
