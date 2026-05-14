@@ -23,7 +23,7 @@ export default function BattleBag({ items, isMyTurn, onBack, onUse }: BattleBagP
                             key={item.id}
                             role="button"
                             tabIndex={0}
-                            aria-selected={selectedId === item.id}
+                            aria-pressed={selectedId === item.id}
                             className={`${styles.itemRow} ${selectedId === item.id ? styles.selected : ''}`}
                             onClick={() => setSelectedId(item.id)}
                             onKeyDown={(e) => {

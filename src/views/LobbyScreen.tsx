@@ -25,7 +25,7 @@ export default function LobbyScreen() {
     // Cleanup session channel on unmount
     useEffect(() => {
         return () => {
-            sessionChannelRef.current?.unsubscribe();
+           void sessionChannelRef.current?.unsubscribe();
         };
     }, []);
 
@@ -33,7 +33,7 @@ export default function LobbyScreen() {
         if (!myCreatureId || inviteSent) return;
 
         // Unsubscribe from any existing session channel before subscribing to the new one
-        sessionChannelRef.current?.unsubscribe();
+        await sessionChannelRef.current?.unsubscribe();
         sessionChannelRef.current = null;
 
         setInviteSent(true);
@@ -63,8 +63,8 @@ export default function LobbyScreen() {
                 <section aria-label="Incoming battle invitation">
                     <h2>Battle Invitation!</h2>
                     <p>{incomingInvitation.fromUsername} wants to battle you!</p>
-                    <button onClick={handleAccept}>Accept</button>
-                    <button onClick={handleDecline}>Decline</button>
+                    <button onClick={() => void handleAccept()}>Accept</button>
+                    <button onClick={() => void handleDecline()}>Decline</button>
                 </section>
             )}
 
@@ -80,7 +80,7 @@ export default function LobbyScreen() {
                                 <span>{player.creatureName}</span>
                                 <span>Lv. {player.level}</span>
                                 <button
-                                    onClick={() => handleInvite(player.userId)}
+                                    onClick={() => void handleInvite(player.userId)}
                                     disabled={!!incomingInvitation || inviteSent}
                                 >
                                     {inviteSent ? "Waiting..." : "Invite"}
@@ -94,10 +94,10 @@ export default function LobbyScreen() {
             <section aria-label="CPU battle">
                 <h2>Battle against CPU</h2>
                 <p>Your opponent will match your skill level.</p>
-                <button onClick={handleCpu}>Fight CPU</button>
+                <button onClick={() => void handleCpu()}>Fight CPU</button>
             </section>
 
-            <button onClick={() => navigate(ROUTES.gameMenu)}>
+            <button onClick={() => void navigate(ROUTES.gameMenu)}>
                 Back to Menu
             </button>
         </main>
