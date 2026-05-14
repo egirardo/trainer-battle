@@ -7,13 +7,14 @@
   image-rendering: pixelated;
   background: none;
   color: white;
-  padding: 0.5rem 0.65rem;
+  padding: 0.8rem 1.04rem;
   font-family: var(--pixel-regular);
-  font-size: 1.5rem;
+  font-weight: normal;
+  font-size: 2.4rem;
   text-align: center;
   cursor: pointer;
-  min-width: 1.5rem;
-  min-height: 1rem;
+  min-width: 2.4rem;
+  min-height: 1.6rem;
   border-radius: 4px;
 }
 

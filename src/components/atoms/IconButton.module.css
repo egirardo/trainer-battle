@@ -35,16 +35,16 @@
 }
 
 .S {
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .M {
-  min-width: 3.5rem;
-  min-height: 3.5rem;
+  min-width: 56px;
+  min-height: 56px;
 }
 
 .L {
-  min-width: 4.5rem;
-  min-height: 4.5rem;
+  min-width: 72px;
+  min-height: 72px;
 }
