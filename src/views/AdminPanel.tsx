@@ -15,6 +15,7 @@ type Item = Tables<'items'>;
 
 export default function AdminPanel() {
     const { profile, loading: authLoading } = useAuth();
+    const [adminVerified, setAdminVerified] = useState<boolean | null>(null);
     const {
         addCreature, updateCreature, deleteCreature,
         addMove, updateMove, deleteMove,
@@ -33,6 +34,20 @@ export default function AdminPanel() {
     // Gate data fetching behind auth check
     useEffect(() => {
         if (authLoading || !profile?.is_admin) return;
+
+        async function verifyAdmin(): Promise<void> {
+            const { data, error } = await supabase.functions.invoke('verify-is-admin')
+            if (error || !data?.isAdmin) {
+                setAdminVerified(false)
+                return
+            }
+            setAdminVerified(true)
+        }
+        void verifyAdmin();
+    }, [authLoading, profile]);
+
+    useEffect(() => {
+        if (!adminVerified) return
 
         let ignore = false;
 
@@ -56,13 +71,16 @@ export default function AdminPanel() {
             setItems(iRes.data ?? []);
         }
 
-        fetchData();
+        void fetchData();
+
         return () => { ignore = true; };
-    }, [authLoading, profile]);
+    }, [adminVerified]);
 
     if (authLoading) return <p>Loading...</p>;
     if (profile === undefined) return <p>Loading...</p>;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
+    if (adminVerified === null) return <p>Verifying admin access...</p>;
+    if (!adminVerified) return <Navigate to={ROUTES.start} replace />;
 
     // Creature handlers — use real DB id
     async function handleAddCreature(data: Omit<Creature, 'id'>): Promise<void> {
