@@ -16,6 +16,7 @@ import Register from './views/Register'
 import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
+import ShopScreen from './views/ShopScreen'
 
 
 function App() {
@@ -69,6 +70,10 @@ function App() {
         <Route 
           path={ROUTES.adminPanel} 
           element={!user ? <Navigate to={ROUTES.adminLogin} replace /> : <AdminPanel />}
+        />
+        <Route 
+          path={ROUTES.shop} 
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <ShopScreen />}
         />
 
         {/* Onboarding flow - protected */}
