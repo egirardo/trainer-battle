@@ -1,10 +1,10 @@
-import { useState } from "react";
-import MenuButton from "@/components/atoms/headerButtons/MenuButton";
-import StickyHeader from "@/components/atoms/StickyHeader";
-import CreditsDisplay from "@/components/molecules/shopPage/CreditsDisplay";
-import ItemBox from "@/components/molecules/shopPage/ItemBox";
-import type { Item, PlayerStats } from "@/models/models";
-import heart from "@/assets/sprites/icons/filled-heart.svg";
+import { useState } from 'react';
+import MenuButton from '@/components/atoms/headerButtons/MenuButton';
+import StickyHeader from '@/components/atoms/StickyHeader';
+import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
+import ItemBox from '@/components/molecules/shopPage/ItemBox';
+import type { Item, PlayerStats } from '@/models/models';
+import heart from '@/assets/sprites/icons/filled-heart.svg';
 
 const mockPlayerStats: PlayerStats = {
     id: 1,

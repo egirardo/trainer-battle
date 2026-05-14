@@ -23,7 +23,7 @@ export default function ItemBox({ item, quantity, onAdd, onRemove }: ItemBoxProp
                 </div>
                 <div className={styles.itemFooter}>
                     <div className={styles.priceContainer}>
-                        <img src={starIcon} alt="Credits Icon" className={styles.starIcon} />
+                        <img src={starIcon} alt="Credits" />
                         <span className={styles.itemPrice}>{item.price}</span>
                     </div>
                     <div className={styles.purchaseButtons}>
