@@ -44,6 +44,7 @@ export interface Item {
     description: string;
     effect: number;
     price: number;
+    image: string;
 }
 
 export interface PlayerItem extends Item {
