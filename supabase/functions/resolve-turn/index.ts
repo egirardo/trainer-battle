@@ -250,7 +250,7 @@ Deno.serve(async (req) => {
                 player1_hp: newPlayer1Hp,
                 player2_hp: newPlayer2Hp,
                 turn_number: (battleState.turn_number ?? 0) + 1,
-                last_move_description: descriptions.join(' '),
+                last_move_description: descriptions.join('\n'),
                 is_finished: isFinished,
             })
             .eq('session_id', sessionId)

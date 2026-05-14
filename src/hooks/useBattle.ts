@@ -24,6 +24,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const { user } = useAuth();
     const navigate = useNavigate();
     const isPlayer1Ref = useRef<boolean>(false)
+    const isCpuRef = useRef<boolean>(false)
     const [player, setPlayer] = useState<BattleParticipantInfo | null>(null);
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
     const [messages, setMessages] = useState<string[]>([]);
@@ -60,6 +61,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 if (!isPlayer1 && !isPlayer2 && !session.is_cpu) throw new Error('You are not a participant in this session');
 
                 isPlayer1Ref.current = isPlayer1
+                isCpuRef.current = session.is_cpu
 
                 const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
                 if (!myCreatureId) throw new Error('Creature IDs missing from session');
@@ -173,8 +175,10 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     }, [sessionId, user?.id]);
 
-    sessionIdRef.current = sessionId
-    userIdRef.current = user?.id
+    useEffect(() => {
+        sessionIdRef.current = sessionId
+        userIdRef.current = user?.id
+    }, [sessionId, user?.id]);
 
     useEffect(() => {
         channelRef.current = supabase
@@ -197,7 +201,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
                 setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
                 if (state.last_move_description) {
-                    setMessages(prev => [...prev, state.last_move_description!]);
+                    setMessages(prev => [...prev, ...state.last_move_description!.split('\n')]);
                 }
                 // TODO: re-enable when realtime channel stability is fixed for PVP
                 if (state.is_finished) {
@@ -227,30 +231,19 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
+        setIsMyTurn(false)
 
-        const { data, error } = await supabase.functions.invoke('resolve-turn', {
+        const { error } = await supabase.functions.invoke('resolve-turn', {
             body: { sessionId, playerId: user.id, moveId }
         })
 
         if (error) {
             setError(error.message)
+            setIsMyTurn(true)
             return
         }
-
-        if (data) {
-            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp
-            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp
-
-            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
-            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
-
-            if (Array.isArray(data.descriptions) && data.descriptions.length > 0) {
-                setMessages(prev => [...prev, ...data.descriptions])
-            }
-
-            if (data.isFinished) {
-                void navigate(ROUTES.battleResult)
-            }
+        if (isCpuRef.current) {
+            setIsMyTurn(true)
         }
     }
 
