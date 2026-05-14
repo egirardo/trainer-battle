@@ -35,11 +35,11 @@ export default function ShopScreen() {
         const item = mockItems.find(i => i.id === itemId);
         if (!item) return;
         setCart(prev => {
-             const currentQty = prev[itemId] ?? 0;
-             const totalCost = item.price * (currentQty + 1);
-             if (totalCost > mockPlayerStats.credits) return prev;
-             return { ...prev, [itemId]: currentQty + 1 };
-         });
+            const nextCart = { ...prev, [itemId]: (prev[itemId] ?? 0) + 1 };
+            const totalCost = mockItems.reduce((sum, i) => sum + i.price * (nextCart[i.id] ?? 0), 0);
+            if (totalCost > mockPlayerStats.credits) return prev;
+            return nextCart;
+        });
     }
 
     function handleRemove(itemId: number) {
