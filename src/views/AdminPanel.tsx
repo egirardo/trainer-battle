@@ -14,10 +14,12 @@ type Move = Tables<'moves'>;
 type Item = Tables<'items'>;
 
 export default function AdminPanel() {
+    const maxVerificationRetries = 3;
     const { profile, loading: authLoading } = useAuth();
     const [adminVerified, setAdminVerified] = useState<boolean | null>(null);
     const [verificationError, setVerificationError] = useState<string | null>(null);
-    const [verificationAttempt, setVerificationAttempt] = useState(0);
+    const [verificationTrigger, setVerificationTrigger] = useState(0);
+    const [verificationRetries, setVerificationRetries] = useState(0);
     const {
         addCreature, updateCreature, deleteCreature,
         addMove, updateMove, deleteMove,
@@ -60,7 +62,7 @@ export default function AdminPanel() {
         void verifyAdmin();
 
         return () => { ignore = true; };
-    }, [authLoading, profile, verificationAttempt]);
+    }, [authLoading, profile, verificationTrigger]);
 
     useEffect(() => {
         if (!adminVerified) return
@@ -96,10 +98,25 @@ export default function AdminPanel() {
     if (profile === undefined) return <p>Loading...</p>;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
     if (verificationError) {
+        const canRetryVerification = verificationRetries < maxVerificationRetries;
+
         return (
             <main>
-                <p role='alert'>{verificationError}</p>
-                <button onClick={() => setVerificationAttempt(prev => prev + 1)}>Retry verification</button>
+                <div role='alert'>
+                    <p id='admin-verification-error'>{verificationError}</p>
+                    {!canRetryVerification && <p>Retry limit reached. Reload the page to try again.</p>}
+                </div>
+                {canRetryVerification && (
+                    <button
+                        aria-describedby='admin-verification-error'
+                        onClick={() => {
+                            setVerificationRetries(prev => prev + 1)
+                            setVerificationTrigger(prev => prev + 1)
+                        }}
+                    >
+                        Retry verification
+                    </button>
+                )}
             </main>
         );
     }
