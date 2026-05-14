@@ -7,33 +7,7 @@ import BattleLog from '@/components/molecules/battle/BattleLog';
 import BattleActions from '@/components/molecules/battle/BattleActions';
 import Button from '@/components/atoms/button';
 import helpIcon from '@/assets/sprites/icons/help-icon.png';
-import fireCreatureImg from '@/assets/sprites/creatures/fire-creature.png';
-import waterCreatureImg from '@/assets/sprites/creatures/water-creature.png';
-import type { BattleParticipantInfo, PlayerItem } from '@/models/models';
 import styles from './BattleScreen.module.css';
-
-// TODO: remove once useBattle returns real data
-const MOCK_PLAYER: BattleParticipantInfo = {
-    name: 'Infernus',
-    level: 3,
-    currentHp: 221,
-    maxHp: 280,
-    creatureImage: fireCreatureImg,
-    creatureType: 'fire',
-};
-const MOCK_OPPONENT: BattleParticipantInfo = {
-    name: 'Glen',
-    level: 3,
-    currentHp: 221,
-    maxHp: 280,
-    creatureImage: waterCreatureImg,
-    creatureType: 'water',
-};
-const MOCK_ITEMS: PlayerItem[] = [
-    { id: 1, name: 'Small Healing Potion', description: 'Restores a little HP', effect: 20, price: 50, quantity: 2 },
-    { id: 2, name: 'Medium Healing Potion', description: 'Restores moderate HP', effect: 50, price: 100, quantity: 3 },
-    { id: 3, name: 'Defence Potion', description: 'Boosts defence', effect: 30, price: 80, quantity: 1 },
-];
 
 export default function BattleScreen() {
     const { sessionId } = useParams<{ sessionId: string }>();
@@ -47,12 +21,8 @@ export default function BattleScreen() {
 }
 
 function BattleContent({ sessionId }: { sessionId: number }) {
-    const { player: livePlayer, opponent: liveOpponent, messages, isMyTurn, loading, moves, playerItems, onFight, onBag, onRun, onUseItem } =
+    const { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
-
-    const player = livePlayer ?? MOCK_PLAYER;
-    const opponent = liveOpponent ?? MOCK_OPPONENT;
-    const items = playerItems.length > 0 ? playerItems : MOCK_ITEMS;
 
     if (loading) {
         return (
@@ -62,13 +32,13 @@ function BattleContent({ sessionId }: { sessionId: number }) {
         );
     }
 
-    // if (error) {
-    //     return (
-    //         <main className={styles.screen}>
-    //             <div className={styles.centered}>{error}</div>
-    //         </main>
-    //     );
-    // }
+    if (error || !player || !opponent) {
+        return (
+            <main className={styles.screen}>
+                <div className={styles.centered}>{error ?? 'Battle data unavailable'}</div>
+            </main>
+        );
+    }
 
     return (
         <main className={styles.screen}>
@@ -119,7 +89,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
             <BattleActions
                 moves={moves}
                 isMyTurn={isMyTurn}
-                playerItems={items}
+                playerItems={playerItems}
                 onFight={onFight}
                 onBag={onBag}
                 onRun={onRun}
