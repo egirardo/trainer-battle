@@ -58,52 +58,26 @@ export function useGameSession() {
         setLoading(true);
 
         try {
-            // Pick a random creature from the DB for the CPU
-            const { data: allCreatures, error: creaturesErr } = await supabase
-                .from('creatures')
-                .select('id, base_hp, base_attack, base_defence, base_speed');
+            // Fetch all creatures and the player's current HP in parallel
+            const [creaturesResult, myCreatureResult] = await Promise.all([
+                supabase.from('creatures').select('id, base_hp'),
+                supabase.from('player_creatures').select('current_hp').eq('id', myCreatureId).single(),
+            ]);
 
-            if (creaturesErr || !allCreatures?.length) {
+            if (creaturesResult.error || !creaturesResult.data?.length) {
                 setError('Could not load creatures');
                 return;
             }
 
+            const allCreatures = creaturesResult.data;
             const cpuCreature = allCreatures[Math.floor(Math.random() * allCreatures.length)];
 
-            // Create a player_creatures row for the CPU creature
-            const { data: cpuPC, error: cpuPCErr } = await supabase
-                .from('player_creatures')
-                .insert({
-                    player_id: user.id,
-                    creature_id: cpuCreature.id,
-                    level: 1,
-                    current_hp: cpuCreature.base_hp ?? 100,
-                    attack: cpuCreature.base_attack,
-                    defence: cpuCreature.base_defence,
-                    speed: cpuCreature.base_speed,
-                })
-                .select()
-                .single();
-
-            if (cpuPCErr || !cpuPC) {
-                setError('Could not create CPU creature');
-                return;
-            }
-
-            // Fetch player's current HP
-            const { data: myCreature } = await supabase
-                .from('player_creatures')
-                .select('current_hp')
-                .eq('id', myCreatureId)
-                .single();
-
-            // Create the game session with both creature IDs set
             const { data: session, error: sessionErr } = await supabase
                 .from('game_sessions')
                 .insert({
                     player1_id: user.id,
                     player1_creature_id: myCreatureId,
-                    player2_creature_id: cpuPC.id,
+                    cpu_creature_id: cpuCreature.id,
                     is_cpu: true,
                     status: 'active',
                     current_turn: user.id,
@@ -116,10 +90,9 @@ export function useGameSession() {
                 return;
             }
 
-            // Create battle state with each side's actual HP
             const { error: battleStateError } = await supabase.from('battle_state').insert({
                 session_id: session.id,
-                player1_hp: myCreature?.current_hp ?? 100,
+                player1_hp: myCreatureResult.data?.current_hp ?? 100,
                 player2_hp: cpuCreature.base_hp ?? 100,
                 player1_status: 'normal',
                 player2_status: 'normal',
