@@ -46,7 +46,7 @@ Deno.serve(async (req) => {
         // Verify ownership and quantity
         const { data: playerItem, error: piErr } = await supabase
             .from('player_items')
-            .select('id, quantity, items(name, effect, effect_type)')
+            .select('id, quantity, items(name, description, effect, effect_type)')
             .eq('player_id', playerId)
             .eq('item_id', itemId)
             .single()
@@ -58,9 +58,9 @@ Deno.serve(async (req) => {
             )
         }
 
-        const itemData = playerItem.items as { name: string; effect: number | null; effect_type: string | null } | null
+        const itemData = playerItem.items as { name: string; description: string | null; effect: number | null; effect_type: string | null } | null
         const itemEffect = itemData?.effect ?? 0
-        const itemName = itemData?.name ?? 'item'
+        const itemDescription = itemData?.description ?? itemData?.name ?? 'Used an item'
 
         // Fetch session and battle state
         const [{ data: session, error: sessionErr }, { data: battleState, error: stateErr }] = await Promise.all([
@@ -98,7 +98,7 @@ Deno.serve(async (req) => {
 
         const healAmount = Math.min(itemEffect, maxHp - currentMyHp)
         const healedHp = currentMyHp + healAmount
-        const descriptions: string[] = [`Used ${itemName} and restored ${healAmount} HP!`]
+        const descriptions: string[] = [itemDescription]
 
         let finalMyHp = healedHp
         let finalOppHp = currentOppHp
