@@ -3,6 +3,8 @@ import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
 import UserHomeBody from "@/components/molecules/UserLandingPage/UserHomeBody";
+import StickyHeader from "@/components/atoms/StickyHeader";
+import MenuButton from "@/components/atoms/headerButtons/MenuButton";
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
@@ -24,10 +26,16 @@ export default function GameMenuScreen(){
     }
 
     return(
-        <main>
-            <UserHomeBody></UserHomeBody>
-            <Link to={ROUTES.lobby}>Play - go to lobby</Link>
-             <button onClick={() => { void handleLogout(); }}>Logout</button>
-        </main>
+        <>
+            <header>
+                <StickyHeader label="Dashboard" action={<MenuButton />}/>
+            </header>
+            <main>
+                
+                <UserHomeBody></UserHomeBody>
+                <Link to={ROUTES.lobby}>Play - go to lobby</Link>
+                <button onClick={() => void handleLogout()}>Logout</button>
+            </main>
+        </>
     )
 }
