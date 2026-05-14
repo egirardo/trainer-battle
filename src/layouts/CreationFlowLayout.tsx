@@ -44,19 +44,24 @@ export default function CreationFlowLayout() {
             if (error) { setTrainerNameError(error); return }
 
             setSaving(true)
-            const { error: updateError } = await supabase
-                .from('profiles')
-                .update({
-                    username: trainerName,
-                    trainer_gender: trainerGender,
-                })
-                .eq('id', user.id)
+            try {
+                const { error: updateError } = await supabase
+                    .from('profiles')
+                    .update({
+                        username: trainerName,
+                        trainer_gender: trainerGender,
+                    })
+                    .eq('id', user.id)
 
-            setSaving(false)
-
-            if (updateError) {
+                if (updateError) {
+                    setSaveError('Failed to save trainer information. Please try again.')
+                    return
+                }
+            } catch {
                 setSaveError('Failed to save trainer information. Please try again.')
                 return
+            } finally {
+                setSaving(false)
             }
         }
         // Save selected creature to player_creatures
@@ -65,27 +70,32 @@ export default function CreationFlowLayout() {
             setCreatureError(undefined)
 
             setSaving(true)
-            const { error: upsertError } = await supabase
-                .from('player_creatures')
-                .upsert(
-                    {
-                        player_id: user.id,
-                        creature_id: selectedCreature.id,
-                        level: 1,
-                        experience: 0,
-                        current_hp: selectedCreature.base_hp,
-                        attack: selectedCreature.base_attack,
-                        defence: selectedCreature.base_defence,
-                        speed: selectedCreature.base_speed,
-                    },
-                    { onConflict: 'player_id', ignoreDuplicates: false }
-                )
+            try {
+                const { error: upsertError } = await supabase
+                    .from('player_creatures')
+                    .upsert(
+                        {
+                            player_id: user.id,
+                            creature_id: selectedCreature.id,
+                            level: 1,
+                            experience: 0,
+                            current_hp: selectedCreature.base_hp,
+                            attack: selectedCreature.base_attack,
+                            defence: selectedCreature.base_defence,
+                            speed: selectedCreature.base_speed,
+                        },
+                        { onConflict: 'player_id', ignoreDuplicates: false }
+                    )
 
-            setSaving(false)
-
-            if (upsertError) {
+                if (upsertError) {
+                    setSaveError('Failed to save creature selection. Please try again.')
+                    return
+                }
+            } catch {
                 setSaveError('Failed to save creature selection. Please try again.')
                 return
+            } finally {
+                setSaving(false)
             }
         }
 
@@ -109,7 +119,7 @@ export default function CreationFlowLayout() {
                     : <span />
                 }
                 {currentStep?.next
-                    ? <IconButton image={forwardArrow} ariaLabel="Go to next step" onClick={handleNext} disabled={saving} />
+                    ? <IconButton image={forwardArrow} ariaLabel="Go to next step" onClick={() => { void handleNext() }} disabled={saving} />
                     : <span />
                 }
             </nav>
