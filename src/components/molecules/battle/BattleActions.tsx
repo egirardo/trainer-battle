@@ -40,13 +40,17 @@ export default function BattleActions({ moves, isMyTurn, playerItems, onFight, o
                             key={move.id}
                             role="button"
                             tabIndex={0}
-                            aria-selected={selectedMoveId === move.id}
+                            aria-pressed={selectedMoveId === move.id}
                             className={`${styles.moveRow} ${selectedMoveId === move.id ? styles.selected : ''}`}
                             onClick={() => setSelectedMoveId(move.id)}
                             onKeyDown={(e) => {
                                 if (e.key === 'Enter' || e.key === ' ') {
                                     e.preventDefault();
-                                    setSelectedMoveId(move.id);
+                                    if (selectedMoveId === move.id && isMyTurn) {
+                                        handleMoveClick(move.id);
+                                    } else {
+                                        setSelectedMoveId(move.id);
+                                    }
                                 }
                             }}
                         >
