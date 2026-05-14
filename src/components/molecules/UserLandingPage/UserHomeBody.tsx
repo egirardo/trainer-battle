@@ -8,6 +8,7 @@ import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
   gender: 'male' as const,
+  trainer_gender: 'male',
   creature: {
     id: 1,
     name: 'Pikachu',
