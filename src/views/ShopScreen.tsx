@@ -1,9 +1,10 @@
+import { useState } from "react";
 import MenuButton from "@/components/atoms/headerButtons/MenuButton";
 import StickyHeader from "@/components/atoms/StickyHeader";
 import CreditsDisplay from "@/components/molecules/shopPage/CreditsDisplay";
 import ItemBox from "@/components/molecules/shopPage/ItemBox";
-import type { PlayerStats } from "@/models/models";
-import heart from '@/assets/sprites/icons/filled-heart.svg';
+import type { Item, PlayerStats } from "@/models/models";
+import heart from "@/assets/sprites/icons/filled-heart.svg";
 
 const mockPlayerStats: PlayerStats = {
     id: 1,
@@ -25,7 +26,26 @@ const mockItem = {
     image: heart,
 };
 
+const mockItems: Item[] = [mockItem];
+
 export default function ShopScreen() {
+    const [cart, setCart] = useState<Record<number, number>>({});
+
+    function handleAdd(itemId: number) {
+        const item = mockItems.find(i => i.id === itemId);
+        if (!item) return;
+        const currentQty = cart[itemId] ?? 0;
+        const totalCost = item.price * (currentQty + 1);
+        if (totalCost > mockPlayerStats.credits) return;
+        setCart(prev => ({ ...prev, [itemId]: currentQty + 1 }));
+    }
+
+    function handleRemove(itemId: number) {
+        const currentQty = cart[itemId] ?? 0;
+        if (currentQty === 0) return;
+        setCart(prev => ({ ...prev, [itemId]: currentQty - 1 }));
+    }
+
     return (
         <>
             <header>
@@ -33,7 +53,15 @@ export default function ShopScreen() {
             </header>
             <main>
                 <CreditsDisplay credits={mockPlayerStats.credits} />
-                <ItemBox item={mockItem} onPlusClick={() => {}} onMinusClick={() => {}} />
+                {mockItems.map(item => (
+                    <ItemBox
+                        key={item.id}
+                        item={item}
+                        quantity={cart[item.id] ?? 0}
+                        onAdd={handleAdd}
+                        onRemove={handleRemove}
+                    />
+                ))}
             </main>
         </>
     );

@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import IconButton from '@/components/atoms/IconButton';
 import styles from './ItemBox.module.css';
 import type { Item } from '@/models/models';
@@ -8,23 +7,12 @@ import starIcon from '@/assets/sprites/badges/star-badge.svg';
 
 type ItemBoxProps = {
     item: Item;
-    onPlusClick?: (itemId: number) => void;
-    onMinusClick?: (itemId: number) => void;
+    quantity: number;
+    onAdd: (itemId: number) => void;
+    onRemove: (itemId: number) => void;
 };
 
-export default function ItemBox({ item, onPlusClick, onMinusClick }: ItemBoxProps) {
-    const [count, setCount] = useState(0);
-
-    function handlePlus() {
-        setCount(c => c + 1);
-        onPlusClick?.(item.id);
-    }
-
-    function handleMinus() {
-        setCount(c => Math.max(0, c - 1));
-        onMinusClick?.(item.id);
-    }
-
+export default function ItemBox({ item, quantity, onAdd, onRemove }: ItemBoxProps) {
     return (
         <div className={styles.itemBox}>
             <img src={item.image} alt={item.name} className={styles.itemImage} />
@@ -39,11 +27,11 @@ export default function ItemBox({ item, onPlusClick, onMinusClick }: ItemBoxProp
                         <span className={styles.itemPrice}>{item.price}</span>
                     </div>
                     <div className={styles.purchaseButtons}>
-                        <IconButton image={minusButton} ariaLabel="Remove Item" onClick={handleMinus} />
+                        <IconButton image={minusButton} ariaLabel="Remove Item" onClick={() => onRemove(item.id)} />
                         <div className={styles.countIcon}>
-                            <p className={styles.count}>{count}</p>
+                            <p className={styles.count}>{quantity}</p>
                         </div>
-                        <IconButton image={plusButton} ariaLabel="Add Item" onClick={handlePlus} />
+                        <IconButton image={plusButton} ariaLabel="Add Item" onClick={() => onAdd(item.id)} />
                     </div>
                 </div>
             </div>
