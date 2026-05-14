@@ -63,6 +63,7 @@ export function useLobby() {
                             const session = payload.new as {
                                 id: number;
                                 player1_id: string;
+                                player1_creature_id: number;
                                 status: string;
                             };
 
@@ -74,17 +75,11 @@ export function useLobby() {
                                 .eq("id", session.player1_id)
                                 .single();
 
-                            const { data: inviterCreature } = await supabase
-                                .from("player_creatures")
-                                .select("id")
-                                .eq("player_id", session.player1_id)
-                                .single();
-
                             setIncomingInvitation({
                                 sessionId: session.id,
                                 fromUserId: session.player1_id,
                                 fromUsername: inviterProfile?.username ?? "Unknown",
-                                creatureId: inviterCreature?.id ?? 0,
+                                creatureId: session.player1_creature_id ?? 0,
                             });
                         } catch (err) {
                             setError(err instanceof Error ? err.message : 'Failed to process invitation')
