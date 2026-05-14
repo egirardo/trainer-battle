@@ -8,10 +8,10 @@ interface BattleActionsProps {
     moves: Move[];
     isMyTurn: boolean;
     playerItems: PlayerItem[];
-    onFight: (moveId: number) => void;
+    onFight: (moveId: number) => Promise<void> | void;
     onBag: () => void;
-    onRun: () => void;
-    onUseItem: (itemId: number) => void;
+    onRun: () => Promise<void> | void;
+    onUseItem: (itemId: number) => Promise<void> | void;
 }
 
 type Phase = 'main' | 'fight' | 'bag';
@@ -20,12 +20,12 @@ export default function BattleActions({ moves, isMyTurn, playerItems, onFight, o
     const [phase, setPhase] = useState<Phase>('main');
 
     function handleMoveClick(moveId: number) {
-        onFight(moveId);
+        void onFight(moveId);
         setPhase('main');
     }
 
     function handleUseItem(itemId: number) {
-        onUseItem(itemId);
+        void onUseItem(itemId);
         setPhase('main');
     }
 
@@ -80,7 +80,7 @@ export default function BattleActions({ moves, isMyTurn, playerItems, onFight, o
                 </BattleButton>
                 <BattleButton
                     className={styles.actionBtn}
-                    onClick={onRun}
+                    onClick={() => void onRun()}
                     >
                     Run
                 </BattleButton>
