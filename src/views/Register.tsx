@@ -87,7 +87,6 @@ export default function Register() {
         }
 
         void navigate(ROUTES.characterSelect);
-        setLoading(false);
     }
 
     return (
