@@ -8,7 +8,8 @@ import BossDialog from './BossDialog';
 
 const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
-  gender: 'nb' as const,
+  gender: 'male' as const,
+  trainer_gender: 'male',
   creature: {
     id: 1,
     name: 'Pikachu',
