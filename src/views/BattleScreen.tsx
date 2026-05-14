@@ -5,11 +5,6 @@ import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
 import BattleLog from '@/components/molecules/battle/BattleLog';
 import BattleActions from '@/components/molecules/battle/BattleActions';
-import Button from '@/components/atoms/button';
-import helpIcon from '@/assets/sprites/icons/help-icon.png';
-import fireCreatureImg from '@/assets/sprites/creatures/fire-creature.png';
-import waterCreatureImg from '@/assets/sprites/creatures/water-creature.png';
-import type { BattleParticipantInfo, PlayerItem } from '@/models/models';
 import styles from './BattleScreen.module.css';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import HelpButton from '@/components/atoms/headerButtons/HelpButton';
@@ -29,7 +24,7 @@ export default function BattleScreen() {
 
 function BattleContent({ sessionId }: { sessionId: number }) {
     const [showInstructions, setShowInstructions] = useState(false);
-    const { player: livePlayer, opponent: liveOpponent, messages, isMyTurn, loading, moves, playerItems, onFight, onBag, onRun, onUseItem } =
+    const { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
 
     if (loading) {
