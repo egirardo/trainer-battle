@@ -4,10 +4,11 @@ import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
 import styles from './UserHomeBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
+import BossDialog from './BossDialog';
 
 const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
-  gender: 'male' as const,
+  gender: 'nb' as const,
   creature: {
     id: 1,
     name: 'Pikachu',
@@ -18,6 +19,18 @@ const mockTrainer: Trainer = {
     base_speed: 90,
     description: 'A small, yellow mouse-like Pokémon.',
     image: fireCreature,
+  },
+  playerCreature: {
+    id: 1,
+    player_id: '1',
+    creature_id: 1,
+    nickname: null,
+    level: 12,
+    experience: null,
+    current_hp: null,
+    attack: null,
+    defence: null,
+    speed: null,
   },
   id: '1',
   centralbank_uuid: 'centralbank-uuid',
@@ -32,6 +45,9 @@ export default function UserHomeBody() {
   return (
     <div className={styles.userHomeBody}>
       <ButtonGroup />
+      {mockTrainer.wins >= 6 && (
+        <BossDialog />
+      )} {/* Conditionally render BossDialog if trainer has 6 or more wins, this logic can change later based on what we decide in terms of win criteria */}
       <ProfilePreview trainer={mockTrainer} />
       <ProgressPreview wins={mockTrainer.wins} />
     </div>

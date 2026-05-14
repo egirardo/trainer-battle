@@ -5,12 +5,14 @@ type ButtonProps<C extends React.ElementType = 'button'> = {
   as?: C;
   children: React.ReactNode;
   className?: string;
+  variant?: 'default' | 'danger';
 } & Omit<React.ComponentPropsWithoutRef<C>, 'children' | 'className'>;
 
 export default function Button<C extends React.ElementType = 'button'>({
   as,
   children,
   className,
+  variant,
   ...props
 }: ButtonProps<C>) {
   const Component = as ?? 'button';
@@ -18,9 +20,10 @@ export default function Button<C extends React.ElementType = 'button'>({
     Component === 'button'
       ? { type: (props as React.ButtonHTMLAttributes<HTMLButtonElement>).type ?? 'button' }
       : {};
+  const variantClass = variant === 'danger' ? styles.danger : undefined;
   return (
     <Component
-      className={className ? `${styles.button} ${className}` : styles.button}
+      className={[styles.button, variantClass, className].filter(Boolean).join(' ')}
       {...extraProps}
       {...props}
     >
