@@ -37,7 +37,7 @@ export default function BattleBag({ items, isMyTurn, onBack, onUse }: BattleBagP
                                 {item.name}
                             </span>
                             <span>
-                                +{item.effect} HP
+                                +{item.effect} {item.effect_type === 'attack_boost' ? 'ATK' : item.effect_type === 'defence_boost' ? 'DEF' : 'HP'}
                             </span>
                             <span className={styles.itemQty}>
                                 Qty: {item.quantity}
