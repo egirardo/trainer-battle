@@ -2,15 +2,14 @@ import ButtonGroup from './ButtonGroup';
 import type { Trainer } from '@/models/models';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
-import styles from './UserHomeBody.module.css';
+import styles from './GameMenuBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 import BossDialog from './BossDialog';
 
 const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
-  gender: 'male' as const,
-  trainer_gender: 'male',
-  creature: {
+  trainer_gender: 'nb' as const,
+    creature: {
     id: 1,
     name: 'Pikachu',
     type: 'fire' as const,
@@ -42,9 +41,9 @@ const mockTrainer: Trainer = {
   created_at: new Date().toISOString(),
 };
 
-export default function UserHomeBody() {
+export default function GameMenuBody() {
   return (
-    <div className={styles.userHomeBody}>
+    <div className={styles.gameMenuBody}>
       <ButtonGroup />
       {mockTrainer.wins >= 6 && (
         <BossDialog />

@@ -29,7 +29,7 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
         <div className={styles.profilePreviewCard}>
             <div className={styles.imageContainer}>
                 <img src={trainer.creature.image} alt={`${trainer.creature.name} avatar`} />
-                <img src={trainerImages[trainer.gender]} alt={`${trainer.name} avatar`} />
+                <img src={trainerImages[trainer.trainer_gender]} alt={`${trainer.name} avatar`} />
             </div>
             <div className={styles.titleContainer}>
                 <div className={styles.trainerInfo}>

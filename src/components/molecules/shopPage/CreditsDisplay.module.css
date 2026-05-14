@@ -1,0 +1,24 @@
+.creditsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+}
+
+.creditsHeader h2 {
+    text-transform: uppercase;
+    font-family: var(--pixel-regular);
+    line-height: 1;
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.creditsDisplay {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.creditsText {
+    font-size: 1.25rem;
+}

@@ -119,7 +119,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         .select('*, creatures(*)')
                         .eq('id', opponentCreatureId)
                         .single();
-                    if (oppErr || !oppPC) throw new Error(oppErr?.message ?? 'Could not load opponent creature');
+                    if (oppErr || !oppPC) throw new Error('Could not load opponent creature');
                     const oppCreature = oppPC.creatures as { name: string; type: string; image: string; base_hp: number };
                     setOpponent({
                         name: oppCreature.name,
