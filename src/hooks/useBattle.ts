@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { ROUTES } from '@/routes';
 import type { BattleParticipantInfo, Move, PlayerItem } from '@/models/models';
+import { getCreatureImage } from '@/lib/creatureImages';
 
 interface UseBattleReturn {
     player: BattleParticipantInfo | null;
@@ -90,7 +91,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     level: myPC.level ?? 1,
                     currentHp: myHp,
                     maxHp: myCreature.base_hp,
-                    creatureImage: myCreature.image,
+                    creatureImage: getCreatureImage(myCreature.image),
                     creatureType: myCreature.type as 'fire' | 'water' | 'grass',
                 });
 
@@ -107,7 +108,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         level: 1,
                         currentHp: oppHp,
                         maxHp: cpuCreature.base_hp ?? 100,
-                        creatureImage: cpuCreature.image ?? '',
+                        creatureImage: getCreatureImage(cpuCreature.image ?? ''),
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
                     });
                 } else {
@@ -125,7 +126,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         level: oppPC.level ?? 1,
                         currentHp: oppHp,
                         maxHp: oppCreature.base_hp,
-                        creatureImage: oppCreature.image,
+                        creatureImage: getCreatureImage(oppCreature.image),
                         creatureType: oppCreature.type as 'fire' | 'water' | 'grass',
                     });
                 }
