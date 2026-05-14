@@ -165,6 +165,7 @@ export type Database = {
       }
       game_sessions: {
         Row: {
+          cpu_creature_id: number | null
           created_at: string | null
           current_turn: string | null
           id: number
@@ -178,6 +179,7 @@ export type Database = {
           winner_id: string | null
         }
         Insert: {
+          cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
           id?: number
@@ -191,6 +193,7 @@ export type Database = {
           winner_id?: string | null
         }
         Update: {
+          cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
           id?: number
@@ -204,6 +207,13 @@ export type Database = {
           winner_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "game_sessions_cpu_creature_id_fkey"
+            columns: ["cpu_creature_id"]
+            isOneToOne: false
+            referencedRelation: "creatures"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "game_sessions_player1_creature_id_fkey"
             columns: ["player1_creature_id"]
@@ -352,6 +362,7 @@ export type Database = {
       }
       player_stats: {
         Row: {
+          credits: number
           id: number
           lives: number
           player_id: string
@@ -361,6 +372,7 @@ export type Database = {
           total_wins: number
         }
         Insert: {
+          credits?: number
           id?: number
           lives?: number
           player_id: string
@@ -370,6 +382,7 @@ export type Database = {
           total_wins?: number
         }
         Update: {
+          credits?: number
           id?: number
           lives?: number
           player_id?: string

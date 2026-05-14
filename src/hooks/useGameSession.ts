@@ -57,51 +57,59 @@ export function useGameSession() {
         setError(null);
         setLoading(true);
 
-        const { data, error } = await fetchFromSupabase(() =>
-            supabase
-                .from("game_sessions")
+        try {
+            // Fetch all creatures and the player's current HP in parallel
+            const [creaturesResult, myCreatureResult] = await Promise.all([
+                supabase.from('creatures').select('id, base_hp'),
+                supabase.from('player_creatures').select('current_hp').eq('id', myCreatureId).single(),
+            ]);
+
+            if (creaturesResult.error || !creaturesResult.data?.length) {
+                setError('Could not load creatures');
+                return;
+            }
+
+            const allCreatures = creaturesResult.data;
+            const cpuCreature = allCreatures[Math.floor(Math.random() * allCreatures.length)];
+
+            const { data: session, error: sessionErr } = await supabase
+                .from('game_sessions')
                 .insert({
                     player1_id: user.id,
                     player1_creature_id: myCreatureId,
+                    cpu_creature_id: cpuCreature.id,
                     is_cpu: true,
-                    status: "active",
+                    status: 'active',
                     current_turn: user.id,
                 })
                 .select()
-                .single()
-        );
+                .single();
 
-        if (error || !data) {
-            setError(error?.message ?? "Unknown error");
+            if (sessionErr || !session) {
+                setError(sessionErr?.message ?? 'Unknown error');
+                return;
+            }
+
+            const { error: battleStateError } = await supabase.from('battle_state').insert({
+                session_id: session.id,
+                player1_hp: myCreatureResult.data?.current_hp ?? 100,
+                player2_hp: cpuCreature.base_hp ?? 100,
+                player1_status: 'normal',
+                player2_status: 'normal',
+                turn_number: 1,
+                is_finished: false,
+            });
+
+            if (battleStateError) {
+                setError(battleStateError.message);
+                return;
+            }
+
+            setSession(session as GameSession);
+            void navigate(`${ROUTES.battle}/${session.id}`);
+        } finally {
             setLoading(false);
-            return;
         }
-
-        const { data: myCreature } = await supabase
-            .from('player_creatures')
-            .select('current_hp')
-            .eq('id', myCreatureId)
-            .single();
-
-        const { error: battleStateError } = await supabase.from('battle_state').insert({
-            session_id: data.id,
-            player1_hp: myCreature?.current_hp ?? 0,
-            player2_hp: myCreature?.current_hp ?? 0, // CPU matches player level
-            player1_status: 'normal',
-            player2_status: 'normal',
-            turn_number: 1,
-            is_finished: false,
-        });
-
-        if (battleStateError) {
-            setError(battleStateError.message);
-            setLoading(false);
-            return;
-        }
-
-        setSession(data as GameSession);
-        void navigate(`${ROUTES.battle}/${data.id}`);
-        setLoading(false);
     }
 
     // Accept a PVP session
