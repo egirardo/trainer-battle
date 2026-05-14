@@ -5,10 +5,11 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL')!,
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-)
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey)
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -25,10 +26,17 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Verify the JWT and get the user information
-    const { data: { user }, error: userError } = await supabase.auth.getUser(
-      authHeader.replace('Bearer ', '')
-    )
+    const token = authHeader.replace('Bearer ', '')
+
+    // Verify the JWT and get the user information with a request-scoped user client
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    })
+    const { data: { user }, error: userError } = await userClient.auth.getUser()
 
     if (userError || !user) {
       return new Response(
@@ -38,7 +46,7 @@ Deno.serve(async (req) => {
     }
 
     // Check if the user is an admin
-    const { data: profile, error: profileError } = await supabase
+    const { data: profile, error: profileError } = await adminClient
       .from('profiles')
       .select('is_admin')
       .eq('id', user.id)
