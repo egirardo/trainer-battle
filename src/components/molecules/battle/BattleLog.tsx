@@ -6,12 +6,14 @@ interface BattleLogProps {
 }
 
 export default function BattleLog({ messages, isMyTurn }: BattleLogProps) {
-    const last = messages.at(-1);
+    const recent = messages.slice(-2);
     return (
         <div className={styles.log} aria-live="polite" aria-label="Battle messages">
-            {last && <p className={styles.message}>{last}</p>}
+            {recent.map((msg, i) => (
+                <p key={i} className={styles.message}>{msg}</p>
+            ))}
             {isMyTurn && <p className={styles.prompt}>What will you do?</p>}
-            {!isMyTurn && !last && <p className={styles.prompt}>Waiting for opponent…</p>}
+            {!isMyTurn && messages.length === 0 && <p className={styles.prompt}>Waiting for opponent…</p>}
         </div>
     );
 }
