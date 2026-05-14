@@ -57,51 +57,86 @@ export function useGameSession() {
         setError(null);
         setLoading(true);
 
-        const { data, error } = await fetchFromSupabase(() =>
-            supabase
-                .from("game_sessions")
+        try {
+            // Pick a random creature from the DB for the CPU
+            const { data: allCreatures, error: creaturesErr } = await supabase
+                .from('creatures')
+                .select('id, base_hp, base_attack, base_defence, base_speed');
+
+            if (creaturesErr || !allCreatures?.length) {
+                setError('Could not load creatures');
+                return;
+            }
+
+            const cpuCreature = allCreatures[Math.floor(Math.random() * allCreatures.length)];
+
+            // Create a player_creatures row for the CPU creature
+            const { data: cpuPC, error: cpuPCErr } = await supabase
+                .from('player_creatures')
+                .insert({
+                    player_id: user.id,
+                    creature_id: cpuCreature.id,
+                    level: 1,
+                    current_hp: cpuCreature.base_hp ?? 100,
+                    attack: cpuCreature.base_attack,
+                    defence: cpuCreature.base_defence,
+                    speed: cpuCreature.base_speed,
+                })
+                .select()
+                .single();
+
+            if (cpuPCErr || !cpuPC) {
+                setError('Could not create CPU creature');
+                return;
+            }
+
+            // Fetch player's current HP
+            const { data: myCreature } = await supabase
+                .from('player_creatures')
+                .select('current_hp')
+                .eq('id', myCreatureId)
+                .single();
+
+            // Create the game session with both creature IDs set
+            const { data: session, error: sessionErr } = await supabase
+                .from('game_sessions')
                 .insert({
                     player1_id: user.id,
                     player1_creature_id: myCreatureId,
+                    player2_creature_id: cpuPC.id,
                     is_cpu: true,
-                    status: "active",
+                    status: 'active',
                     current_turn: user.id,
                 })
                 .select()
-                .single()
-        );
+                .single();
 
-        if (error || !data) {
-            setError(error?.message ?? "Unknown error");
+            if (sessionErr || !session) {
+                setError(sessionErr?.message ?? 'Unknown error');
+                return;
+            }
+
+            // Create battle state with each side's actual HP
+            const { error: battleStateError } = await supabase.from('battle_state').insert({
+                session_id: session.id,
+                player1_hp: myCreature?.current_hp ?? 100,
+                player2_hp: cpuCreature.base_hp ?? 100,
+                player1_status: 'normal',
+                player2_status: 'normal',
+                turn_number: 1,
+                is_finished: false,
+            });
+
+            if (battleStateError) {
+                setError(battleStateError.message);
+                return;
+            }
+
+            setSession(session as GameSession);
+            void navigate(`${ROUTES.battle}/${session.id}`);
+        } finally {
             setLoading(false);
-            return;
         }
-
-        const { data: myCreature } = await supabase
-            .from('player_creatures')
-            .select('current_hp')
-            .eq('id', myCreatureId)
-            .single();
-
-        const { error: battleStateError } = await supabase.from('battle_state').insert({
-            session_id: data.id,
-            player1_hp: myCreature?.current_hp ?? 0,
-            player2_hp: myCreature?.current_hp ?? 0, // CPU matches player level
-            player1_status: 'normal',
-            player2_status: 'normal',
-            turn_number: 1,
-            is_finished: false,
-        });
-
-        if (battleStateError) {
-            setError(battleStateError.message);
-            setLoading(false);
-            return;
-        }
-
-        setSession(data as GameSession);
-        void navigate(`${ROUTES.battle}/${data.id}`);
-        setLoading(false);
     }
 
     // Accept a PVP session
