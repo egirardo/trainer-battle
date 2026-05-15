@@ -277,7 +277,7 @@ export default function AdminPanel() {
                     <thead>
                         <tr>
                             <th>ID</th><th>Name</th><th>Description</th>
-                            <th>Effect</th><th>Price</th><th>Actions</th>
+                            <th>Effect</th><th>Effect Type</th><th>Price</th><th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -296,6 +296,7 @@ export default function AdminPanel() {
                                     <td>{item.name}</td>
                                     <td>{item.description}</td>
                                     <td>{item.effect}</td>
+                                    <td>{item.effect_type}</td>
                                     <td>{item.price}</td>
                                     <td>
                                         <button onClick={() => setEditingItemId(item.id)}>Edit</button>
