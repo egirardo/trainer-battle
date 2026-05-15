@@ -90,7 +90,7 @@ export default function LobbyScreen() {
                     </ul>
                 )}
             </section>
-nvdkjnf
+
             <section aria-label="CPU battle">
                 <h2>Battle against CPU</h2>
                 <p>Your opponent will match your skill level.</p>
