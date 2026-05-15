@@ -283,10 +283,14 @@ Deno.serve(async (req) => {
             }
         } else if (!session.is_cpu) {
             const nextTurn = isPlayer1 ? session.player2_id : session.player1_id
-            await adminClient
+            const { error: updateTurnErr } = await adminClient
                 .from('game_sessions')
                 .update({ current_turn: nextTurn })
                 .eq('id', sessionId)
+
+            if (updateTurnErr) {
+                return errorResponse('Failed to hand off turn', 500)
+            }
         }
 
         return new Response(
