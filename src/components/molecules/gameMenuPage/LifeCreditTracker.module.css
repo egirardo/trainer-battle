@@ -1,0 +1,39 @@
+.trackerContainer {
+  display: flex;
+  justify-content: space-between;
+}
+
+.livesRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.label {
+  text-transform: uppercase;
+  font-family: var(--pixel-regular);
+  line-height: 1;
+  font-size: 1.5rem;
+}
+
+.heartIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.creditsRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.starIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.creditsText {
+  font-size: 1.25rem;
+}

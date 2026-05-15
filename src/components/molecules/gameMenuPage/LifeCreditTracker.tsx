@@ -1,0 +1,37 @@
+// TODO: Replace mock data with real player_stats once the DB is wired up.
+// Fetch from player_stats via usePlayerStats() or equivalent hook, e.g.:
+//   const { data: playerStats } = usePlayerStats(playerId);
+//   const lives = playerStats?.lives ?? 0;
+//   const credits = playerStats?.credits ?? 0;
+// Then remove the MOCK_LIVES and MOCK_CREDITS constants below and
+// remove the LifeCreditTrackerProps interface (props won't be needed if data is fetched here),
+// or keep props if the parent is responsible for passing player_stats down.
+
+import styles from './LifeCreditTracker.module.css';
+import filledHeart from '@/assets/sprites/icons/filled-heart.svg';
+import emptyHeart from '@/assets/sprites/icons/empty-heart.svg';
+import starIcon from '@/assets/sprites/badges/star-badge.svg';
+
+const MOCK_LIVES = 1;
+const MOCK_CREDITS = 42;
+
+export default function LifeCreditTracker() {
+  const lives = MOCK_LIVES;
+  const credits = MOCK_CREDITS;
+
+  return (
+    <div className={styles.trackerContainer}>
+      <div className={styles.livesRow}>
+        <img
+          src={lives >= 1 ? filledHeart : emptyHeart}
+          alt={lives >= 1 ? 'Life remaining' : 'No lives remaining'}
+          className={styles.heartIcon}
+        />
+      </div>
+      <div className={styles.creditsRow}>
+        <img src={starIcon} alt="Credits Icon" className={styles.starIcon} />
+        <span className={styles.creditsText}>{credits}</span>
+      </div>
+    </div>
+  );
+}
