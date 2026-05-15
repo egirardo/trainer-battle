@@ -6,7 +6,6 @@ const corsHeaders = {
 }
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
 const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
 const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey)
@@ -27,18 +26,28 @@ Deno.serve(async (req) => {
     }
 
     const token = authHeader.replace('Bearer ', '')
+    const parts = token.split('.')
 
-    // Verify the JWT and get the user information with a request-scoped user client
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    })
-    const { data: { user }, error: userError } = await userClient.auth.getUser()
+    if (parts.length !== 3) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid token format' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      )
+    }
 
-    if (userError || !user) {
+    const base64url = parts[1]
+    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
+    const padding = '='.repeat((4 - (base64.length % 4)) % 4)
+    const payload = JSON.parse(
+      new TextDecoder().decode(
+        Uint8Array.from(atob(base64 + padding), c => c.charCodeAt(0))
+      )
+    ) as { sub?: string; exp?: number }
+
+    const userId = payload.sub
+    const now = Math.floor(Date.now() / 1000)
+
+    if (!userId || (payload.exp && payload.exp < now)) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
@@ -49,7 +58,7 @@ Deno.serve(async (req) => {
     const { data: profile, error: profileError } = await adminClient
       .from('profiles')
       .select('is_admin')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single()
 
     if (profileError || !profile) {

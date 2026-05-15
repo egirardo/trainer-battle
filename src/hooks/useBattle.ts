@@ -233,13 +233,49 @@ export function useBattle(sessionId: number): UseBattleReturn {
         if (!user || !isMyTurn) return;
         setIsMyTurn(false)
 
-        type InvokeResponse = { data: unknown; error: { message: string } | null };
+        type InvokeError = { message: string; context?: Response };
+        
+        // Try to refresh token first, then get current session
+        const { error: refreshError } = await supabase.auth.refreshSession()
+        if (refreshError) {
+            setError(`Session refresh failed: ${refreshError.message}`)
+            setIsMyTurn(true)
+            return
+        }
+
+        const { data, error: sessionError } = await supabase.auth.getSession()
+        const accessToken = data?.session?.access_token
+
+        if (sessionError || !accessToken) {
+            setError(sessionError?.message ?? 'No active session')
+            setIsMyTurn(true)
+            return
+        }
+
+        // Explicitly pass Authorization header
         const { error } = await supabase.functions.invoke('resolve-turn', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
             body: { sessionId, playerId: user.id, moveId }
-        }) as InvokeResponse;
+        }) as { error: InvokeError | null };
 
         if (error) {
-            setError(error.message)
+            let message = error.message
+
+            if (error.context instanceof Response) {
+                try {
+                    const payload = await error.context.clone().json() as { error?: string }
+                    message = payload.error ?? message
+                } catch {
+                    const fallback = await error.context.clone().text()
+                    if (fallback) {
+                        message = fallback
+                    }
+                }
+            }
+
+            setError(message)
             setIsMyTurn(true)
             return
         }
