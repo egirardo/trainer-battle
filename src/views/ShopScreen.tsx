@@ -17,11 +17,13 @@ const mockPlayerStats: PlayerStats = {
     credits: 100,
 };
 
-const mockItem = {
+const mockItem: Item = {
     id: 1,
     name: 'Health Potion',
     description: 'Restores 50 HP to your creature.',
+    on_use: 'Used a Health Potion! Restored 50 HP.',
     effect: 50,
+    effect_type: 'heal',
     price: 20,
     image: heart,
 };
