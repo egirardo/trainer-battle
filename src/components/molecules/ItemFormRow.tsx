@@ -12,16 +12,19 @@ type ItemFormRowProps = {
     onSubmit: (data: Omit<Item, 'id'>) => Promise<void>;
 };
 
-export default function ItemFormRow({ 
-    idPrefix = "new", 
-    submitLabel = "Add", 
-    initialValues = {}, 
-    onSubmit 
+export default function ItemFormRow({
+    idPrefix = "new",
+    submitLabel = "Add",
+    initialValues = {},
+    onSubmit
 }: ItemFormRowProps) {
     const [form, setForm] = useState({
         name: initialValues.name ?? "",
         description: initialValues.description ?? "",
+        on_use: initialValues.on_use ?? "",
+        image: initialValues.image ?? "",
         effect: initialValues.effect ?? 0,
+        effect_type: initialValues.effect_type ?? "heal" as Item["effect_type"],
         price: initialValues.price ?? 0
     });
 
@@ -30,14 +33,28 @@ export default function ItemFormRow({
         setForm({ ...form, [e.target.name]: value });
     }
 
+    function handleSubmit() {
+        void onSubmit({
+            ...form,
+            name: form.name || null,
+            description: form.description || null,
+            on_use: form.on_use || null,
+            image: form.image || null,
+            effect: form.effect,
+            price: form.price,
+        });
+    }
+
     return (
         <tr>
             <td>{idPrefix === "new" ? "New" : idPrefix}</td>
             <td><InputField hasLabel={false} name="name" id={`${idPrefix}-name`} placeholder="Item name" value={form.name} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" value={form.description} onChange={handleChange} /></td>
+            <td><InputField hasLabel={false} name="on_use" id={`${idPrefix}-on_use`} placeholder="On use message" value={form.on_use} onChange={handleChange} /></td>
+            <td><InputField hasLabel={false} name="image" id={`${idPrefix}-image`} placeholder="Image" value={form.image} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} type="number" name="effect" id={`${idPrefix}-effect`} placeholder="Effect" value={form.effect} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} type="number" name="price" id={`${idPrefix}-price`} placeholder="Price" value={form.price} onChange={handleChange} /></td>
-            <td><Button type="button" onClick={() => { void onSubmit(form); }}>{submitLabel}</Button></td>
+            <td><Button type="button" onClick={handleSubmit}>{submitLabel}</Button></td>
         </tr>
     );
 }
