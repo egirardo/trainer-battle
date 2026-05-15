@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { ROUTES } from '@/routes';
-import type { BattleParticipantInfo, Move, PlayerItem } from '@/models/models';
+import type { BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
 import { getCreatureImage } from '@/lib/creatureImages';
 
 interface UseBattleReturn {
@@ -79,8 +79,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const myCreature = myPC.creatures as { name: string; type: string; image: string; base_hp: number };
                 const battleState = battleStateResult.data;
 
-                const myHp = (isPlayer1 ? battleState?.player1_hp : battleState?.player2_hp) ?? myPC.current_hp ?? 0;
-                const oppHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp) ?? 0;
+                const myHp = (isPlayer1 ? battleState?.player1_hp : battleState?.player2_hp) ?? myCreature.base_hp;
+                const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
 
                 if (battleState?.last_move_description) {
                     setMessages([battleState.last_move_description]);
@@ -106,7 +106,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
                         level: 1,
-                        currentHp: oppHp,
+                        currentHp: oppBattleHp ?? cpuCreature.base_hp ?? 100,
                         maxHp: cpuCreature.base_hp ?? 100,
                         creatureImage: getCreatureImage(cpuCreature.image ?? ''),
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
@@ -124,7 +124,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     setOpponent({
                         name: oppCreature.name,
                         level: oppPC.level ?? 1,
-                        currentHp: oppHp,
+                        currentHp: oppBattleHp ?? oppCreature.base_hp,
                         maxHp: oppCreature.base_hp,
                         creatureImage: getCreatureImage(oppCreature.image),
                         creatureType: oppCreature.type as 'fire' | 'water' | 'grass',
@@ -143,7 +143,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 // 5. Fetch player's bag items
                 const { data: itemsData } = await supabase
                     .from('player_items')
-                    .select('id, item_id, quantity, items(name, description, effect, price)')
+                    .select('id, item_id, quantity, items(name, description, on_use, effect, effect_type, price)')
                     .eq('player_id', user.id)
                     .gt('quantity', 0);
                 if (itemsData) {
@@ -151,12 +151,14 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         itemsData
                             .filter((row) => row.items !== null)
                             .map((row) => {
-                                const item = row.items as { name: string; description: string; effect: number; price: number };
+                                const item = row.items as { name: string; description: string; on_use: string | null; effect: number; effect_type: ItemEffectType; price: number };
                                 return {
                                     id: row.item_id,
                                     name: item.name ?? '',
                                     description: item.description ?? '',
+                                    on_use: item.on_use ?? null,
                                     effect: item.effect ?? 0,
+                                    effect_type: item.effect_type ?? 'heal',
                                     price: item.price ?? 0,
                                     quantity: row.quantity ?? 0,
                                 };
@@ -286,9 +288,38 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     function onBag() {}
 
-    async function onUseItem(_itemId: number) {
+    async function onUseItem(itemId: number) {
         if (!user || !isMyTurn) return;
-        // TODO: decrement player_items.quantity and apply item effect via edge function
+        setIsMyTurn(false);
+
+        type UseItemResponse = { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean };
+        type InvokeResponse = { data: UseItemResponse | null; error: { message: string } | null };
+        const { data, error } = await supabase.functions.invoke('use-item', {
+            body: { sessionId, playerId: user.id, itemId }
+        }) as InvokeResponse;
+
+        if (error) {
+            setError(error.message);
+            setIsMyTurn(true);
+            return;
+        }
+
+        if (data) {
+            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp;
+            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp;
+            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null);
+            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null);
+        }
+
+        setPlayerItems(prev =>
+            prev
+                .map(item => item.id === itemId ? { ...item, quantity: item.quantity - 1 } : item)
+                .filter(item => item.quantity > 0)
+        );
+
+        if (isCpuRef.current) {
+            setIsMyTurn(true);
+        }
     }
 
     async function onRun(): Promise<void> {

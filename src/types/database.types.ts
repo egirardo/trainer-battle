@@ -19,8 +19,12 @@ export type Database = {
           id: number
           is_finished: boolean
           last_move_description: string | null
+          player1_attack_modifier: number
+          player1_defence_modifier: number
           player1_hp: number | null
           player1_status: string | null
+          player2_attack_modifier: number
+          player2_defence_modifier: number
           player2_hp: number | null
           player2_status: string | null
           session_id: number | null
@@ -30,8 +34,12 @@ export type Database = {
           id?: number
           is_finished?: boolean
           last_move_description?: string | null
+          player1_attack_modifier?: number
+          player1_defence_modifier?: number
           player1_hp?: number | null
           player1_status?: string | null
+          player2_attack_modifier?: number
+          player2_defence_modifier?: number
           player2_hp?: number | null
           player2_status?: string | null
           session_id?: number | null
@@ -41,8 +49,12 @@ export type Database = {
           id?: number
           is_finished?: boolean
           last_move_description?: string | null
+          player1_attack_modifier?: number
+          player1_defence_modifier?: number
           player1_hp?: number | null
           player1_status?: string | null
+          player2_attack_modifier?: number
+          player2_defence_modifier?: number
           player2_hp?: number | null
           player2_status?: string | null
           session_id?: number | null
@@ -233,22 +245,31 @@ export type Database = {
         Row: {
           description: string | null
           effect: number | null
+          effect_type: Database["public"]["Enums"]["item_effect_type"]
           id: number
+          image: string | null
           name: string | null
+          on_use: string | null
           price: number | null
         }
         Insert: {
           description?: string | null
           effect?: number | null
+          effect_type?: Database["public"]["Enums"]["item_effect_type"]
           id?: number
+          image?: string | null
           name?: string | null
+          on_use?: string | null
           price?: number | null
         }
         Update: {
           description?: string | null
           effect?: number | null
+          effect_type?: Database["public"]["Enums"]["item_effect_type"]
           id?: number
+          image?: string | null
           name?: string | null
+          on_use?: string | null
           price?: number | null
         }
         Relationships: []
@@ -430,7 +451,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      item_effect_type: "heal" | "attack_boost" | "defence_boost"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -557,6 +578,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      item_effect_type: ["heal", "attack_boost", "defence_boost"],
+    },
   },
 } as const
