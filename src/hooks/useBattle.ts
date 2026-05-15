@@ -236,20 +236,35 @@ export function useBattle(sessionId: number): UseBattleReturn {
         setIsMyTurn(false)
 
         type InvokeError = { message: string; context?: Response };
-        
-        // Try to refresh token first, then get current session
-        const { error: refreshError } = await supabase.auth.refreshSession()
-        if (refreshError) {
-            setError(`Session refresh failed: ${refreshError.message}`)
+        const SESSION_REFRESH_BUFFER_SECONDS = 60;
+
+        const { data, error: sessionError } = await supabase.auth.getSession()
+        if (sessionError) {
+            setError(sessionError.message)
             setIsMyTurn(true)
             return
         }
 
-        const { data, error: sessionError } = await supabase.auth.getSession()
-        const accessToken = data?.session?.access_token
+        let session = data?.session ?? null
+        const nowInSeconds = Math.floor(Date.now() / 1000)
+        const expiresAt = session?.expires_at ?? 0
+        const shouldRefresh =
+            !session?.access_token ||
+            (expiresAt > 0 && expiresAt - nowInSeconds <= SESSION_REFRESH_BUFFER_SECONDS)
 
-        if (sessionError || !accessToken) {
-            setError(sessionError?.message ?? 'No active session')
+        if (shouldRefresh) {
+            const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
+            if (refreshError) {
+                setError(`Session refresh failed: ${refreshError.message}`)
+                setIsMyTurn(true)
+                return
+            }
+            session = refreshedData.session ?? null
+        }
+
+        const accessToken = session?.access_token
+        if (!accessToken) {
+            setError('No active session')
             setIsMyTurn(true)
             return
         }
