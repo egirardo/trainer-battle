@@ -58,10 +58,9 @@ export function useGameSession() {
         setLoading(true);
 
         try {
-            // Fetch all creatures and the player's current HP in parallel
             const [creaturesResult, myCreatureResult] = await Promise.all([
                 supabase.from('creatures').select('id, base_hp'),
-                supabase.from('player_creatures').select('current_hp').eq('id', myCreatureId).single(),
+                supabase.from('player_creatures').select('creatures(base_hp)').eq('id', myCreatureId).single(),
             ]);
 
             if (creaturesResult.error || !creaturesResult.data?.length) {
@@ -92,7 +91,7 @@ export function useGameSession() {
 
             const { error: battleStateError } = await supabase.from('battle_state').insert({
                 session_id: session.id,
-                player1_hp: myCreatureResult.data?.current_hp ?? 100,
+                player1_hp: (myCreatureResult.data?.creatures as { base_hp: number | null } | null)?.base_hp ?? 100,
                 player2_hp: cpuCreature.base_hp ?? 100,
                 player1_status: 'normal',
                 player2_status: 'normal',
@@ -132,24 +131,27 @@ export function useGameSession() {
             return;
         }
 
-        // Fetch both creatures current HP
+        // Fetch both creatures' base HP
         const [myCreature, opponentCreature] = await Promise.all([
             supabase
                 .from('player_creatures')
-                .select('current_hp')
+                .select('creatures(base_hp)')
                 .eq('id', myCreatureId)
                 .single(),
             supabase
                 .from('player_creatures')
-                .select('current_hp')
+                .select('creatures(base_hp)')
                 .eq('id', sessionData.player1_creature_id)
                 .single(),
         ]);
 
+        const myBaseHp = (myCreature.data?.creatures as { base_hp: number | null } | null)?.base_hp ?? 100;
+        const oppBaseHp = (opponentCreature.data?.creatures as { base_hp: number | null } | null)?.base_hp ?? 100;
+
         const { error: battleStateError } = await supabase.from('battle_state').insert({
             session_id: sessionId,
-            player1_hp: opponentCreature.data?.current_hp ?? 0,
-            player2_hp: myCreature.data?.current_hp ?? 0,
+            player1_hp: oppBaseHp,
+            player2_hp: myBaseHp,
             player1_status: 'normal',
             player2_status: 'normal',
             turn_number: 1,

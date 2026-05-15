@@ -38,15 +38,6 @@ export interface Move {
     description: string;
 }
 
-export interface Item {
-    id: number;
-    name: string;
-    description: string;
-    effect: number;
-    price: number;
-    image?: string;
-}
-
 export interface PlayerItem extends Item {
     quantity: number;
 }
@@ -121,4 +112,17 @@ export interface PlayerStats {
     total_forfeits: number;
     lives: number;
     credits: number;
+}
+
+export type ItemEffectType = 'heal' | 'attack_boost' | 'defence_boost';
+
+export interface Item {
+    id: number;
+    name: string;
+    description: string;
+    on_use: string | null;
+    image?: string;
+    effect: number;
+    effect_type: ItemEffectType;
+    price: number;
 }
