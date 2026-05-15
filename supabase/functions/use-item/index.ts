@@ -33,10 +33,21 @@ Deno.serve(async (req) => {
     }
 
     try {
-        const rawBody = await req.text()
-        const { sessionId, playerId, itemId } = JSON.parse(rawBody)
+        const token = req.headers.get('Authorization')?.replace('Bearer ', '')
+        const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+        if (authError || !user) {
+            return new Response(
+                JSON.stringify({ error: 'Unauthorized' }),
+                { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
+        }
 
-        if (!sessionId || !playerId || !itemId) {
+        const playerId = user.id
+
+        const rawBody = await req.text()
+        const { sessionId, itemId } = JSON.parse(rawBody)
+
+        if (!sessionId || !itemId) {
             return new Response(
                 JSON.stringify({ error: 'Missing required parameters' }),
                 { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
@@ -61,7 +72,7 @@ Deno.serve(async (req) => {
         const itemData = playerItem.items as { name: string; description: string | null; on_use: string | null; effect: number | null; effect_type: string | null } | null
         const itemEffect = itemData?.effect ?? 0
         const effectType = itemData?.effect_type ?? 'heal'
-        const itemDescription = itemData?.on_use ?? "Used " + itemData?.name ?? 'Used an item'
+        const itemDescription = itemData?.on_use ?? ("Used " + (itemData?.name ?? 'an item'))
 
         // Fetch session and battle state
         const [{ data: session, error: sessionErr }, { data: battleState, error: stateErr }] = await Promise.all([
@@ -77,7 +88,36 @@ Deno.serve(async (req) => {
         }
 
         const isPlayer1 = session.player1_id === playerId
-        const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id
+        const isPlayer2 = session.player2_id === playerId
+        
+         if (!isPlayer1 && !isPlayer2) {
+             return new Response(
+                 JSON.stringify({ error: 'Player is not a participant in this session' }),
+                 { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+             )
+         }
+
+        if (session.status !== 'active') {
+            return new Response(
+                JSON.stringify({ error: 'Battle is not active' }),
+                { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
+        }
+
+        const { count } = await supabase
+            .from('game_sessions')
+            .update({ current_turn: null })
+            .eq('id', sessionId)
+            .eq('current_turn', playerId)
+            .select('*', { count: 'exact', head: true })
+
+        if (!count) {
+            return new Response(
+                JSON.stringify({ error: 'Not your turn' }),
+                { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
+        }
+
 
         const { data: myPC, error: myPCErr } = await supabase
             .from('player_creatures')
@@ -166,7 +206,8 @@ Deno.serve(async (req) => {
             supabase
                 .from('player_items')
                 .update({ quantity: playerItem.quantity - 1 })
-                .eq('id', playerItem.id),
+                .eq('id', playerItem.id)
+                .gt('quantity', 0),
             supabase
                 .from('battle_state')
                 .update({
@@ -188,8 +229,16 @@ Deno.serve(async (req) => {
                 .from('game_sessions')
                 .update({ status: 'finished', winner_id: null })
                 .eq('id', sessionId)
-        } else if (!session.is_cpu) {
-            const nextTurn = isPlayer1 ? session.player2_id : session.player1_id
+
+            await supabase.rpc('increment_player_stats', {
+                p_player_id: playerId,
+                p_wins: 0,
+                p_battles: 1,
+            })
+        } else {
+            const nextTurn = session.is_cpu
+                ? playerId
+                : (isPlayer1 ? session.player2_id : session.player1_id)
             await supabase
                 .from('game_sessions')
                 .update({ current_turn: nextTurn })

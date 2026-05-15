@@ -1,0 +1,50 @@
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%       { transform: translateX(-6px); }
+    40%       { transform: translateX(6px); }
+    60%       { transform: translateX(-4px); }
+    80%       { transform: translateX(4px); }
+}
+
+.shopLayout {
+    height: 100svh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.shopMain {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.itemsScroll {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.itemsColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: fit-content;
+    margin: 0 auto;
+}
+
+/* Override ItemBox's own width: fit-content so flex stretch applies,
+   making every box expand to the width of the widest one. */
+.itemsColumn > * {
+    width: auto;
+}
+
+.fundsError {
+    color: var(--accent);
+    font-family: var(--pixel-regular);
+    font-size: 1.25rem;
+    margin: 0.5rem 1rem;
+    text-align: center;
+    animation: shake 0.4s ease-in-out;
+}
