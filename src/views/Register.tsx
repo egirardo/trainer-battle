@@ -2,6 +2,9 @@ import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
+import InputField from "../components/atoms/InputField";
+import Button from "../components/atoms/button";
+import styles from "./AuthForm.module.css";
 
 interface RegisterForm {
     email: string;
@@ -9,11 +12,11 @@ interface RegisterForm {
     startcode: string;
 }
 
-async function verifyCentralbankStartCode(email: string, startcode: string): Promise<string | null> {
+function verifyCentralbankStartCode(email: string, startcode: string): Promise<string | null> {
     // TODO: replace with actual API call to centralbank
     // Should return centralbank_uuid on success, null on failure
     console.log("Verifying startcode with Centralbank...", email, startcode);
-    return "mock-centralbank-uuid-1234";
+    return Promise.resolve("mock-centralbank-uuid-1234");
 }
 
 export default function Register() {
@@ -92,38 +95,38 @@ export default function Register() {
     return (
         <main>
             <h1>Register</h1>
-            <form onSubmit={handleRegister}>
-                <label htmlFor="email">Email</label>
-                <input
+            <form className={styles.form} onSubmit={(e) => void handleRegister(e)}>
+                <InputField
                     id="email"
                     type="email"
                     name="email"
+                    labelName="Email"
                     placeholder="Email"
                     value={form.email}
                     onChange={handleChange}
                 />
-                <label htmlFor="username">Username</label>
-                <input
+                <InputField
                     id="username"
                     type="text"
                     name="username"
+                    labelName="Username"
                     placeholder="Username"
                     value={form.username}
                     onChange={handleChange}
                 />
-                <label htmlFor="startcode">Start code</label>
-                <input
+                <InputField
                     id="startcode"
                     type="password"
                     name="startcode"
+                    labelName="Start code"
                     placeholder="Start code"
                     value={form.startcode}
                     onChange={handleChange}
+                    error={error ?? undefined}
                 />
-                {error && <p role="alert">{error}</p>}
-                <button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading}>
                     {loading ? "Registering..." : "Register"}
-                </button>
+                </Button>
             </form>
             <Link to="/login">Already have an account? Login</Link>
         </main>
