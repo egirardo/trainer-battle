@@ -1,0 +1,43 @@
+.totalDisplay {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding: 0.5rem 1rem;
+    background-color: var(--background);
+    font-weight: bold;
+    border-top: 3px solid var(--border);
+    margin: .5rem;
+    gap: 0.75rem;
+}
+
+.totalCount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    gap: 0.5rem;
+}
+
+.totalAmount {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.totalText {
+    font-family: var(--pixel-bold);
+    font-size: 1.25rem;
+    text-transform: uppercase;
+}
+
+.buyButton {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+}
+
+.totalAmount p {
+    font-family: var(--pixel-regular);
+    font-size: 1.25rem;
+    line-height: 1;
+    text-align: center;
+}
