@@ -12,7 +12,7 @@ type ItemGroupProps = {
 export default function ItemGroup({ items, quantities, onAdd, onRemove }: ItemGroupProps) {
     return (
         <div className={styles.itemGroup}>
-            <div className={styles.itemList}>
+            <div>
                 {items.map((item) => (
                     <ItemBox
                         key={item.id}

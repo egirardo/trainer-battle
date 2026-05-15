@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import MenuButton from '@/components/atoms/headerButtons/MenuButton';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
@@ -25,6 +25,12 @@ export default function ShopScreen() {
     const [fundsError, setFundsError] = useState<string | null>(null);
     const [fundsErrorKey, setFundsErrorKey] = useState(0);
     const fundsErrorTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (fundsErrorTimeout.current) clearTimeout(fundsErrorTimeout.current);
+        };
+    }, []);
 
     function handleAdd(itemId: number) {
         const item = items.find(i => i.id === itemId);
@@ -69,7 +75,7 @@ export default function ShopScreen() {
             </header>
             <main className={styles.shopMain}>
                 <CreditsDisplay credits={credits} />
-                {fundsError && <p key={fundsErrorKey} className={styles.fundsError}>{fundsError}</p>}
+                {fundsError && <p key={fundsErrorKey} className={styles.fundsError} role="alert" aria-atomic="true">{fundsError}</p>}
                 <div className={styles.itemsScroll}>
                     <div className={styles.itemsColumn}>
                         {items.map(item => (

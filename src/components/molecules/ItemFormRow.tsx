@@ -4,11 +4,20 @@ import InputField from "../atoms/InputField";
 import type { Tables } from "@/types/database.types";
 
 type Item = Tables<"items">;
+type EffectType = "heal" | "attack_boost" | "defence_boost";
 
 type ItemFormRowProps = {
     idPrefix?: string;
     submitLabel?: string;
-    initialValues?: Partial<Omit<Item, 'id'>>;
+    initialValues?: {
+        name?: string | null;
+        description?: string | null;
+        on_use?: string | null;
+        image?: string | null;
+        effect?: number | null;
+        effect_type?: EffectType | null;
+        price?: number | null;
+    };
     onSubmit: (data: Omit<Item, 'id'>) => Promise<void>;
 };
 
@@ -24,13 +33,14 @@ export default function ItemFormRow({
         on_use: initialValues.on_use ?? "",
         image: initialValues.image ?? "",
         effect: initialValues.effect ?? 0,
-        effect_type: initialValues.effect_type ?? "heal" as Item["effect_type"],
+        effect_type: initialValues.effect_type ?? "heal",
         price: initialValues.price ?? 0
     });
 
     function handleChange(e: ChangeEvent<HTMLInputElement>): void {
         const value = e.target.type === "number" ? Number(e.target.value) : e.target.value;
-        setForm({ ...form, [e.target.name]: value });
+        const update = { [e.target.name]: value } as Partial<typeof form>;
+        setForm({ ...form, ...update });
     }
 
     function handleSubmit() {

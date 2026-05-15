@@ -4,35 +4,41 @@ import { fetchFromSupabase } from "@/lib/fetchSupabase";
 import { useAuth } from "./useAuth";
 import type { PlayerStats } from "@/models/models";
 
+type StatsState = {
+    stats: PlayerStats | null;
+    loading: boolean;
+    error: string | null;
+};
+
 export function usePlayerStats() {
     const { user } = useAuth();
-    const [stats, setStats] = useState<PlayerStats | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [state, setState] = useState<StatsState>({ stats: null, loading: true, error: null });
 
     useEffect(() => {
-        if (!user) return;
+        async function syncStats() {
+            if (!user) {
+                setState({ stats: null, loading: false, error: null });
+                return;
+            }
 
-        async function fetchStats() {
-            setLoading(true);
+            setState(prev => ({ ...prev, loading: true }));
             const { data, error } = await fetchFromSupabase(() =>
                 supabase
                     .from("player_stats")
                     .select("*")
-                    .eq("player_id", user!.id)
+                    .eq("player_id", user.id)
                     .single()
             );
 
             if (error) {
-                setError(error.message);
-            } else if (data) {
-                setStats(data);
+                setState({ stats: null, loading: false, error: error.message });
+            } else {
+                setState({ stats: data, loading: false, error: null });
             }
-            setLoading(false);
         }
 
-        void fetchStats();
+        void syncStats();
     }, [user]);
 
-    return { stats, loading, error };
+    return state;
 }

@@ -36,7 +36,9 @@ export function useItems() {
                     id: row.id,
                     name: row.name ?? "",
                     description: row.description ?? "",
+                    on_use: row.on_use as string | null,
                     effect: row.effect ?? 0,
+                    effect_type: row.effect_type as 'heal' | 'attack_boost' | 'defence_boost',
                     price: row.price ?? 0,
                     image: resolveItemImage(row.image),
                 }))
