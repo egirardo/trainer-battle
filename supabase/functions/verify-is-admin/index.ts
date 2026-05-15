@@ -7,6 +7,7 @@ const corsHeaders = {
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const bearerPrefix = 'Bearer '
 
 const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey)
 
@@ -25,13 +26,13 @@ Deno.serve(async (req) => {
       )
     }
 
-    if (!authHeader.startsWith('Bearer ')) {
+    if (!authHeader.startsWith(bearerPrefix)) {
       return new Response(
         JSON.stringify({ error: 'Invalid token format' }),
         { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       )
     }
-    const token = authHeader.slice('Bearer '.length).trim()
+    const token = authHeader.slice(bearerPrefix.length)
     if (!token) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
