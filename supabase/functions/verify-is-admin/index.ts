@@ -38,11 +38,20 @@ Deno.serve(async (req) => {
     const base64url = parts[1]
     const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
     const padding = '='.repeat((4 - (base64.length % 4)) % 4)
-    const payload = JSON.parse(
-      new TextDecoder().decode(
-        Uint8Array.from(atob(base64 + padding), c => c.charCodeAt(0))
+    let payload: { sub?: string; exp?: number }
+
+    try {
+      payload = JSON.parse(
+        new TextDecoder().decode(
+          Uint8Array.from(atob(base64 + padding), c => c.charCodeAt(0))
+        )
+      ) as { sub?: string; exp?: number }
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       )
-    ) as { sub?: string; exp?: number }
+    }
 
     const userId = payload.sub
     const now = Math.floor(Date.now() / 1000)
