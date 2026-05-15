@@ -25,43 +25,29 @@ Deno.serve(async (req) => {
       )
     }
 
-    const token = authHeader.replace('Bearer ', '')
-    const parts = token.split('.')
-
-    if (parts.length !== 3) {
+    if (!authHeader.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Invalid token format' }),
         { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       )
     }
-
-    const base64url = parts[1]
-    const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
-    const padding = '='.repeat((4 - (base64.length % 4)) % 4)
-    let payload: { sub?: string; exp?: number }
-
-    try {
-      payload = JSON.parse(
-        new TextDecoder().decode(
-          Uint8Array.from(atob(base64 + padding), c => c.charCodeAt(0))
-        )
-      ) as { sub?: string; exp?: number }
-    } catch {
+    const token = authHeader.slice('Bearer '.length).trim()
+    if (!token) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       )
     }
 
-    const userId = payload.sub
-    const now = Math.floor(Date.now() / 1000)
-
-    if (!userId || (payload.exp && payload.exp < now)) {
+    const { data: authData, error: authError } = await adminClient.auth.getUser(token)
+    if (authError || !authData.user?.id) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       )
     }
+
+    const userId = authData.user.id
 
     // Check if the user is an admin
     const { data: profile, error: profileError } = await adminClient
