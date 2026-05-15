@@ -1,0 +1,96 @@
+.itemBox {
+    border: 21px solid transparent;
+    border-image: url('../../../assets/sprites/components/purple-dialog-box.png') 21 / 21px stretch;
+    background-clip: border-box;
+    image-rendering: pixelated;
+    padding: .75rem;
+    margin: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    width: fit-content;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+}
+
+.itemImage {
+    width: auto;
+    height: 72px;
+    object-fit: contain;
+}
+
+.itemInfo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.itemName {
+    font-family: var(--pixel-regular);
+    font-size: 1.25rem;
+    margin: 0;
+    line-height: 1;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.itemDescription {
+    font-family: var(--pixel-regular);
+    font-size: 1rem;
+    margin: 0;
+    line-height: 1;
+    text-align: left;
+}
+
+.countIcon {
+    background-image: url('../../../assets/sprites/icons/counter-icon.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    image-rendering: pixelated;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+}
+
+.count {
+    margin: 0;
+    line-height: 1;
+    font-size: 1.55rem;
+}
+.purchaseButtons {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.itemFooter {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: .5rem;
+    align-self: flex-end;
+}
+
+.priceContainer {
+    display: flex;
+    align-items: center;
+    gap: .25rem;
+}
+
+.itemPrice {
+    font-family: var(--pixel-regular);
+    font-size: 1.50rem;
+}

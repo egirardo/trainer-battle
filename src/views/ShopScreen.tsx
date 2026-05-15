@@ -1,7 +1,10 @@
-import MenuButton from "@/components/atoms/headerButtons/MenuButton";
-import StickyHeader from "@/components/atoms/StickyHeader";
-import CreditsDisplay from "@/components/molecules/shopPage/CreditsDisplay";
-import type { PlayerStats } from "@/models/models";
+import { useState } from 'react';
+import MenuButton from '@/components/atoms/headerButtons/MenuButton';
+import StickyHeader from '@/components/atoms/StickyHeader';
+import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
+import ItemBox from '@/components/molecules/shopPage/ItemBox';
+import type { Item, PlayerStats } from '@/models/models';
+import heart from '@/assets/sprites/icons/filled-heart.svg';
 
 const mockPlayerStats: PlayerStats = {
     id: 1,
@@ -14,7 +17,39 @@ const mockPlayerStats: PlayerStats = {
     credits: 100,
 };
 
+const mockItem = {
+    id: 1,
+    name: 'Health Potion',
+    description: 'Restores 50 HP to your creature.',
+    effect: 50,
+    price: 20,
+    image: heart,
+};
+
+const mockItems: Item[] = [mockItem];
+
 export default function ShopScreen() {
+    const [cart, setCart] = useState<Record<number, number>>({});
+
+    function handleAdd(itemId: number) {
+        const item = mockItems.find(i => i.id === itemId);
+        if (!item) return;
+        setCart(prev => {
+            const nextCart = { ...prev, [itemId]: (prev[itemId] ?? 0) + 1 };
+            const totalCost = mockItems.reduce((sum, i) => sum + i.price * (nextCart[i.id] ?? 0), 0);
+            if (totalCost > mockPlayerStats.credits) return prev;
+            return nextCart;
+        });
+    }
+
+    function handleRemove(itemId: number) {
+        setCart(prev => {
+             const currentQty = prev[itemId] ?? 0;
+             if (currentQty === 0) return prev;
+             return { ...prev, [itemId]: currentQty - 1 };
+         });
+    }
+
     return (
         <>
             <header>
@@ -22,6 +57,15 @@ export default function ShopScreen() {
             </header>
             <main>
                 <CreditsDisplay credits={mockPlayerStats.credits} />
+                {mockItems.map(item => (
+                    <ItemBox
+                        key={item.id}
+                        item={item}
+                        quantity={cart[item.id] ?? 0}
+                        onAdd={handleAdd}
+                        onRemove={handleRemove}
+                    />
+                ))}
             </main>
         </>
     );

@@ -19,12 +19,13 @@
   --outline: #493f47;
 
   --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading: "Pixelify Sans Bold", sans-serif;
+  --heading: "Minecraft Bold", sans-serif;
   --mono: ui-monospace, Consolas, monospace;
-  --pixel-bold: "Pixelify Sans Bold", sans-serif;
-  --pixel-regular: "Pixelify Sans Regular", sans-serif;
+  --pixel-bold: "Minecraft Bold", sans-serif;
+  --pixel-regular: "Minecraft Standard", sans-serif;
 
-  font: 16px/145% var(--pixel-regular);
+  font-family: var(--pixel-regular);
+  line-height: 145%;
   letter-spacing: 0.18px;
   color-scheme: light dark;
   color: var(--text);
@@ -33,10 +34,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @font-face {
@@ -48,20 +45,21 @@
 }
 
 @font-face {
-  font-family: "Pixelify Sans Bold";
-  src: url("./assets/fonts/Pixelify/PixelifySans-Bold.ttf") format("truetype");
+  font-family: "Minecraft Bold";
+  src: url("./assets/fonts/minecraft_standard/MinecraftStandardBold.otf") format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
+  size-adjust: 62.5%;
 }
 
 @font-face {
-  font-family: "Pixelify Sans Regular";
-  src: url("./assets/fonts/Pixelify/PixelifySans-Regular.ttf")
-    format("truetype");
+  font-family: "Minecraft Standard";
+  src: url("./assets/fonts/minecraft_standard/MinecraftStandard.otf") format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+  size-adjust: 62.5%;
 }
 @media (prefers-color-scheme: dark) {
   :root {
