@@ -235,13 +235,64 @@ export function useBattle(sessionId: number): UseBattleReturn {
         if (!user || !isMyTurn) return;
         setIsMyTurn(false)
 
-        type InvokeResponse = { data: unknown; error: { message: string } | null };
+        type InvokeError = { message: string; context?: Response };
+        const SESSION_REFRESH_BUFFER_SECONDS = 60;
+
+        const { data, error: sessionError } = await supabase.auth.getSession()
+        if (sessionError) {
+            setError(sessionError.message)
+            setIsMyTurn(true)
+            return
+        }
+
+        let session = data?.session ?? null
+        const nowInSeconds = Math.floor(Date.now() / 1000)
+        const expiresAt = session?.expires_at ?? 0
+        const shouldRefresh =
+            !session?.access_token ||
+            (expiresAt > 0 && expiresAt - nowInSeconds <= SESSION_REFRESH_BUFFER_SECONDS)
+
+        if (shouldRefresh) {
+            const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
+            if (refreshError) {
+                setError(`Session refresh failed: ${refreshError.message}`)
+                setIsMyTurn(true)
+                return
+            }
+            session = refreshedData.session ?? null
+        }
+
+        const accessToken = session?.access_token
+        if (!accessToken) {
+            setError('No active session')
+            setIsMyTurn(true)
+            return
+        }
+
+        // Explicitly pass Authorization header
         const { error } = await supabase.functions.invoke('resolve-turn', {
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+            },
             body: { sessionId, playerId: user.id, moveId }
-        }) as InvokeResponse;
+        }) as { error: InvokeError | null };
 
         if (error) {
-            setError(error.message)
+            let message = error.message
+
+            if (error.context instanceof Response) {
+                try {
+                    const payload = await error.context.clone().json() as { error?: string }
+                    message = payload.error ?? message
+                } catch {
+                    const fallback = await error.context.clone().text()
+                    if (fallback) {
+                        message = fallback
+                    }
+                }
+            }
+
+            setError(message)
             setIsMyTurn(true)
             return
         }

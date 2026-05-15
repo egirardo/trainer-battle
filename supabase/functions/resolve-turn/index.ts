@@ -5,11 +5,11 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const supabase = createClient(
+const adminClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
-// Type advantage multiplier
+
 const typeChart: Record<string, Record<string, number>> = {
     fire:  { fire: 1,   water: 0.5, grass: 2   },
     water: { fire: 2,   water: 1,   grass: 0.5 },
@@ -21,10 +21,10 @@ function getTypeMultiplier(attackerType: string, defenderType: string): number {
 }
 
 function calculateDamage(
-    power: number, 
-    attack: number, 
-    defence: number, 
-    attackerType: string, 
+    power: number,
+    attack: number,
+    defence: number,
+    attackerType: string,
     defenderType: string
 ): number {
     const base = (power * attack) / defence
@@ -34,15 +34,22 @@ function calculateDamage(
 }
 
 function buildDescription(
-    moveName: string, 
-    damage: number, 
-    attackerType: string, 
-    defenderType: string, 
+    moveName: string,
+    damage: number,
+    attackerType: string,
+    defenderType: string,
     prefix = ''
 ): string {
     const multiplier = getTypeMultiplier(attackerType, defenderType)
     const effectiveness = multiplier > 1 ? " It's super effective!" : multiplier < 1 ? " It's not very effective..." : ""
     return `${prefix}${moveName} dealt ${damage} damage!${effectiveness}`
+}
+
+function errorResponse(message: string, status: number): Response {
+    return new Response(
+        JSON.stringify({ error: message }),
+        { status, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+    )
 }
 
 Deno.serve(async (req) => {
@@ -51,96 +58,130 @@ Deno.serve(async (req) => {
     }
 
     try {
+        const authHeader = req.headers.get('Authorization')
+        if (!authHeader) {
+            return errorResponse('Missing Authorization header', 401)
+        }
+
+        // Validate JWT with anon client — avoids mixing service role with auth calls
+        const userClient = createClient(
+            Deno.env.get('SUPABASE_URL')!,
+            Deno.env.get('SUPABASE_ANON_KEY')!,
+            { global: { headers: { Authorization: authHeader } } }
+        )
+
+        const { data: { user }, error: userErr } = await userClient.auth.getUser()
+        if (userErr || !user) {
+            return errorResponse('Invalid or expired token', 401)
+        }
+
+        const userId = user.id
+
         const rawBody = await req.text()
         const { sessionId, playerId, moveId } = JSON.parse(rawBody)
 
         if (!sessionId || !playerId || !moveId) {
-            return new Response(
-                JSON.stringify({ error: 'Missing required parameters' }),
-                { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Missing required parameters', 400)
         }
 
-        // Fetch game session
-        const { data: session, error: sessionErr } = await supabase
+        // Verify caller matches the playerId they sent
+        if (userId !== playerId) {
+            return errorResponse('Player ID does not match token user', 403)
+        }
+
+        // Fetch session
+        const { data: session, error: sessionErr } = await adminClient
             .from('game_sessions')
             .select('*')
             .eq('id', sessionId)
             .single()
 
         if (sessionErr || !session) {
-            return new Response(
-                JSON.stringify({ error: 'Game session not found' }),
-                { status: 404, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Game session not found', 404)
         }
 
-        // Fetch current battle state
-        const { data: battleState, error: stateErr } = await supabase
+        // Verify caller is actually a participant in this session
+        if (session.player1_id !== userId && session.player2_id !== userId) {
+            return errorResponse('You are not a participant in this session', 403)
+        }
+
+        // Reject already finished sessions
+        if (session.status === 'finished') {
+            return errorResponse('Battle is already finished', 400)
+        }
+
+        // Enforce turn order for PVP
+        if (!session.is_cpu && session.current_turn !== userId) {
+            return errorResponse('It is not your turn', 403)
+        }
+
+        // Fetch battle state
+        const { data: battleState, error: stateErr } = await adminClient
             .from('battle_state')
             .select('*')
             .eq('session_id', sessionId)
             .single()
 
         if (stateErr || !battleState) {
-            return new Response(
-                JSON.stringify({ error: 'Battle state not found' }),
-                { status: 404, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Battle state not found', 404)
         }
 
-        // Determine player's creature ID
+        // Reject already finished battle state
+        if (battleState.is_finished) {
+            return errorResponse('Battle is already finished', 400)
+        }
+
         const isPlayer1 = session.player1_id === playerId
         const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id
 
         if (!myCreatureId) {
-            return new Response(
-                JSON.stringify({ error: 'Player creature ID missing' }),
-                { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Player creature ID missing', 400)
         }
 
         // Fetch player's creature
-        const myPCResult = await supabase
+        const myPCResult = await adminClient
             .from('player_creatures')
             .select('*, creatures(*)')
             .eq('id', myCreatureId)
             .single()
 
         if (myPCResult.error || !myPCResult.data) {
-            return new Response(
-                JSON.stringify({ error: 'Could not fetch player creature data' }),
-                { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Could not fetch player creature data', 500)
         }
 
         const myPC = myPCResult.data
         const myCreature = myPC.creatures as { type: string }
 
-        // Fetch opponent stats — from creatures directly for CPU, from player_creatures for PVP
+        // Validate move belongs to player's creature
+        const { data: validMove, error: validMoveErr } = await adminClient
+            .from('creature_moves')
+            .select('move_id')
+            .eq('creature_id', myPC.creature_id)
+            .eq('move_id', moveId)
+            .single()
+
+        if (validMoveErr || !validMove) {
+            return errorResponse('Move does not belong to your creature', 403)
+        }
+
+        // Fetch opponent stats
         let oppType: string
         let oppAttack: number
         let oppDefence: number
-        let oppCreatureId: number // for CPU moves lookup
+        let oppCreatureId: number
 
         if (session.is_cpu) {
             if (!session.cpu_creature_id) {
-                return new Response(
-                    JSON.stringify({ error: 'cpu_creature_id missing from session' }),
-                    { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-                )
+                return errorResponse('cpu_creature_id missing from session', 400)
             }
-            const { data: cpuC, error: cpuCErr } = await supabase
+            const { data: cpuC, error: cpuCErr } = await adminClient
                 .from('creatures')
                 .select('id, type, base_attack, base_defence')
                 .eq('id', session.cpu_creature_id)
                 .single()
 
             if (cpuCErr || !cpuC) {
-                return new Response(
-                    JSON.stringify({ error: 'Could not fetch CPU creature data' }),
-                    { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-                )
+                return errorResponse('Could not fetch CPU creature data', 500)
             }
             oppType = cpuC.type ?? 'fire'
             oppAttack = cpuC.base_attack ?? 1
@@ -149,22 +190,16 @@ Deno.serve(async (req) => {
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
             if (!opponentCreatureId) {
-                return new Response(
-                    JSON.stringify({ error: 'Opponent creature ID missing' }),
-                    { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-                )
+                return errorResponse('Opponent creature ID missing', 400)
             }
-            const { data: oppPC, error: oppPCErr } = await supabase
+            const { data: oppPC, error: oppPCErr } = await adminClient
                 .from('player_creatures')
                 .select('*, creatures(*)')
                 .eq('id', opponentCreatureId)
                 .single()
 
             if (oppPCErr || !oppPC) {
-                return new Response(
-                    JSON.stringify({ error: 'Could not fetch opponent creature data' }),
-                    { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-                )
+                return errorResponse('Could not fetch opponent creature data', 500)
             }
             const oppCreature = oppPC.creatures as { type: string }
             oppType = oppCreature.type
@@ -173,26 +208,23 @@ Deno.serve(async (req) => {
             oppCreatureId = oppPC.creature_id
         }
 
-        // Fetch player's chosen move
-        const { data: move, error: moveErr } = await supabase
+        // Fetch move
+        const { data: move, error: moveErr } = await adminClient
             .from('moves')
             .select('*')
             .eq('id', moveId)
             .single()
 
         if (moveErr || !move) {
-            return new Response(
-                JSON.stringify({ error: 'Move not found' }),
-                { status: 404, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Move not found', 404)
         }
 
-        // Read modifiers
+        // Read stat modifiers
         const myAttackMod: number = (isPlayer1 ? battleState.player1_attack_modifier : battleState.player2_attack_modifier) ?? 0
         const myDefenceMod: number = (isPlayer1 ? battleState.player1_defence_modifier : battleState.player2_defence_modifier) ?? 0
         const oppDefenceMod: number = (isPlayer1 ? battleState.player2_defence_modifier : battleState.player1_defence_modifier) ?? 0
 
-        // --- Player's attack ---
+        // Player's attack
         const playerDamage = calculateDamage(
             move.power ?? 0,
             (myPC.attack ?? 1) + myAttackMod,
@@ -201,8 +233,8 @@ Deno.serve(async (req) => {
             oppType
         )
 
-        const currentMyHp = (isPlayer1 ? battleState.player1_hp : battleState.player2_hp) ?? 0
-        const currentOppHp = (isPlayer1 ? battleState.player2_hp : battleState.player1_hp) ?? 0
+        const currentMyHp = isPlayer1 ? battleState.player1_hp ?? 0 : battleState.player2_hp ?? 0
+        const currentOppHp = isPlayer1 ? battleState.player2_hp ?? 0 : battleState.player1_hp ?? 0
         const newOppHp = Math.max(0, currentOppHp - playerDamage)
 
         const descriptions: string[] = [
@@ -214,42 +246,48 @@ Deno.serve(async (req) => {
         let isFinished = newOppHp <= 0
         let winnerId: string | null = isFinished ? playerId : null
 
-        // --- CPU counter-attack (same call, if CPU battle and player didn't just win) ---
+        // CPU counter-attack
         if (session.is_cpu && !isFinished) {
-            const { data: cpuMoves } = await supabase
+            const { data: cpuMoves, error: cpuMovesErr } = await adminClient
                 .from('creature_moves')
                 .select('move_id')
                 .eq('creature_id', oppCreatureId)
 
+            if (cpuMovesErr) {
+                return errorResponse('Could not fetch CPU moves', 500)
+            }
+
             if (cpuMoves && cpuMoves.length > 0) {
                 const randomMoveId = cpuMoves[Math.floor(Math.random() * cpuMoves.length)].move_id
-                const { data: cpuMove } = await supabase
+                const { data: cpuMove, error: cpuMoveErr } = await adminClient
                     .from('moves')
                     .select('*')
                     .eq('id', randomMoveId)
                     .single()
 
-                if (cpuMove) {
-                    const cpuDamage = calculateDamage(
-                        cpuMove.power ?? 0,
-                        oppAttack,
-                        (myPC.defence ?? 1) + myDefenceMod,
-                        oppType,
-                        myCreature.type
-                    )
-                    finalMyHp = Math.max(0, finalMyHp - cpuDamage)
-                    isFinished = finalMyHp <= 0
-                    descriptions.push(buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's "))
-                    if (isFinished) winnerId = null
+                if (cpuMoveErr || !cpuMove) {
+                    return errorResponse('Could not fetch CPU move', 500)
                 }
+
+                const cpuDamage = calculateDamage(
+                    cpuMove.power ?? 0,
+                    oppAttack,
+                    (myPC.defence ?? 1) + myDefenceMod,
+                    oppType,
+                    myCreature.type
+                )
+                finalMyHp = Math.max(0, finalMyHp - cpuDamage)
+                isFinished = finalMyHp <= 0
+                descriptions.push(buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's "))
+                if (isFinished) winnerId = null
             }
         }
 
         const newPlayer1Hp = isPlayer1 ? finalMyHp : finalOppHp
         const newPlayer2Hp = isPlayer1 ? finalOppHp : finalMyHp
 
-        // Update battle state — modifiers persist for the whole battle
-        const { error: updateStateErr } = await supabase
+        // Update battle state
+        const { error: updateStateErr } = await adminClient
             .from('battle_state')
             .update({
                 player1_hp: newPlayer1Hp,
@@ -261,53 +299,64 @@ Deno.serve(async (req) => {
             .eq('session_id', sessionId)
 
         if (updateStateErr) {
-            return new Response(
-                JSON.stringify({ error: 'Failed to update battle state' }),
-                { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
-            )
+            return errorResponse('Failed to update battle state', 500)
         }
 
         if (isFinished) {
-            await supabase
+            const { error: finishErr } = await adminClient
                 .from('game_sessions')
                 .update({ status: 'finished', winner_id: winnerId })
                 .eq('id', sessionId)
 
-            await supabase.rpc('increment_player_stats', {
+            if (finishErr) {
+                return errorResponse('Failed to finish session', 500)
+            }
+
+            const { error: winnerStatsErr } = await adminClient.rpc('increment_player_stats', {
                 p_player_id: playerId,
                 p_wins: winnerId === playerId ? 1 : 0,
                 p_battles: 1,
             })
 
-            // PVP only: also record the loser's stats
+            if (winnerStatsErr) {
+                return errorResponse('Failed to update winner stats', 500)
+            }
+
             if (!session.is_cpu) {
                 const loserId = isPlayer1 ? session.player2_id : session.player1_id
                 if (loserId) {
-                    await supabase.rpc('increment_player_stats', {
+                    const { error: loserStatsErr } = await adminClient.rpc('increment_player_stats', {
                         p_player_id: loserId,
                         p_wins: 0,
                         p_battles: 1,
                     })
+
+                    if (loserStatsErr) {
+                        return errorResponse('Failed to update loser stats', 500)
+                    }
                 }
             }
         } else if (!session.is_cpu) {
-            // PVP only: swap turns
             const nextTurn = isPlayer1 ? session.player2_id : session.player1_id
-            await supabase
+            const { error: updateTurnErr } = await adminClient
                 .from('game_sessions')
                 .update({ current_turn: nextTurn })
                 .eq('id', sessionId)
+
+            if (updateTurnErr) {
+                return errorResponse('Failed to hand off turn', 500)
+            }
         }
-        // CPU: no turn update — player always goes next
 
         return new Response(
             JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
+
     } catch (err) {
-        return new Response(
-            JSON.stringify({ error: err instanceof Error ? err.message : 'Unknown error' }),
-            { status: 500, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+        return errorResponse(
+            err instanceof Error ? err.message : 'Unknown error',
+            500
         )
     }
 })

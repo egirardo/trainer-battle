@@ -6,8 +6,8 @@ const corsHeaders = {
 }
 
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
 const supabaseServiceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const bearerPrefix = 'Bearer '
 
 const adminClient = createClient(supabaseUrl, supabaseServiceRoleKey)
 
@@ -26,30 +26,35 @@ Deno.serve(async (req) => {
       )
     }
 
-    const token = authHeader.replace('Bearer ', '')
-
-    // Verify the JWT and get the user information with a request-scoped user client
-    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    })
-    const { data: { user }, error: userError } = await userClient.auth.getUser()
-
-    if (userError || !user) {
+    if (!authHeader.startsWith(bearerPrefix)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid token format' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      )
+    }
+    const token = authHeader.slice(bearerPrefix.length)
+    if (!token) {
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
       )
     }
 
+    const { data: authData, error: authError } = await adminClient.auth.getUser(token)
+    if (authError || !authData.user?.id) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid token' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+      )
+    }
+
+    const userId = authData.user.id
+
     // Check if the user is an admin
     const { data: profile, error: profileError } = await adminClient
       .from('profiles')
       .select('is_admin')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single()
 
     if (profileError || !profile) {
