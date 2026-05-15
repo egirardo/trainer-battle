@@ -80,6 +80,8 @@ export interface LobbyPlayer {
     username: string;
     creatureId: number;
     creatureName: string;
+    creatureType: string;
+    creatureImage: string;
     level: number;
 }
 

@@ -5,8 +5,9 @@
   --ui-bg: #fff;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
-  --purp-card-bg: #D5D3FC;
-  --red-card-bg: #FCD3D3;
+  --purp-card-bg: #d5d3fc;
+  --red-card-bg: #fcd3d3;
+  --primary: #6366f1;
   --accent: #ee3252;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(244, 63, 94, 0.502);
@@ -46,7 +47,8 @@
 
 @font-face {
   font-family: "Minecraft Bold";
-  src: url("./assets/fonts/minecraft_standard/MinecraftStandardBold.otf") format("opentype");
+  src: url("./assets/fonts/minecraft_standard/MinecraftStandardBold.otf")
+    format("opentype");
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -55,7 +57,8 @@
 
 @font-face {
   font-family: "Minecraft Standard";
-  src: url("./assets/fonts/minecraft_standard/MinecraftStandard.otf") format("opentype");
+  src: url("./assets/fonts/minecraft_standard/MinecraftStandard.otf")
+    format("opentype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -68,8 +71,8 @@
     --ui-bg: #f2efff;
     --border: #2e303a;
     --code-bg: #1f2028;
-    --purp-card-bg: #D5D3FC;
-    --red-card-bg: #FCD3D3;
+    --purp-card-bg: #d5d3fc;
+    --red-card-bg: #fcd3d3;
     --accent: #ee3252;
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);

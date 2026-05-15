@@ -1,0 +1,47 @@
+.heading {
+  text-transform: uppercase;
+  margin: 1em 0;
+}
+.playerContent {
+  width: 100%;
+}
+.ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.list {
+  border: 21px solid transparent;
+  border-image: url("../assets/sprites/components/purple-dialog-box.png") 21 /
+    21px stretch;
+  background-clip: border-box;
+  image-rendering: pixelated;
+  display: flex;
+  margin: 0.2em 1em;
+}
+
+.listData {
+  display: flex;
+  align-items: center;
+}
+
+.playerData {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.5em;
+}
+.playerData:first-child {
+  border-bottom: 6px solid var(--primary);
+}
+.btnContainer {
+  width: 100%;
+}
+
+.invBtn {
+  font-size: 1em;
+  padding: 0.3em 0;
+}
+
+.creatureImg {
+  width: 2em;
+}

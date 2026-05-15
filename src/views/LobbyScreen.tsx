@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import StickyHeader from "@/components/atoms/StickyHeader";
+import MenuButton from "@/components/atoms/headerButtons/MenuButton";
+import styles from './LobbyScreen.module.css'
+import Button from "@/components/atoms/button";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
@@ -57,11 +61,14 @@ export default function LobbyScreen() {
 
     return (
         <main>
-            <h1>Lobby</h1>
+            <StickyHeader
+                label="lobby"
+                action={<MenuButton/>}
+            />
 
             {incomingInvitation && (
                 <section aria-label="Incoming battle invitation">
-                    <h2>Battle Invitation!</h2>
+                    <h2 className={styles.heading}>Battle Invitation!</h2>
                     <p>{incomingInvitation.fromUsername} wants to battle you!</p>
                     <button onClick={() => void handleAccept()}>Accept</button>
                     <button onClick={() => void handleDecline()}>Decline</button>
@@ -69,22 +76,36 @@ export default function LobbyScreen() {
             )}
 
             <section aria-label="Players in Lobby">
-                <h2>Players in Lobby</h2>
+                <h2 className={styles.heading}>Players in Lobby</h2>
                 {playersInLobby.length === 0 ? (
-                    <p>No other players in the lobby. Wait for someone to join!</p>
+                   <>
+                    <p>No other players in the lobby.</p>
+                    <p>Wait for someone to join!</p>
+                   </>
                 ) : (
-                    <ul>
+                    <ul className={styles.ul}>
                         {playersInLobby.map((player) => (
-                            <li key={player.userId}>
-                                <span>{player.username}</span>
-                                <span>{player.creatureName}</span>
-                                <span>Lv. {player.level}</span>
-                                <button
-                                    onClick={() => void handleInvite(player.userId)}
-                                    disabled={!!incomingInvitation || inviteSent}
-                                >
-                                    {inviteSent ? "Waiting..." : "Invite"}
-                                </button>
+                            <li className={styles.list} key={player.userId}>
+                                <img src={player.creatureImage} alt={player.creatureName} className={styles.creatureImg} />
+                                <div className={styles.playerContent}>
+                                    <div className={styles.playerData}>
+                                        <span className={styles.listData}>{player.username}</span>
+                                        <span className={styles.listData}>Lv. {player.level}</span>
+                                    </div>
+                                    <div className={styles.playerData}>
+                                        <span className={styles.listData}>{player.creatureName}</span>
+                                        <span className={styles.listData}>Type: {player.creatureType}</span>
+                                    </div>
+                                    <div className={styles.btnContainer}>
+                                        <Button
+                                            className={styles.invBtn}
+                                            onClick={() => void handleInvite(player.userId)}
+                                            disabled={!!incomingInvitation || inviteSent}
+                                        >
+                                            {inviteSent ? "Waiting..." : "Invite"}
+                                        </Button>
+                                    </div>
+                                </div>
                             </li>
                         ))}
                     </ul>
@@ -92,7 +113,7 @@ export default function LobbyScreen() {
             </section>
 
             <section aria-label="CPU battle">
-                <h2>Battle against CPU</h2>
+                <h2 className={styles.heading}>Battle against CPU</h2>
                 <p>Your opponent will match your skill level.</p>
                 <button onClick={() => void handleCpu()}>Fight CPU</button>
             </section>
