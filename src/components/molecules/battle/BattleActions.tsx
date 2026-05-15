@@ -98,6 +98,7 @@ export default function BattleActions({ moves, isMyTurn, playerItems, onFight, o
                 <BattleButton
                     className={styles.actionBtn}
                     onClick={() => { onBag(); setPhase('bag'); }}
+                    disabled={!isMyTurn}
                 >
                     Bag
                 </BattleButton>

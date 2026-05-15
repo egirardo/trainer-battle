@@ -79,8 +79,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const myCreature = myPC.creatures as { name: string; type: string; image: string; base_hp: number };
                 const battleState = battleStateResult.data;
 
-                const myHp = (isPlayer1 ? battleState?.player1_hp : battleState?.player2_hp) ?? myPC.current_hp ?? 0;
-                const oppHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp) ?? 0;
+                const myHp = (isPlayer1 ? battleState?.player1_hp : battleState?.player2_hp) ?? myCreature.base_hp;
+                const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
 
                 if (battleState?.last_move_description) {
                     setMessages([battleState.last_move_description]);
@@ -106,7 +106,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
                         level: 1,
-                        currentHp: oppHp,
+                        currentHp: oppBattleHp ?? cpuCreature.base_hp ?? 100,
                         maxHp: cpuCreature.base_hp ?? 100,
                         creatureImage: getCreatureImage(cpuCreature.image ?? ''),
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
@@ -124,7 +124,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     setOpponent({
                         name: oppCreature.name,
                         level: oppPC.level ?? 1,
-                        currentHp: oppHp,
+                        currentHp: oppBattleHp ?? oppCreature.base_hp,
                         maxHp: oppCreature.base_hp,
                         creatureImage: getCreatureImage(oppCreature.image),
                         creatureType: oppCreature.type as 'fire' | 'water' | 'grass',
@@ -255,8 +255,9 @@ export function useBattle(sessionId: number): UseBattleReturn {
         if (!user || !isMyTurn) return;
         setIsMyTurn(false);
 
-        type InvokeResponse = { data: unknown; error: { message: string } | null };
-        const { error } = await supabase.functions.invoke('use-item', {
+        type UseItemResponse = { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean };
+        type InvokeResponse = { data: UseItemResponse | null; error: { message: string } | null };
+        const { data, error } = await supabase.functions.invoke('use-item', {
             body: { sessionId, playerId: user.id, itemId }
         }) as InvokeResponse;
 
@@ -264,6 +265,13 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setError(error.message);
             setIsMyTurn(true);
             return;
+        }
+
+        if (data) {
+            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp;
+            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp;
+            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null);
+            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null);
         }
 
         setPlayerItems(prev =>

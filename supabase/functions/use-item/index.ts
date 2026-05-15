@@ -58,10 +58,10 @@ Deno.serve(async (req) => {
             )
         }
 
-        const itemData = playerItem.items as { name: string; description: string | null; effect: number | null; effect_type: string | null } | null
+        const itemData = playerItem.items as { name: string; description: string | null; on_use: string | null; effect: number | null; effect_type: string | null } | null
         const itemEffect = itemData?.effect ?? 0
         const effectType = itemData?.effect_type ?? 'heal'
-        const itemDescription = itemData?.on_use ?? itemData?.name ?? 'Used an item'
+        const itemDescription = itemData?.on_use ?? "Used " + itemData?.name ?? 'Used an item'
 
         // Fetch session and battle state
         const [{ data: session, error: sessionErr }, { data: battleState, error: stateErr }] = await Promise.all([
