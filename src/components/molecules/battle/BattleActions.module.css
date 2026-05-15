@@ -1,6 +1,6 @@
 .actions {
   padding: 1rem;
-  background: #e1e0ff;
+  background: var(--purp-card-bg, var(--ui-bg, #e1e0ff));
   border-top: 2px solid var(--primary);
   flex-wrap: wrap;
 }

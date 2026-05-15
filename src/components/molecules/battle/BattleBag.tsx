@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import BattleButton from '../../atoms/BattleButton';
-import type { PlayerItem } from '@/models/models';
+import type { ItemEffectType, PlayerItem } from '@/models/models';
 import styles from './BattleBag.module.css';
+
+const effectLabel: Record<ItemEffectType, string> = {
+    heal: 'HP',
+    attack_boost: 'ATK',
+    defence_boost: 'DEF',
+};
 
 interface BattleBagProps {
     items: PlayerItem[];
@@ -37,7 +43,7 @@ export default function BattleBag({ items, isMyTurn, onBack, onUse }: BattleBagP
                                 {item.name}
                             </span>
                             <span>
-                                +{item.effect} {item.effect_type === 'attack_boost' ? 'ATK' : item.effect_type === 'defence_boost' ? 'DEF' : 'HP'}
+                                +{item.effect} {item.effect_type ? effectLabel[item.effect_type] : 'HP'}
                             </span>
                             <span className={styles.itemQty}>
                                 Qty: {item.quantity}

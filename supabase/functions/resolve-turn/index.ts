@@ -187,7 +187,7 @@ Deno.serve(async (req) => {
             )
         }
 
-        // Read modifiers — consumed on use
+        // Read modifiers
         const myAttackMod: number = (isPlayer1 ? battleState.player1_attack_modifier : battleState.player2_attack_modifier) ?? 0
         const myDefenceMod: number = (isPlayer1 ? battleState.player1_defence_modifier : battleState.player2_defence_modifier) ?? 0
         const oppDefenceMod: number = (isPlayer1 ? battleState.player2_defence_modifier : battleState.player1_defence_modifier) ?? 0
@@ -248,7 +248,7 @@ Deno.serve(async (req) => {
         const newPlayer1Hp = isPlayer1 ? finalMyHp : finalOppHp
         const newPlayer2Hp = isPlayer1 ? finalOppHp : finalMyHp
 
-        // Update battle state — modifiers persist for the whole battle, no clearing needed
+        // Update battle state — modifiers persist for the whole battle
         const { error: updateStateErr } = await supabase
             .from('battle_state')
             .update({

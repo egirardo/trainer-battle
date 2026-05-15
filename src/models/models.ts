@@ -111,6 +111,7 @@ export interface PlayerStats {
     total_losses: number;
     total_forfeits: number;
     lives: number;
+    credits: number;
 }
 
 export type ItemEffectType = 'heal' | 'attack_boost' | 'defence_boost';
