@@ -1,0 +1,6 @@
+
+[functions.verify-is-admin]
+enabled = true
+verify_jwt = true
+import_map = "./functions/verify-is-admin/deno.json"
+entrypoint = "./functions/verify-is-admin/index.ts"

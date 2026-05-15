@@ -38,6 +38,15 @@ export interface Move {
     description: string;
 }
 
+export interface Item {
+    id: number;
+    name: string;
+    description: string;
+    effect: number;
+    price: number;
+    image?: string;
+}
+
 export interface PlayerItem extends Item {
     quantity: number;
 }
