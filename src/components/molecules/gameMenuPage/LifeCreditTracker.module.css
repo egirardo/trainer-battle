@@ -10,13 +10,6 @@
   padding: 1rem;
 }
 
-.label {
-  text-transform: uppercase;
-  font-family: var(--pixel-regular);
-  line-height: 1;
-  font-size: 1.5rem;
-}
-
 .heartIcon {
   width: 32px;
   height: 32px;

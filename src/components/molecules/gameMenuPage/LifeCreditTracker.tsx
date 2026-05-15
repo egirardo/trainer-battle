@@ -3,9 +3,9 @@
 //   const { data: playerStats } = usePlayerStats(playerId);
 //   const lives = playerStats?.lives ?? 0;
 //   const credits = playerStats?.credits ?? 0;
-// Then remove the MOCK_LIVES and MOCK_CREDITS constants below and
-// remove the LifeCreditTrackerProps interface (props won't be needed if data is fetched here),
-// or keep props if the parent is responsible for passing player_stats down.
+// Then remove the MOCK_LIVES and MOCK_CREDITS constants below.
+// If the parent should supply player_stats instead, update this component
+// to accept props for lives and credits rather than fetching data here.
 
 import styles from './LifeCreditTracker.module.css';
 import filledHeart from '@/assets/sprites/icons/filled-heart.svg';
