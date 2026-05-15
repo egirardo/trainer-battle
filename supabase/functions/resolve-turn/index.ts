@@ -67,33 +67,15 @@ Deno.serve(async (req) => {
             return errorResponse('Missing Authorization header', 401)
         }
 
-        // Extract and decode JWT to get user ID
+        // Validate JWT with Supabase Auth and get the authenticated user ID
         const token = authHeader.replace('Bearer ', '')
-        const parts = token.split('.')
-        if (parts.length !== 3) {
-            return errorResponse('Invalid token format', 401)
-        }
+        const { data: userData, error: authError } = await adminClient.auth.getUser(token)
 
-        // Decode JWT payload (part 2, base64url encoded)
-        const base64url = parts[1]
-        const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
-        const padding = '='.repeat((4 - (base64.length % 4)) % 4)
-        const payload = JSON.parse(
-            new TextDecoder().decode(
-                Uint8Array.from(atob(base64 + padding), c => c.charCodeAt(0))
-            )
-        ) as { sub?: string; exp?: number }
-
-        const userId = payload.sub
-        if (!userId) {
-            return errorResponse('Invalid token: missing user ID', 401)
-        }
-
-        // Check if token is expired
-        const now = Math.floor(Date.now() / 1000)
-        if (payload.exp && payload.exp < now) {
+        if (authError || !userData.user) {
             return errorResponse('Invalid or expired token', 401)
         }
+
+        const userId = userData.user.id
 
         const rawBody = await req.text()
         const { sessionId, playerId, moveId } = JSON.parse(rawBody)
