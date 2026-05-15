@@ -77,6 +77,15 @@ Deno.serve(async (req) => {
         }
 
         const isPlayer1 = session.player1_id === playerId
+        const isPlayer2 = session.player2_id === playerId
+
+        if (!isPlayer1 && !isPlayer2) {
+            return new Response(
+                JSON.stringify({ error: 'Player is not a participant in this session' }),
+                { status: 403, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
+        }
+
         const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id
 
         const { data: myPC, error: myPCErr } = await supabase
