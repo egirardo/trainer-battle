@@ -8,9 +8,6 @@ import forwardArrow from '@/assets/sprites/components/forward-arrow.svg'
 import styles from './CreationFlowLayout.module.css'
 import { validateTrainerName } from '@/utils/trainerValidation'
 import CloseButton from '@/components/atoms/headerButtons/CloseButton'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/hooks/useAuth'
-import { useState } from 'react'
 
 const steps = [
     { path: ROUTES.characterSelect,    label: '- Step 1 of 3 -', headerLabel: 'Your Trainer',     back: null,                     next: ROUTES.creatureSelect },
@@ -22,10 +19,7 @@ const steps = [
 export default function CreationFlowLayout() {
     const { pathname } = useLocation()
     const navigate = useNavigate()
-    const { user } = useAuth()
-    const { trainerName, trainerGender, setTrainerNameError, selectedCreature, setCreatureError } = useTrainerCreation()
-    const [saving, setSaving] = useState(false)
-    const [saveError, setSaveError] = useState<string | null>(null)
+    const { trainerName, setTrainerNameError, selectedCreature, setCreatureError } = useTrainerCreation()
 
     const currentStep = steps.find(s => s.path === pathname)
 
@@ -33,70 +27,17 @@ export default function CreationFlowLayout() {
         if (currentStep?.back) void navigate(currentStep.back)
     }
 
-    async function handleNext(): Promise<void> {
-        if (!currentStep?.next || !user) return
+    function handleNext(): void {
+        if (!currentStep?.next) return
 
-        setSaveError(null)
-
-        // Save trainer name and gender to profiles
         if (pathname === ROUTES.characterSelect) {
             const error = validateTrainerName(trainerName)
-            if (error) { setTrainerNameError(error); return }
-
-            setSaving(true)
-            try {
-                const { error: updateError } = await supabase
-                    .from('profiles')
-                    .update({
-                        username: trainerName,
-                        trainer_gender: trainerGender,
-                    })
-                    .eq('id', user.id)
-
-                if (updateError) {
-                    setSaveError('Failed to save trainer information. Please try again.')
-                    return
-                }
-            } catch {
-                setSaveError('Failed to save trainer information. Please try again.')
-                return
-            } finally {
-                setSaving(false)
-            }
+            if (error) { setTrainerNameError(error); return } 
         }
-        // Save selected creature to player_creatures
+
         if (pathname === ROUTES.creatureSelect) {
             if (selectedCreature === null) { setCreatureError('You must select a creature to proceed'); return }
             setCreatureError(undefined)
-
-            setSaving(true)
-            try {
-                const { error: upsertError } = await supabase
-                    .from('player_creatures')
-                    .upsert(
-                        {
-                            player_id: user.id,
-                            creature_id: selectedCreature.id,
-                            level: 1,
-                            experience: 0,
-                            current_hp: selectedCreature.base_hp,
-                            attack: selectedCreature.base_attack,
-                            defence: selectedCreature.base_defence,
-                            speed: selectedCreature.base_speed,
-                        },
-                        { onConflict: 'player_id', ignoreDuplicates: false }
-                    )
-
-                if (upsertError) {
-                    setSaveError('Failed to save creature selection. Please try again.')
-                    return
-                }
-            } catch {
-                setSaveError('Failed to save creature selection. Please try again.')
-                return
-            } finally {
-                setSaving(false)
-            }
         }
 
         void navigate(currentStep.next)
@@ -104,22 +45,20 @@ export default function CreationFlowLayout() {
 
     return (
         <div className={styles.layout}>
-            
-            <StickyHeader 
+            <StickyHeader
                 label={currentStep?.headerLabel ?? ''}
-                action={<CloseButton onClick={() => void navigate(ROUTES.start)} />}            
+                action={<CloseButton onClick={() => void navigate(ROUTES.start)} />}
             />
             <div className={styles.content}>
                 <Outlet />
             </div>
-            {saveError && <p role='alert'>{saveError}</p>}
             <nav className={styles.nav} aria-label="Creation flow navigation">
                 {currentStep?.back
                     ? <IconButton image={backArrow} ariaLabel="Go to previous step" onClick={handleBack} />
                     : <span />
                 }
                 {currentStep?.next
-                    ? <IconButton image={forwardArrow} ariaLabel="Go to next step" onClick={() => { void handleNext() }} disabled={saving} />
+                    ? <IconButton image={forwardArrow} ariaLabel="Go to next step" onClick={handleNext} />
                     : <span />
                 }
             </nav>
