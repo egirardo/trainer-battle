@@ -129,6 +129,7 @@ export interface Item {
     id: number;
     name: string;
     description: string;
+    on_use: string | null;
     effect: number;
     effect_type: ItemEffectType;
     price: number;

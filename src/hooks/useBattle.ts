@@ -143,7 +143,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 // 5. Fetch player's bag items
                 const { data: itemsData } = await supabase
                     .from('player_items')
-                    .select('id, item_id, quantity, items(name, description, effect, effect_type, price)')
+                    .select('id, item_id, quantity, items(name, description, on_use, effect, effect_type, price)')
                     .eq('player_id', user.id)
                     .gt('quantity', 0);
                 if (itemsData) {
@@ -151,11 +151,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         itemsData
                             .filter((row) => row.items !== null)
                             .map((row) => {
-                                const item = row.items as { name: string; description: string; effect: number; effect_type: ItemEffectType; price: number };
+                                const item = row.items as { name: string; description: string; on_use: string | null; effect: number; effect_type: ItemEffectType; price: number };
                                 return {
                                     id: row.item_id,
                                     name: item.name ?? '',
                                     description: item.description ?? '',
+                                    on_use: item.on_use ?? null,
                                     effect: item.effect ?? 0,
                                     effect_type: item.effect_type ?? 'heal',
                                     price: item.price ?? 0,
