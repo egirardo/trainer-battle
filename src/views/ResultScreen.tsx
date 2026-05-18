@@ -1,12 +1,45 @@
-import { Link } from "react-router-dom";
+import { Link, useParams, Navigate } from "react-router-dom";
+import { ROUTES } from "@/routes";
+import { useResult } from "@/hooks/useResult";
 
 export default function ResultScreen(){
-    return(
+    const { sessionId } = useParams<{ sessionId: string }>();
+    const id = Number(sessionId);
+
+    if (!sessionId || isNaN(id)) {
+        return <Navigate to={ROUTES.lobby} replace />;
+    }
+
+    return <ResultContent sessionId={id} />;
+
+}
+
+function ResultContent({ sessionId }: { sessionId: number }) {
+    const { result, loading, error } = useResult(sessionId);
+
+    if (loading) return <main><p>Loading result...</p></main>;
+    if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
+
+    const heading = result.outcome === 'win' ? 'Victory!' : 'Defeat';
+
+    return (
         <main>
-            <h1>This is result page</h1>
-            <p>Here we can show the result of finished battle or that player ran away.</p>
-            <Link to="/lobby"> Play again</Link>
-            <Link to="/game-menu">Main menu</Link>
+            <h1>{heading}</h1>
+
+            {!result.isCpu && result.opponentUsername && (
+                <p>vs {result.opponentUsername}</p>
+            )}
+            {result.isCpu && (
+                <p>vs CPU</p>
+            )}
+
+            <p>Wins: {result.totalWins}</p>
+            <p>Losses: {result.totalLosses}</p>
+            <p>Battles: {result.totalBattles}</p>
+            <p>Credits: {result.credits}</p>
+
+            <Link to={ROUTES.lobby}>Play again</Link>
+            <Link to={ROUTES.gameMenu}>Main menu</Link>
         </main>
     )
 }
