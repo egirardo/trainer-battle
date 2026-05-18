@@ -18,7 +18,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId);
 
     if (loading) return <main><p>Loading result...</p></main>;
-    if (error || !result) return <main><p>{error ?? 'Result data unavailable'}</p></main>;
+    if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
     const heading = result.outcome === 'win' ? 'Victory!' : 'Defeat';
 
