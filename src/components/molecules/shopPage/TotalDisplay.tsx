@@ -29,34 +29,36 @@ export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onTo
 
     return (
         <div className={styles.totalDisplay}>
-            <ul id="cart-list" className={styles.cartList} hidden={!showCart}>
-                    {cartItems.map(item => (
-                        <li key={item.id} className={styles.cartItem}>
-                            <span>{item.name}</span>
-                            <span className={styles.cartItemPrice}>
-                                ×{item.quantity} (★{item.price}/ea)
-                            </span>
-                        </li>
-                    ))}
-            </ul>
-            <div className={styles.totalCount}>
-                <p className={styles.totalText}>Total</p>
-                <div className={styles.totalAmount}>
-                    <img src={starIcon} alt="Credits" />
-                    <p>{total}</p>
+            <div className={styles.totalInner}>
+                <ul id="cart-list" className={styles.cartList} hidden={!showCart}>
+                        {cartItems.map(item => (
+                            <li key={item.id} className={styles.cartItem}>
+                                <span>{item.name}</span>
+                                <span className={styles.cartItemPrice}>
+                                    ×{item.quantity} (★{item.price}/ea)
+                                </span>
+                            </li>
+                        ))}
+                </ul>
+                <div className={styles.totalCount}>
+                    <p className={styles.totalText}>Total</p>
+                    <div className={styles.totalAmount}>
+                        <img src={starIcon} alt="Credits" />
+                        <p>{total}</p>
+                    </div>
                 </div>
-            </div>
-            <div className={styles.actions}>
-                <button
-                    className={styles.viewCartButton}
-                    onClick={onToggleExpanded}
-                    disabled={!hasItems}
-                    aria-expanded={isExpanded}
-                    aria-controls="cart-list"
-                >
-                    {isExpanded ? 'Hide cart' : 'View cart'}
-                </button>
-                <Button onClick={onBuy} disabled={total === 0} className={styles.buyButton}>Buy</Button>
+                <div className={styles.actions}>
+                    <button
+                        className={styles.viewCartButton}
+                        onClick={onToggleExpanded}
+                        disabled={!hasItems}
+                        aria-expanded={isExpanded}
+                        aria-controls="cart-list"
+                    >
+                        {isExpanded ? 'Hide cart' : 'View cart'}
+                    </button>
+                    <Button onClick={onBuy} disabled={total === 0} className={styles.buyButton}>Buy</Button>
+                </div>
             </div>
         </div>
     );

@@ -43,15 +43,27 @@ const mockTrainer: Trainer = {
 };
 
 export default function GameMenuBody() {
+  const hasBoss = mockTrainer.wins >= 6;
+
   return (
-    <div className={styles.gameMenuBody}>
-      <LifeCreditTracker />
-      <ButtonGroup />
-      {mockTrainer.wins >= 6 && (
-        <BossDialog />
-      )} {/* Conditionally render BossDialog if trainer has 6 or more wins, this logic can change later based on what we decide in terms of win criteria */}
-      <ProfilePreview trainer={mockTrainer} />
-      <ProgressPreview wins={mockTrainer.wins} />
+    <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
+      <div className={styles.creditsRow}>
+        <LifeCreditTracker />
+      </div>
+      <div className={styles.actionsCol}>
+        <ButtonGroup horizontal={hasBoss} />
+      </div>
+      <div className={styles.profileCol}>
+        <ProfilePreview trainer={mockTrainer} />
+      </div>
+      {hasBoss && (
+        <div className={styles.bossCol}>
+          <BossDialog />
+        </div>
+      )}
+      <div className={styles.progressRow}>
+        <ProgressPreview wins={mockTrainer.wins} />
+      </div>
     </div>
   );
 }

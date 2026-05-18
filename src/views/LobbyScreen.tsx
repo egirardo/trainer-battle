@@ -2,18 +2,35 @@ import { ROUTES } from "@/routes";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
+import { supabase } from "@/lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import StickyHeader from "@/components/atoms/StickyHeader";
-import MenuButton from "@/components/atoms/headerButtons/MenuButton";
+import NavigableHeader, { type NavItem } from "@/components/molecules/NavigableHeader";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
-import IconButton from "@/components/atoms/IconButton";
-import backArrow from '@/assets/sprites/components/back-arrow.svg';
 import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
+
+    async function handleLogout(): Promise<void> {
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error("Failed to sign out:", error);
+            return;
+        }
+        void navigate(ROUTES.start);
+    }
+
+    const navItems: NavItem[] = [
+        { label: 'Dashboard', to: ROUTES.gameMenu },
+        { label: 'Lobby', to: ROUTES.lobby },
+        { label: 'Shop', to: ROUTES.shop },
+        { label: 'Help', to: ROUTES.help },
+        { label: 'Credits', to: ROUTES.credits },
+        { label: 'View Profile', to: ROUTES.profile },
+        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+    ]
     const [inviteSent, setInviteSent] = useState<boolean>(false);
 
     const {
@@ -63,12 +80,11 @@ export default function LobbyScreen() {
     if (error) return <p role="alert">{error}</p>;
 
     return (
-        <main>
-            <StickyHeader
-                label="lobby"
-                action={<MenuButton/>}
-            />
-
+        <>
+            <header>
+                <NavigableHeader label="Lobby" navItems={navItems} />
+            </header>
+            <main>
             {incomingInvitation && (
                 <section className={styles.invSection} aria-label="Incoming battle invitation">
                     <div className={styles.invContainer}>
@@ -147,6 +163,7 @@ export default function LobbyScreen() {
 
 
             <ArrowBackNav/>
-        </main>
+            </main>
+        </>
     );
 }

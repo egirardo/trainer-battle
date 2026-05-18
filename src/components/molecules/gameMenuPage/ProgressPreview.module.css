@@ -33,9 +33,8 @@
 
 .badge img {
     width: 48px;
-    height: 48px;
+    height: auto;
     object-fit: contain;
-    clip-path: polygon(7px 0%, calc(100% - 7px) 0%, 100% 7px, 100% calc(100% - 7px), calc(100% - 7px) 100%, 7px 100%, 0% calc(100% - 7px), 0% 7px);
 }
 
 .badgeEarned {

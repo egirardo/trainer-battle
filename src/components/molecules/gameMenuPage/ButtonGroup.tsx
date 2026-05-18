@@ -3,9 +3,13 @@ import styles from './ButtonGroup.module.css';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '@/routes';
 
-export default function ButtonGroup() {
+interface Props {
+    horizontal?: boolean;
+}
+
+export default function ButtonGroup({ horizontal = false }: Props) {
     return (
-        <div className={styles.buttonGroup}>
+        <div className={`${styles.buttonGroup}${horizontal ? ` ${styles.horizontal}` : ''}`}>
             <Button as={Link} to={ROUTES.lobby}>
                 Find a Match
             </Button>
