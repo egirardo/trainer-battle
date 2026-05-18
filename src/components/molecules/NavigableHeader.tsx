@@ -4,12 +4,9 @@ import MenuButton from '@/components/atoms/headerButtons/MenuButton'
 import CloseButton from '@/components/atoms/headerButtons/CloseButton'
 import styles from './NavigableHeader.module.css'
 
-export interface NavItem {
-  label: string
-  to?: string
-  onClick?: () => void
-  variant?: 'danger'
-}
+type LinkNavItem   = { label: string; to: string;          variant?: 'danger' }
+type ActionNavItem = { label: string; onClick: () => void; variant?: 'danger' }
+export type NavItem = LinkNavItem | ActionNavItem
 
 interface Props {
   label: string
@@ -46,17 +43,11 @@ export default function NavigableHeader({ label, navItems = [] }: Props) {
       <div className={styles.headerRow}>
         <h1 className={styles.label}>{label}</h1>
         {isOpen
-          ? <CloseButton onClick={() => setIsOpen(false)} aria-controls="nav-drawer" />
-          : <MenuButton onClick={() => setIsOpen(true)} aria-expanded={false} aria-controls="nav-drawer" />
+          ? <CloseButton onClick={() => setIsOpen(false)} aria-expanded={isOpen} aria-controls="nav-drawer" />
+          : <MenuButton onClick={() => setIsOpen(true)} aria-expanded={isOpen} aria-controls="nav-drawer" />
         }
         {isOpen && (
-          <>
-            <div
-              className={styles.backdrop}
-              onClick={() => setIsOpen(false)}
-              aria-hidden="true"
-            />
-            <nav
+          <nav
               id="nav-drawer"
               className={styles.drawer}
               aria-label="Navigation menu"
@@ -64,7 +55,7 @@ export default function NavigableHeader({ label, navItems = [] }: Props) {
               <ul className={styles.navList}>
                 {navItems.map((item) => (
                   <li key={item.label}>
-                    {item.to ? (
+                    {'to' in item ? (
                       <Link
                         to={item.to}
                         className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : ''}`}
@@ -77,7 +68,7 @@ export default function NavigableHeader({ label, navItems = [] }: Props) {
                         type="button"
                         className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : ''}`}
                         onClick={() => {
-                          item.onClick?.()
+                          item.onClick()
                           setIsOpen(false)
                         }}
                       >
@@ -88,7 +79,6 @@ export default function NavigableHeader({ label, navItems = [] }: Props) {
                 ))}
               </ul>
             </nav>
-          </>
         )}
       </div>
     </div>
