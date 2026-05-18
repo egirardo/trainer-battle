@@ -63,14 +63,8 @@ Deno.serve(async (req) => {
             return errorResponse('Missing Authorization header', 401)
         }
 
-        // Validate JWT with anon client — avoids mixing service role with auth calls
-        const userClient = createClient(
-            Deno.env.get('SUPABASE_URL')!,
-            Deno.env.get('SUPABASE_ANON_KEY')!,
-            { global: { headers: { Authorization: authHeader } } }
-        )
-
-        const { data: { user }, error: userErr } = await userClient.auth.getUser()
+        const token = authHeader.replace('Bearer ', '')
+        const { data: { user }, error: userErr } = await adminClient.auth.getUser(token)
         if (userErr || !user) {
             return errorResponse('Invalid or expired token', 401)
         }
@@ -78,9 +72,15 @@ Deno.serve(async (req) => {
         const userId = user.id
 
         const rawBody = await req.text()
-        const { sessionId, playerId, moveId } = JSON.parse(rawBody)
+        let body: { sessionId?: unknown; playerId?: unknown; moveId?: unknown }
+        try {
+            body = JSON.parse(rawBody)
+        } catch {
+            return errorResponse('Invalid request body', 400)
+        }
+        const { sessionId, playerId, moveId } = body
 
-        if (!sessionId || !playerId || !moveId) {
+        if (sessionId == null || playerId == null || moveId == null) {
             return errorResponse('Missing required parameters', 400)
         }
 
@@ -286,8 +286,8 @@ Deno.serve(async (req) => {
         const newPlayer1Hp = isPlayer1 ? finalMyHp : finalOppHp
         const newPlayer2Hp = isPlayer1 ? finalOppHp : finalMyHp
 
-        // Update battle state
-        const { error: updateStateErr } = await adminClient
+        // Update battle state — optimistic lock on turn_number prevents double-submission
+        const { data: updatedState, error: updateStateErr } = await adminClient
             .from('battle_state')
             .update({
                 player1_hp: newPlayer1Hp,
@@ -297,9 +297,14 @@ Deno.serve(async (req) => {
                 is_finished: isFinished,
             })
             .eq('session_id', sessionId)
+            .eq('turn_number', battleState.turn_number)
+            .select('session_id')
 
         if (updateStateErr) {
             return errorResponse('Failed to update battle state', 500)
+        }
+        if (!updatedState || updatedState.length === 0) {
+            return errorResponse('Turn already submitted', 409)
         }
 
         if (isFinished) {
@@ -309,6 +314,7 @@ Deno.serve(async (req) => {
                 .eq('id', sessionId)
 
             if (finishErr) {
+                console.error('Partial state: battle_state finished but session not closed', finishErr)
                 return errorResponse('Failed to finish session', 500)
             }
 
@@ -319,6 +325,7 @@ Deno.serve(async (req) => {
             })
 
             if (winnerStatsErr) {
+                console.error('Partial state: session closed but winner stats not updated', winnerStatsErr)
                 return errorResponse('Failed to update winner stats', 500)
             }
 
@@ -332,6 +339,7 @@ Deno.serve(async (req) => {
                     })
 
                     if (loserStatsErr) {
+                        console.error('Partial state: winner stats updated but loser stats not updated', loserStatsErr)
                         return errorResponse('Failed to update loser stats', 500)
                     }
                 }
@@ -344,6 +352,7 @@ Deno.serve(async (req) => {
                 .eq('id', sessionId)
 
             if (updateTurnErr) {
+                console.error('Partial state: battle_state updated but turn not handed off', updateTurnErr)
                 return errorResponse('Failed to hand off turn', 500)
             }
         }
@@ -354,9 +363,7 @@ Deno.serve(async (req) => {
         )
 
     } catch (err) {
-        return errorResponse(
-            err instanceof Error ? err.message : 'Unknown error',
-            500
-        )
+        console.error(err)
+        return errorResponse('Internal server error', 500)
     }
 })
