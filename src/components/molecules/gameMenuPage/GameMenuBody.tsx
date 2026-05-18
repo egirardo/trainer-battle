@@ -10,6 +10,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { usePlayerStats } from '@/hooks/usePlayerStats';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
+import Button from '@/components/atoms/button';
+import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '@/routes';
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
 
@@ -41,8 +44,20 @@ type PlayerCreatureData = {
 export default function GameMenuBody() {
   const { user } = useAuth();
   const { stats } = usePlayerStats();
-  const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
+  const [trainer, setTrainer] = useState<TrainerPreview | null>(null); 
+  const navigate = useNavigate();
   const userId = user?.id;
+
+  async function handleLogout(): Promise<void> {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+          console.error("Failed to sign out:", error);
+          return;
+      }
+
+      void navigate(ROUTES.start);
+  }
 
   useEffect(() => {
     if (!userId) return;
@@ -103,24 +118,26 @@ export default function GameMenuBody() {
   const hasBoss = wins >= 6;
 
   return (
-    <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
-      <div className={styles.creditsRow}>
-        <LifeCreditTracker />
-      </div>
-      <div className={styles.actionsCol}>
-        <ButtonGroup horizontal={hasBoss} />
-      </div>
-      <div className={styles.profileCol}>
-        <ProfilePreview trainer={trainerWithStats} />
-      </div>
-      {hasBoss && (
-        <div className={styles.bossCol}>
-          <BossDialog />
+    <main className={styles.mainGM}>
+      <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
+        <div className={styles.creditsRow}>
+          <LifeCreditTracker />
         </div>
-      )}
-      <div className={styles.progressRow}>
-        <ProgressPreview wins={wins} />
+        <div className={styles.actionsCol}>
+          <ButtonGroup horizontal={hasBoss} />
+        </div>
+        <div className={styles.profileCol}>
+          <ProfilePreview trainer={trainerWithStats} />
+        </div>
+        {hasBoss && (
+          <div className={styles.bossCol}>
+            <BossDialog />
+          </div>
+        )}
+        <div className={styles.progressRow}>
+          <ProgressPreview wins={wins} />
+        </div>
       </div>
-    </div>
+    </main>
   );
 }

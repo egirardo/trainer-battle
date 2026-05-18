@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import { supabase } from "@/lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
@@ -10,7 +9,6 @@ import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 import { ROUTES } from "@/routes";
 
 export default function LobbyScreen() {
-    const navigate = useNavigate();
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
 
     async function handleLogout(): Promise<void> {

@@ -1,24 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { supabase } from '../lib/supabase';
 import { ROUTES } from '../routes';
 import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
 import GameMenuBody from '@/components/molecules/gameMenuPage/GameMenuBody';
+import { supabase } from '@/lib/supabase';
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
     const navigate = useNavigate();
-
-    async function handleLogout(): Promise<void> {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            console.error("Failed to sign out:", error);
-            return;
-        }
-
-        void navigate(ROUTES.start);
-    }
 
     const navItems: NavItem[] = [
         { label: 'Dashboard', to: ROUTES.gameMenu },
@@ -29,6 +18,18 @@ export default function GameMenuScreen(){
         { label: 'View Profile', to: ROUTES.profile },
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
+
+    
+  async function handleLogout(): Promise<void> {
+      const { error } = await supabase.auth.signOut();
+
+      if (error) {
+          console.error("Failed to sign out:", error);
+          return;
+      }
+
+      void navigate(ROUTES.start);
+  }
 
     if (loading) {
         return <p>Loading...</p>;

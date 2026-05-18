@@ -1,37 +1,62 @@
 .gameMenuBody {
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-    padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  flex: 1;
+}
+
+.mainGM {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.logoutContainer {
+  display: flex;
+  justify-content: start;
+  bottom: 0;
+  padding: 1em 0 2em 0;
+  margin-top: auto;
 }
 
 @media (min-width: 768px) {
-    .gameMenuBody {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas:
-            "credits  credits"
-            "profile  actions"
-            "progress progress";
-        gap: 1rem;
-    }
+  .gameMenuBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "credits  credits"
+      "profile  actions"
+      "progress progress";
+    gap: 1rem;
+  }
 
-    .creditsRow  { grid-area: credits; }
-    .profileCol  { grid-area: profile; }
-    .actionsCol  {
-        grid-area: actions;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .bossCol     { grid-area: boss; }
-    .progressRow { grid-area: progress; }
+  .creditsRow {
+    grid-area: credits;
+  }
+  .profileCol {
+    grid-area: profile;
+  }
+  .actionsCol {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bossCol {
+    grid-area: boss;
+  }
+  .progressRow {
+    grid-area: progress;
+  }
 
-    .bossActive {
-        grid-template-areas:
-            "credits  credits"
-            "actions  actions"
-            "profile  boss"
-            "progress progress";
-    }
+  .bossActive {
+    grid-template-areas:
+      "credits  credits"
+      "actions  actions"
+      "profile  boss"
+      "progress progress";
+  }
 }
