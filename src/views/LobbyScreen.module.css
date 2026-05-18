@@ -18,6 +18,10 @@
   image-rendering: pixelated;
   display: flex;
   margin: 0.2em 1em;
+  display: grid;
+  grid-template-columns: 0.25fr 0.75fr;
+  background-color: var(--purp-card-bg);
+  background-clip: border-box;
 }
 
 .listData {
@@ -26,22 +30,25 @@
 }
 
 .playerData {
+  font-size: 1em;
   display: flex;
   justify-content: space-between;
   padding-bottom: 0.5em;
 }
+
 .playerData:first-child {
   border-bottom: 6px solid var(--primary);
 }
+
 .btnContainer {
   width: 100%;
 }
 
 .invBtn {
   font-size: 1em;
-  padding: 0.3em 0;
+  padding: 0.3em 0.5em;
 }
 
 .creatureImg {
-  width: 2em;
+  width: 100%;
 }
