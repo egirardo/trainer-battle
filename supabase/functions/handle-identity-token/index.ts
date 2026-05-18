@@ -104,8 +104,8 @@ Deno.serve(async (req) => {
     // Create or update supabase user
     let supabaseUserId: string
 
-    if (isReturning && existingPlayer) {
-      supabaseUserId = existingPlayer.id
+    if (isReturning && existingProfile) {
+      supabaseUserId = existingProfile.id
 
       // Update credits and transaction ID for returning player
       await adminClient
