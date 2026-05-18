@@ -184,9 +184,9 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     useEffect(() => {
         channelRef.current = supabase
-            .channel(`battle:${sessionIdRef.current}`)
+            .channel(`battle:${sessionId}`)
             .on('postgres_changes', {
-                filter: `session_id=eq.${sessionIdRef.current}`,
+                filter: `session_id=eq.${sessionId}`,
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'battle_state',
@@ -206,11 +206,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     setMessages(prev => [...prev, ...state.last_move_description!.split('\n')]);
                 }
                 if (state.is_finished) {
-                    void navigateRef.current(`/battle-result/${sessionIdRef.current}`);
+                    void navigateRef.current(`/battle-result/${sessionId}`);
                 }
             })
             .on('postgres_changes', {
-                filter: `id=eq.${sessionIdRef.current}`,
+                filter: `id=eq.${sessionId}`,
                 event: 'UPDATE',
                 schema: 'public',
                 table: 'game_sessions',
@@ -228,7 +228,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 channelRef.current = null
             }
         }
-    }, []);
+    }, [sessionId]);
 
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
