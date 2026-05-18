@@ -9,7 +9,7 @@ export const ROUTES = {
   lobby: '/lobby',
   battle: '/battle',
   battleSession: '/battle/:sessionId',
-  battleResult: '/battle-result',
+  battleResult: '/battle-result/:sessionId',
   adminLogin: '/admin-login',
   adminPanel: '/admin-panel',
   shop: '/shop',

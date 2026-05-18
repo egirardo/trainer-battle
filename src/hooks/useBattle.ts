@@ -205,9 +205,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 if (state.last_move_description) {
                     setMessages(prev => [...prev, ...state.last_move_description!.split('\n')]);
                 }
-                // TODO: re-enable when realtime channel stability is fixed for PVP
                 if (state.is_finished) {
-                    void navigateRef.current(ROUTES.battleResult);
+                    void navigateRef.current(`/battle-result/${sessionIdRef.current}`);
                 }
             })
             .on('postgres_changes', {
@@ -238,14 +237,14 @@ export function useBattle(sessionId: number): UseBattleReturn {
         type InvokeError = { message: string; context?: Response };
         const SESSION_REFRESH_BUFFER_SECONDS = 60;
 
-        const { data, error: sessionError } = await supabase.auth.getSession()
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
         if (sessionError) {
             setError(sessionError.message)
             setIsMyTurn(true)
             return
         }
 
-        let session = data?.session ?? null
+        let session = sessionData?.session ?? null
         const nowInSeconds = Math.floor(Date.now() / 1000)
         const expiresAt = session?.expires_at ?? 0
         const shouldRefresh =
@@ -270,12 +269,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
         }
 
         // Explicitly pass Authorization header
-        const { error } = await supabase.functions.invoke('resolve-turn', {
+        const { data, error } = await supabase.functions.invoke('resolve-turn', {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
             },
             body: { sessionId, playerId: user.id, moveId }
-        }) as { error: InvokeError | null };
+        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null } | null; error: InvokeError | null };
 
         if (error) {
             let message = error.message
@@ -296,6 +295,20 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setIsMyTurn(true)
             return
         }
+        if (data) {
+            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp
+            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp
+            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+            if (data.descriptions?.length) {
+                setMessages(prev => [...prev, ...data.descriptions])
+            }
+            if (data.isFinished) {
+                void navigate(`/battle-result/${sessionId}`)
+                return
+            }
+        }
+
         if (isCpuRef.current) {
             setIsMyTurn(true)
         }
@@ -338,17 +351,20 @@ export function useBattle(sessionId: number): UseBattleReturn {
     }
 
     async function onRun(): Promise<void> {
-        if (!user || !opponentUserId) return;
+        if (!user) return;
+
+        const winnerId = isCpuRef.current ? null : opponentUserId;
+
         const { error: runError } = await supabase
             .from('game_sessions')
-            .update({ status: 'finished', winner_id: opponentUserId })
+            .update({ status: 'finished', winner_id: winnerId })
             .eq('id', sessionId);
 
         if (runError) {
             setError(runError.message);
             return
         }
-        void navigate(ROUTES.battleResult);
+        void navigate(`/battle-result/${sessionId}`);
     }
 
     return { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem };
