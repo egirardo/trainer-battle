@@ -47,7 +47,16 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { identity_token } = await req.json() as { identity_token: string }
+    const rawBody = await req.text()
+    let body: { identity_token?: string }
+
+    try {
+      body = JSON.parse(rawBody) as { identity_token?: string }
+    } catch {
+      return errorResponse('Invalid request body', 400)
+    }
+
+    const { identity_token } = body
 
     if (!identity_token) {
       return errorResponse('Missing identity_token', 400)
