@@ -115,7 +115,6 @@ export default function GameMenuBody() {
   const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
 
-  const hasBoss = wins >= 6;
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">{error}</p>;
 

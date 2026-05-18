@@ -5,7 +5,6 @@ import maleTrainer from '@/assets/sprites/trainers/avatar-m.svg';
 import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
 import { Link } from 'react-router-dom';
 import Button from '@/components/atoms/button';
-import { ROUTES } from '@/routes';
 
 const trainerImages: Record<TrainerGender, string> = {
     female: femaleTrainer,
