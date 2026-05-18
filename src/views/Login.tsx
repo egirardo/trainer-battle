@@ -2,6 +2,9 @@ import { useState, type ChangeEvent, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "../lib/supabase";
 import { ROUTES } from '../routes';
+import InputField from "../components/atoms/InputField";
+import Button from "../components/atoms/button";
+import styles from "./AuthForm.module.css";
 
 interface LoginForm {
     email: string;
@@ -54,36 +57,36 @@ export default function Login() {
             sessionStorage.setItem('profile', JSON.stringify(profileData));
         }
 
-        navigate(ROUTES.gameMenu);
+        void navigate(ROUTES.gameMenu);
         setLoading(false);
     }
 
     return (
         <main>
             <h1>Login</h1>
-            <form onSubmit={handleLogin}>
-                <label htmlFor="email">Email</label>
-                <input
+            <form className={styles.form} onSubmit={(e) => void handleLogin(e)}>
+                <InputField
                     id="email"
                     type="email"
                     name="email"
+                    labelName="Email"
                     placeholder="Email"
                     value={form.email}
                     onChange={handleChange}
                 />
-                <label htmlFor="startcode">Start code</label>
-                <input
+                <InputField
                     id="startcode"
                     type="password"
                     name="startcode"
+                    labelName="Start code"
                     placeholder="Start code"
                     value={form.startcode}
                     onChange={handleChange}
+                    error={error ?? undefined}
                 />
-                {error && <p role="alert">{error}</p>}
-                <button type="submit" disabled={loading}>
+                <Button type="submit" disabled={loading}>
                     {loading ? "Logging in..." : "Login"}
-                </button>
+                </Button>
             </form>
             <Link to="/register">Don't have an account? Register</Link>
         </main>
