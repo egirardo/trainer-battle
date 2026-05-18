@@ -1,7 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
 
-
-
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -12,7 +10,6 @@ const adminClient = createClient(
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 )
 
-// Type advantage multiplier
 const typeChart: Record<string, Record<string, number>> = {
     fire:  { fire: 1,   water: 0.5, grass: 2   },
     water: { fire: 2,   water: 1,   grass: 0.5 },
@@ -24,10 +21,10 @@ function getTypeMultiplier(attackerType: string, defenderType: string): number {
 }
 
 function calculateDamage(
-    power: number, 
-    attack: number, 
-    defence: number, 
-    attackerType: string, 
+    power: number,
+    attack: number,
+    defence: number,
+    attackerType: string,
     defenderType: string
 ): number {
     const base = (power * attack) / defence
@@ -37,10 +34,10 @@ function calculateDamage(
 }
 
 function buildDescription(
-    moveName: string, 
-    damage: number, 
-    attackerType: string, 
-    defenderType: string, 
+    moveName: string,
+    damage: number,
+    attackerType: string,
+    defenderType: string,
     prefix = ''
 ): string {
     const multiplier = getTypeMultiplier(attackerType, defenderType)
@@ -56,7 +53,6 @@ function errorResponse(message: string, status: number): Response {
 }
 
 Deno.serve(async (req) => {
-
     if (req.method === 'OPTIONS') {
         return new Response('ok', { headers: corsHeaders })
     }
@@ -67,45 +63,33 @@ Deno.serve(async (req) => {
             return errorResponse('Missing Authorization header', 401)
         }
 
-        // Extract and decode JWT to get user ID
         const token = authHeader.replace('Bearer ', '')
-        const parts = token.split('.')
-        if (parts.length !== 3) {
-            return errorResponse('Invalid token format', 401)
-        }
-
-        // Decode JWT payload (part 2, base64url encoded)
-        const base64url = parts[1]
-        const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/')
-        const padding = '='.repeat((4 - (base64.length % 4)) % 4)
-        const payload = JSON.parse(
-            new TextDecoder().decode(
-                Uint8Array.from(atob(base64 + padding), c => c.charCodeAt(0))
-            )
-        ) as { sub?: string; exp?: number }
-
-        const userId = payload.sub
-        if (!userId) {
-            return errorResponse('Invalid token: missing user ID', 401)
-        }
-
-        // Check if token is expired
-        const now = Math.floor(Date.now() / 1000)
-        if (payload.exp && payload.exp < now) {
+        const { data: { user }, error: userErr } = await adminClient.auth.getUser(token)
+        if (userErr || !user) {
             return errorResponse('Invalid or expired token', 401)
         }
 
-        const rawBody = await req.text()
-        const { sessionId, playerId, moveId } = JSON.parse(rawBody)
+        const userId = user.id
 
-        if (!sessionId || !playerId || !moveId) {
+        const rawBody = await req.text()
+        let body: { sessionId?: unknown; playerId?: unknown; moveId?: unknown }
+        try {
+            body = JSON.parse(rawBody)
+        } catch {
+            return errorResponse('Invalid request body', 400)
+        }
+        const { sessionId, playerId, moveId } = body
+
+        if (sessionId == null || playerId == null || moveId == null) {
             return errorResponse('Missing required parameters', 400)
         }
 
+        // Verify caller matches the playerId they sent
         if (userId !== playerId) {
             return errorResponse('Player ID does not match token user', 403)
         }
 
+        // Fetch session
         const { data: session, error: sessionErr } = await adminClient
             .from('game_sessions')
             .select('*')
@@ -116,6 +100,22 @@ Deno.serve(async (req) => {
             return errorResponse('Game session not found', 404)
         }
 
+        // Verify caller is actually a participant in this session
+        if (session.player1_id !== userId && session.player2_id !== userId) {
+            return errorResponse('You are not a participant in this session', 403)
+        }
+
+        // Reject already finished sessions
+        if (session.status === 'finished') {
+            return errorResponse('Battle is already finished', 400)
+        }
+
+        // Enforce turn order for PVP
+        if (!session.is_cpu && session.current_turn !== userId) {
+            return errorResponse('It is not your turn', 403)
+        }
+
+        // Fetch battle state
         const { data: battleState, error: stateErr } = await adminClient
             .from('battle_state')
             .select('*')
@@ -126,6 +126,11 @@ Deno.serve(async (req) => {
             return errorResponse('Battle state not found', 404)
         }
 
+        // Reject already finished battle state
+        if (battleState.is_finished) {
+            return errorResponse('Battle is already finished', 400)
+        }
+
         const isPlayer1 = session.player1_id === playerId
         const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id
 
@@ -133,6 +138,7 @@ Deno.serve(async (req) => {
             return errorResponse('Player creature ID missing', 400)
         }
 
+        // Fetch player's creature
         const myPCResult = await adminClient
             .from('player_creatures')
             .select('*, creatures(*)')
@@ -146,6 +152,19 @@ Deno.serve(async (req) => {
         const myPC = myPCResult.data
         const myCreature = myPC.creatures as { type: string }
 
+        // Validate move belongs to player's creature
+        const { data: validMove, error: validMoveErr } = await adminClient
+            .from('creature_moves')
+            .select('move_id')
+            .eq('creature_id', myPC.creature_id)
+            .eq('move_id', moveId)
+            .single()
+
+        if (validMoveErr || !validMove) {
+            return errorResponse('Move does not belong to your creature', 403)
+        }
+
+        // Fetch opponent stats
         let oppType: string
         let oppAttack: number
         let oppDefence: number
@@ -189,7 +208,7 @@ Deno.serve(async (req) => {
             oppCreatureId = oppPC.creature_id
         }
 
-        // Fetch player's chosen move
+        // Fetch move
         const { data: move, error: moveErr } = await adminClient
             .from('moves')
             .select('*')
@@ -200,11 +219,16 @@ Deno.serve(async (req) => {
             return errorResponse('Move not found', 404)
         }
 
-        // --- Player's attack ---
+        // Read stat modifiers
+        const myAttackMod: number = (isPlayer1 ? battleState.player1_attack_modifier : battleState.player2_attack_modifier) ?? 0
+        const myDefenceMod: number = (isPlayer1 ? battleState.player1_defence_modifier : battleState.player2_defence_modifier) ?? 0
+        const oppDefenceMod: number = (isPlayer1 ? battleState.player2_defence_modifier : battleState.player1_defence_modifier) ?? 0
+
+        // Player's attack
         const playerDamage = calculateDamage(
             move.power ?? 0,
-            myPC.attack ?? 1,
-            oppDefence,
+            (myPC.attack ?? 1) + myAttackMod,
+            oppDefence + oppDefenceMod,
             myCreature.type,
             oppType
         )
@@ -222,42 +246,48 @@ Deno.serve(async (req) => {
         let isFinished = newOppHp <= 0
         let winnerId: string | null = isFinished ? playerId : null
 
-        // --- CPU counter-attack (same call, if CPU battle and player didn't just win) ---
+        // CPU counter-attack
         if (session.is_cpu && !isFinished) {
-            const { data: cpuMoves } = await adminClient
+            const { data: cpuMoves, error: cpuMovesErr } = await adminClient
                 .from('creature_moves')
                 .select('move_id')
                 .eq('creature_id', oppCreatureId)
 
+            if (cpuMovesErr) {
+                return errorResponse('Could not fetch CPU moves', 500)
+            }
+
             if (cpuMoves && cpuMoves.length > 0) {
                 const randomMoveId = cpuMoves[Math.floor(Math.random() * cpuMoves.length)].move_id
-                const { data: cpuMove } = await adminClient
+                const { data: cpuMove, error: cpuMoveErr } = await adminClient
                     .from('moves')
                     .select('*')
                     .eq('id', randomMoveId)
                     .single()
 
-                if (cpuMove) {
-                    const cpuDamage = calculateDamage(
-                        cpuMove.power ?? 0,
-                        oppAttack,
-                        myPC.defence ?? 1,
-                        oppType,
-                        myCreature.type
-                    )
-                    finalMyHp = Math.max(0, finalMyHp - cpuDamage)
-                    isFinished = finalMyHp <= 0
-                    descriptions.push(buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's "))
-                    if (isFinished) winnerId = null
+                if (cpuMoveErr || !cpuMove) {
+                    return errorResponse('Could not fetch CPU move', 500)
                 }
+
+                const cpuDamage = calculateDamage(
+                    cpuMove.power ?? 0,
+                    oppAttack,
+                    (myPC.defence ?? 1) + myDefenceMod,
+                    oppType,
+                    myCreature.type
+                )
+                finalMyHp = Math.max(0, finalMyHp - cpuDamage)
+                isFinished = finalMyHp <= 0
+                descriptions.push(buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's "))
+                if (isFinished) winnerId = null
             }
         }
 
         const newPlayer1Hp = isPlayer1 ? finalMyHp : finalOppHp
         const newPlayer2Hp = isPlayer1 ? finalOppHp : finalMyHp
 
-        // Update battle state
-        const { error: updateStateErr } = await adminClient
+        // Update battle state — optimistic lock on turn_number prevents double-submission
+        const { data: updatedState, error: updateStateErr } = await adminClient
             .from('battle_state')
             .update({
                 player1_hp: newPlayer1Hp,
@@ -267,39 +297,64 @@ Deno.serve(async (req) => {
                 is_finished: isFinished,
             })
             .eq('session_id', sessionId)
+            .eq('turn_number', battleState.turn_number)
+            .select('session_id')
 
         if (updateStateErr) {
             return errorResponse('Failed to update battle state', 500)
         }
+        if (!updatedState || updatedState.length === 0) {
+            return errorResponse('Turn already submitted', 409)
+        }
 
         if (isFinished) {
-            await adminClient
+            const { error: finishErr } = await adminClient
                 .from('game_sessions')
                 .update({ status: 'finished', winner_id: winnerId })
                 .eq('id', sessionId)
 
-            await adminClient.rpc('increment_player_stats', {
+            if (finishErr) {
+                console.error('Partial state: battle_state finished but session not closed', finishErr)
+                return errorResponse('Failed to finish session', 500)
+            }
+
+            const { error: winnerStatsErr } = await adminClient.rpc('increment_player_stats', {
                 p_player_id: playerId,
                 p_wins: winnerId === playerId ? 1 : 0,
                 p_battles: 1,
             })
 
+            if (winnerStatsErr) {
+                console.error('Partial state: session closed but winner stats not updated', winnerStatsErr)
+                return errorResponse('Failed to update winner stats', 500)
+            }
+
             if (!session.is_cpu) {
                 const loserId = isPlayer1 ? session.player2_id : session.player1_id
                 if (loserId) {
-                    await adminClient.rpc('increment_player_stats', {
+                    const { error: loserStatsErr } = await adminClient.rpc('increment_player_stats', {
                         p_player_id: loserId,
                         p_wins: 0,
                         p_battles: 1,
                     })
+
+                    if (loserStatsErr) {
+                        console.error('Partial state: winner stats updated but loser stats not updated', loserStatsErr)
+                        return errorResponse('Failed to update loser stats', 500)
+                    }
                 }
             }
         } else if (!session.is_cpu) {
             const nextTurn = isPlayer1 ? session.player2_id : session.player1_id
-            await adminClient
+            const { error: updateTurnErr } = await adminClient
                 .from('game_sessions')
                 .update({ current_turn: nextTurn })
                 .eq('id', sessionId)
+
+            if (updateTurnErr) {
+                console.error('Partial state: battle_state updated but turn not handed off', updateTurnErr)
+                return errorResponse('Failed to hand off turn', 500)
+            }
         }
 
         return new Response(
@@ -308,9 +363,7 @@ Deno.serve(async (req) => {
         )
 
     } catch (err) {
-        return errorResponse(
-            err instanceof Error ? err.message : 'Unknown error',
-            500
-        )
+        console.error(err)
+        return errorResponse('Internal server error', 500)
     }
 })
