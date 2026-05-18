@@ -7,6 +7,9 @@ import StickyHeader from "@/components/atoms/StickyHeader";
 import MenuButton from "@/components/atoms/headerButtons/MenuButton";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
+import IconButton from "@/components/atoms/IconButton";
+import backArrow from '@/assets/sprites/components/back-arrow.svg';
+import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
@@ -67,15 +70,45 @@ export default function LobbyScreen() {
             />
 
             {incomingInvitation && (
-                <section aria-label="Incoming battle invitation">
-                    <h2 className={styles.heading}>Battle Invitation!</h2>
-                    <p>{incomingInvitation.fromUsername} wants to battle you!</p>
-                    <button onClick={() => void handleAccept()}>Accept</button>
-                    <button onClick={() => void handleDecline()}>Decline</button>
+                <section className={styles.invSection} aria-label="Incoming battle invitation">
+                    <div className={styles.invContainer}>
+                        <div className={styles.invContent}>
+                            <h2 className={styles.heading}>Battle Invitation!</h2>
+                            <p>{incomingInvitation.fromUsername} wants to battle you!</p>
+                            <div className={styles.invBtnContainer}>
+                                <Button
+                                    className={styles.actionBtn}
+                                    variant={"danger"}
+                                    onClick={() => void handleDecline()}
+                                >
+                                    Decline
+                                </Button>
+                                <Button
+                                    className={styles.actionBtn}
+                                    variant={"danger"}
+                                    onClick={() => void handleAccept()}
+                                >
+                                    Accept
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             )}
 
-            <section aria-label="Players in Lobby">
+            <section className={styles.section} aria-label="CPU battle">
+                <h2 className={styles.heading}>Battle against CPU</h2>
+                <p>Your opponent will match your skill level.</p>
+                <Button 
+                    className={styles.cpuBtn}
+                    variant={"danger"}
+                    onClick={() => void handleCpu()}
+                >
+                    Fight vs CPU
+                </Button>
+            </section>
+
+            <section className={styles.section} aria-label="Players in Lobby">
                 <h2 className={styles.heading}>Players in Lobby</h2>
                 {playersInLobby.length === 0 ? (
                    <>
@@ -112,15 +145,8 @@ export default function LobbyScreen() {
                 )}
             </section>
 
-            <section aria-label="CPU battle">
-                <h2 className={styles.heading}>Battle against CPU</h2>
-                <p>Your opponent will match your skill level.</p>
-                <button onClick={() => void handleCpu()}>Fight CPU</button>
-            </section>
 
-            <button onClick={() => void navigate(ROUTES.gameMenu)}>
-                Back to Menu
-            </button>
+            <ArrowBackNav/>
         </main>
     );
 }
