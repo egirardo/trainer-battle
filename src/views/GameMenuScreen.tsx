@@ -39,9 +39,7 @@ export default function GameMenuScreen(){
             <header>
                 <NavigableHeader label="Dashboard" navItems={navItems} />
             </header>
-            <main>
-                <GameMenuBody />
-            </main>
+            <GameMenuBody />
         </>
     )
 }

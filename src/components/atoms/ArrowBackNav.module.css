@@ -1,12 +1,10 @@
 .bottomNav {
   background-color: var(--ui-bg);
-  width: 100%;
   display: flex;
   justify-content: left;
-  position: fixed;
+  position: sticky;
   bottom: 0;
-  left: 0;
   padding: 0.8em 1em 2em 1em;
-  margin-top: 2em;
+  margin-top: auto;
   box-shadow: rgba(0, 0, 0, 0.2) 0px -5px 10px;
 }

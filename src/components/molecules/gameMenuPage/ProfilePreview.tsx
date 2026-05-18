@@ -29,12 +29,20 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
     return (
         <div className={styles.profilePreviewCard}>
             <div className={styles.imageContainer}>
-                <img src={trainer.creature.image} alt={`${trainer.creature.name} avatar`} />
-                <img src={trainerImages[trainer.trainer_gender]} alt={`${trainer.name} avatar`} />
+                <img 
+                    className={styles.creatureImg} 
+                    src={trainer.creature.image} 
+                    alt={`${trainer.creature.name} avatar`} 
+                />
+                <img 
+                    className={styles.trainerImg} 
+                    src={trainerImages[trainer.trainer_gender]} 
+                    alt={`${trainer.name} avatar`} 
+                />
             </div>
             <div className={styles.titleContainer}>
                 <div className={styles.trainerInfo}>
-                    <h2>{trainer.name}</h2>
+                    <h2 className={styles.profileHeading}>{trainer.name}</h2>
                     <div className={styles.levelIcon}>
                         <p className={styles.level}>{trainer.playerCreature.level}</p>
                     </div>
@@ -43,8 +51,8 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
                     <p>{trainer.creature.name}</p>
                     <p className={styles.creatureType}>Type: {trainer.creature.type}</p>
                 </div>
-                <Button as={Link} to={ROUTES.profile} className={styles.viewProfileLink}>
-                    View Full Profile
+                <Button as={Link} to={`/trainers/${trainer.id}`} className={styles.viewProfileLink}>
+                    View profile
                 </Button>
             </div>
         </div>

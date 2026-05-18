@@ -7,6 +7,7 @@ import NavigableHeader, { type NavItem } from "@/components/molecules/NavigableH
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
 import ArrowBackNav from "@/components/atoms/ArrowBackNav";
+import { ROUTES } from "@/routes";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
@@ -159,7 +160,6 @@ export default function LobbyScreen() {
                     </ul>
                 )}
             </section>
-
 
             <ArrowBackNav/>
             </main>
