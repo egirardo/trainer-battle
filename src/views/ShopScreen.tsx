@@ -20,8 +20,9 @@ import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
 
 export default function ShopScreen() {
     const { items, loading: itemsLoading, error: itemsError } = useItems();
-    const [credits, setCredits] = useState(100);
+    const [credits, setCredits] = useState(300);
     const [cart, setCart] = useState<Record<number, number>>({});
+    const [isCartExpanded, setIsCartExpanded] = useState(false);
     const [fundsError, setFundsError] = useState<string | null>(null);
     const [fundsErrorKey, setFundsErrorKey] = useState(0);
     const fundsErrorTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -55,14 +56,15 @@ export default function ShopScreen() {
         if (total === 0) return;
         setCredits(prev => prev - total);
         setCart({});
+        setIsCartExpanded(false);
     }
 
     function handleRemove(itemId: number) {
-        setCart(prev => {
-            const currentQty = prev[itemId] ?? 0;
-            if (currentQty === 0) return prev;
-            return { ...prev, [itemId]: currentQty - 1 };
-        });
+        const currentQty = cart[itemId] ?? 0;
+        if (currentQty === 0) return;
+        const next = { ...cart, [itemId]: currentQty - 1 };
+        setCart(next);
+        if (Object.values(next).every(q => q === 0)) setIsCartExpanded(false);
     }
 
 
@@ -90,7 +92,15 @@ export default function ShopScreen() {
                         ))}
                     </div>
                 </div>
-                <TotalDisplay total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)} onBuy={handleBuy} />
+                <TotalDisplay
+                    total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)}
+                    onBuy={handleBuy}
+                    cartItems={items
+                        .filter(i => (cart[i.id] ?? 0) > 0)
+                        .map(i => ({ id: i.id, name: i.name, quantity: cart[i.id] ?? 0, price: i.price }))}
+                    isExpanded={isCartExpanded}
+                    onToggleExpanded={() => setIsCartExpanded(e => !e)}
+                />
             </main>
         </div>
     );

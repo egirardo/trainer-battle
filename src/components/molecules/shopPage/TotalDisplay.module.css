@@ -10,6 +10,52 @@
     gap: 0.75rem;
 }
 
+.cartList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+}
+
+.cartItem {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--pixel-regular);
+    font-size: 1rem;
+    padding: 0.2rem 0;
+}
+
+.cartItemPrice {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.viewCartButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--pixel-regular);
+    font-size: 0.875rem;
+    color: var(--text);
+    padding: 0;
+    text-decoration: underline;
+}
+
+.viewCartButton:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
 .totalCount {
     display: flex;
     justify-content: space-between;
