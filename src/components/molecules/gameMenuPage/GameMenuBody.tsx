@@ -9,9 +9,6 @@ import LifeCreditTracker from './LifeCreditTracker';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
-import Button from '@/components/atoms/button';
-import { useNavigate } from 'react-router-dom';
-import { ROUTES } from '@/routes';
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
 
@@ -47,14 +44,7 @@ export default function GameMenuBody() {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
   const userId = user?.id;
-
-  async function handleLogout(): Promise<void> {
-      const { error } = await supabase.auth.signOut();
-      if (error) console.error("Failed to sign out:", error);
-      void navigate(ROUTES.start);
-  }
 
   useEffect(() => {
     if (!userId) return;
