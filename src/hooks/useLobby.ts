@@ -5,6 +5,7 @@ import { useAuth } from "./useAuth";
 import { useGameSession } from "./useGameSession";
 import { LobbyPlayer, IncomingInvitation } from "@/models/models";
 import { fetchFromSupabase } from "@/lib/fetchSupabase";
+import { getCreatureImage } from "@/lib/creatureImages";
 import { REALTIME_SUBSCRIBE_STATES } from '@supabase/supabase-js';
 import { ROUTES } from "@/routes";
 
@@ -39,7 +40,7 @@ export function useLobby() {
 
         setMyCreatureId(data.id);
         return data.id;
-    }, [user]);
+    }, [user?.id]);
 
 
 
@@ -90,7 +91,7 @@ export function useLobby() {
             .subscribe();
 
         return channel;
-    }, [user]);
+    }, [user?.id]);
 
     const subscribeToSessionAccepted = useCallback((sessionId: number): ReturnType<typeof supabase.channel> => {
         const channel = supabase
@@ -131,7 +132,7 @@ export function useLobby() {
             // Fetch creature details for presence
             const { data: creature } = await supabase
                 .from("player_creatures")
-                .select("level, creatures(name)")
+                .select("level, creatures(name, type, image)")
                 .eq("id", creatureId)
                 .single();
 
@@ -139,6 +140,9 @@ export function useLobby() {
                 await supabase.removeChannel(presenceChannelRef.current)
                 presenceChannelRef.current = null
             }
+
+            const rawCreature = creature?.creatures;
+            const creatureData = (Array.isArray(rawCreature) ? rawCreature[0] : rawCreature) as { name: string | null; type: string | null; image: string | null } | null;
 
             presenceChannelRef.current = supabase.channel('lobby', {
                 config: { presence: { key: user!.id } }
@@ -172,7 +176,9 @@ export function useLobby() {
                             userId: user!.id,
                             username: profile!.username ?? "Unknown",
                             creatureId: creatureId,
-                            creatureName: creature?.creatures?.name ?? "Unknown",
+                            creatureName: creatureData?.name ?? "Unknown",
+                            creatureType: creatureData?.type ?? "fire",
+                            creatureImage: getCreatureImage(creatureData?.image ?? ""),
                             level: creature?.level ?? 1,
                         }).then(() => setLoading(false));
                     }
@@ -190,7 +196,7 @@ export function useLobby() {
             }
             void invitationChannel?.unsubscribe();
         };
-    }, [user, profile, fetchMyCreature, subscribeToInvitations]);
+    }, [user?.id, profile?.username, fetchMyCreature, subscribeToInvitations]);
 
     async function handleAccept(): Promise<void> {
         if (!incomingInvitation || !myCreatureId) return;

@@ -1,0 +1,121 @@
+.heading {
+  text-transform: uppercase;
+  margin: 1em 0;
+}
+.playerContent {
+  width: 100%;
+}
+.ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+.ul {
+  max-width: 40em;
+  margin: 0 auto;
+  padding: 0 2em;
+}
+
+.invSection {
+  max-width: 40em;
+  margin: 0 auto;
+  padding: 0 2em;
+}
+
+.list {
+  border: 21px solid transparent;
+  border-image: url("../assets/sprites/components/purple-dialog-box.png") 21 /
+    21px stretch;
+  background-clip: border-box;
+  image-rendering: pixelated;
+  margin: 0.75em 0;
+  display: grid;
+  grid-template-columns: 0.25fr 0.75fr;
+  background-color: var(--purp-card-bg);
+  background-clip: border-box;
+  border-radius: 35px;
+}
+
+.listData {
+  display: flex;
+  align-items: center;
+}
+
+.playerData {
+  font-size: 1em;
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.5em;
+}
+
+.playerData:first-child {
+  border-bottom: 6px solid var(--primary);
+}
+
+.btnContainer {
+  width: 100%;
+  display: flex;
+  justify-content: end;
+}
+
+.invBtn {
+  font-size: 1em;
+  padding: 0.3em 0.5em;
+}
+
+.creatureImg {
+  width: 100%;
+}
+
+.cpuBtn {
+  padding: 0.5em 1em;
+}
+
+/* Invitation */
+.invContainer {
+  border: 21px solid transparent;
+  border-image: url("../assets/sprites/components/red-dialog-box.png") 21 / 21px
+    stretch;
+  background-clip: border-box;
+  image-rendering: pixelated;
+  background-color: var(--red-card-bg);
+  border-radius: 35px;
+  /* position: fixed;
+  top: 50%;
+  left: 50%; */
+  /* transform: translate(-50%, -50%); */
+  z-index: 100;
+  /* min-width: 18em; */
+  /* max-width: 43.5%; */
+  margin: 0 auto;
+  margin-top: 2em;
+}
+
+.invContent {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.invContent h2 {
+  margin: 0 0 1em;
+}
+
+.invContent h2,
+.invContent p {
+  width: 100%;
+}
+
+.actionBtn {
+  font-size: 1em;
+  padding: 0.3em 0.5em;
+}
+
+.invBtnContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1em;
+}
+
+.cpuBtn {
+  margin: 1em 0;
+}

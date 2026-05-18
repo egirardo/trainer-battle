@@ -3,6 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
+import StickyHeader from "@/components/atoms/StickyHeader";
+import MenuButton from "@/components/atoms/headerButtons/MenuButton";
+import styles from './LobbyScreen.module.css'
+import Button from "@/components/atoms/button";
+import IconButton from "@/components/atoms/IconButton";
+import backArrow from '@/assets/sprites/components/back-arrow.svg';
+import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 
 export default function LobbyScreen() {
     const navigate = useNavigate();
@@ -57,49 +64,89 @@ export default function LobbyScreen() {
 
     return (
         <main>
-            <h1>Lobby</h1>
+            <StickyHeader
+                label="lobby"
+                action={<MenuButton/>}
+            />
 
             {incomingInvitation && (
-                <section aria-label="Incoming battle invitation">
-                    <h2>Battle Invitation!</h2>
-                    <p>{incomingInvitation.fromUsername} wants to battle you!</p>
-                    <button onClick={() => void handleAccept()}>Accept</button>
-                    <button onClick={() => void handleDecline()}>Decline</button>
+                <section className={styles.invSection} aria-label="Incoming battle invitation">
+                    <div className={styles.invContainer}>
+                        <div className={styles.invContent}>
+                            <h2 className={styles.heading}>Battle Invitation!</h2>
+                            <p>{incomingInvitation.fromUsername} wants to battle you!</p>
+                            <div className={styles.invBtnContainer}>
+                                <Button
+                                    className={styles.actionBtn}
+                                    variant={"danger"}
+                                    onClick={() => void handleDecline()}
+                                >
+                                    Decline
+                                </Button>
+                                <Button
+                                    className={styles.actionBtn}
+                                    variant={"danger"}
+                                    onClick={() => void handleAccept()}
+                                >
+                                    Accept
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
                 </section>
             )}
 
-            <section aria-label="Players in Lobby">
-                <h2>Players in Lobby</h2>
+            <section className={styles.section} aria-label="CPU battle">
+                <h2 className={styles.heading}>Battle against CPU</h2>
+                <p>Your opponent will match your skill level.</p>
+                <Button 
+                    className={styles.cpuBtn}
+                    variant={"danger"}
+                    onClick={() => void handleCpu()}
+                >
+                    Fight vs CPU
+                </Button>
+            </section>
+
+            <section className={styles.section} aria-label="Players in Lobby">
+                <h2 className={styles.heading}>Players in Lobby</h2>
                 {playersInLobby.length === 0 ? (
-                    <p>No other players in the lobby. Wait for someone to join!</p>
+                   <>
+                    <p>No other players in the lobby.</p>
+                    <p>Wait for someone to join!</p>
+                   </>
                 ) : (
-                    <ul>
+                    <ul className={styles.ul}>
                         {playersInLobby.map((player) => (
-                            <li key={player.userId}>
-                                <span>{player.username}</span>
-                                <span>{player.creatureName}</span>
-                                <span>Lv. {player.level}</span>
-                                <button
-                                    onClick={() => void handleInvite(player.userId)}
-                                    disabled={!!incomingInvitation || inviteSent}
-                                >
-                                    {inviteSent ? "Waiting..." : "Invite"}
-                                </button>
+                            <li className={styles.list} key={player.userId}>
+                                <img src={player.creatureImage} alt={player.creatureName} className={styles.creatureImg} />
+                                <div className={styles.playerContent}>
+                                    <div className={styles.playerData}>
+                                        <span className={styles.listData}>{player.username}</span>
+                                        <span className={styles.listData}>Lv. {player.level}</span>
+                                    </div>
+                                    <div className={styles.playerData}>
+                                        <span className={styles.listData}>{player.creatureName}</span>
+                                        <span className={styles.listData}>Type: {player.creatureType}</span>
+                                    </div>
+                                    <div className={styles.btnContainer}>
+                                        <Button
+                                            className={styles.invBtn}
+                                            onClick={() => void handleInvite(player.userId)}
+                                            disabled={!!incomingInvitation || inviteSent}
+                                        >
+                                            {inviteSent ? "Waiting..." : "Invite"}
+                                        </Button>
+                                    </div>
+                                </div>
                             </li>
                         ))}
                     </ul>
                 )}
             </section>
 
-            <section aria-label="CPU battle">
-                <h2>Battle against CPU</h2>
-                <p>Your opponent will match your skill level.</p>
-                <button onClick={() => void handleCpu()}>Fight CPU</button>
-            </section>
 
-            <button onClick={() => void navigate(ROUTES.gameMenu)}>
-                Back to Menu
-            </button>
+            <ArrowBackNav/>
         </main>
     );
 }
