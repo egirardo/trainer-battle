@@ -40,7 +40,7 @@ export function useLobby() {
 
         setMyCreatureId(data.id);
         return data.id;
-    }, [user]);
+    }, [user?.id]);
 
 
 
@@ -96,7 +96,7 @@ export function useLobby() {
             .subscribe();
 
         return channel;
-    }, [user]);
+    }, [user?.id]);
 
     const subscribeToSessionAccepted = useCallback((sessionId: number): ReturnType<typeof supabase.channel> => {
         const channel = supabase
@@ -201,7 +201,7 @@ export function useLobby() {
             }
             void invitationChannel?.unsubscribe();
         };
-    }, [user, profile, fetchMyCreature, subscribeToInvitations]);
+    }, [user?.id, profile?.username, fetchMyCreature, subscribeToInvitations]);
 
     async function handleAccept(): Promise<void> {
         if (!incomingInvitation || !myCreatureId) return;
