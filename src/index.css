@@ -7,7 +7,7 @@
   --code-bg: #f4f3ec;
   --purp-card-bg: #d5d3fc;
   --red-card-bg: #fcd3d3;
-  --primary: #6366f1;
+  --primary: #5659f0;
   --accent: #ee3252;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(244, 63, 94, 0.502);
@@ -34,9 +34,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  a {
-    color: var(--primary);
-  }
 }
 
 @font-face {
