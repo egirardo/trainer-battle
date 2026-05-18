@@ -73,9 +73,17 @@ Deno.serve(async (req) => {
     .select('id, username, centralbank_uuid')
     .eq('centralbank_uuid', centralbankUuid)
     .single()
-    // No error check needed here - if no profile found, existingProfile will be null and we treat them as a new player
 
-    const isReturning = existingProfile !== null
+    let isReturning = false
+    if (playerError) {
+      if (playerError.code !== 'PGRST116') {
+        console.error('Failed to look up profile', playerError)
+        return errorResponse('Failed to look up profile', 500)
+      }
+    } else {
+      isReturning = existingProfile !== null
+    }
+
     const entryFee = isReturning ? 1.50 : 3.00
     const startingCredits = isReturning ? 50 : 100
     
