@@ -119,6 +119,8 @@ export default function GameMenuBody() {
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">{error}</p>;
 
+  const hasBoss = wins >= 6;
+
   return (
     <main className={styles.mainGM}>
       <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>

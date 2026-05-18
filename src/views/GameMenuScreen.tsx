@@ -19,20 +19,19 @@ export default function GameMenuScreen(){
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
 
-    
-  async function handleLogout(): Promise<void> {
-      const { error } = await supabase.auth.signOut();
-
-      if (error) {
-          console.error("Failed to sign out:", error);
-          return;
-      }
-
-      void navigate(ROUTES.start);
-  }
-
     if (loading) {
         return <p>Loading...</p>;
+    }
+
+    async function handleLogout(): Promise<void> {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+        console.error("Failed to sign out:", error);
+        return;
+    }
+
+    void navigate(ROUTES.start);
     }
 
     return(

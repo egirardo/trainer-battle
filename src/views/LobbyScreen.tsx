@@ -7,9 +7,11 @@ import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
 import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 import { ROUTES } from "@/routes";
+import { useNavigate } from "react-router-dom";
 
 export default function LobbyScreen() {
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
+    const navigate = useNavigate();
 
     async function handleLogout(): Promise<void> {
         const { error } = await supabase.auth.signOut();

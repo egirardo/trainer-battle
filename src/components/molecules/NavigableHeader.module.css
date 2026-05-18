@@ -28,6 +28,9 @@
 
 /* ── Desktop: dropdown below header ─────────────────── */
 
+.backdrop {
+  display: none;
+}
 
 .drawer {
   position: absolute;
