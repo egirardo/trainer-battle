@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ButtonGroup from './ButtonGroup';
-import type { Trainer } from '@/models/models';
+import type { Trainer, PlayerStats } from '@/models/models';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
 import styles from './GameMenuBody.module.css';
@@ -40,17 +40,13 @@ type PlayerCreatureData = {
   } | null;
 };
 
-type PlayerStats = {
-  total_wins: number;
-  total_losses: number;
-  lives: number;
-  credits: number;
-};
 
 export default function GameMenuBody() {
   const { user } = useAuth();
   const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const userId = user?.id;
 
@@ -69,20 +65,30 @@ export default function GameMenuBody() {
     if (!userId) return;
 
     async function fetchTrainerData() {
-      const [{ data: profileData }, { data: pcData }, { data: statsData }] = await Promise.all([
+      const [
+        { data: profileData, error: profileError },
+        { data: pcData, error: pcError },
+        { data: statsData, error: statsError },
+      ] = await Promise.all([
         supabase.from('profiles').select('id, username, trainer_gender, centralbank_uuid').eq('id', userId!).single(),
         supabase.from('player_creatures').select('id, level, creature_id, player_id, nickname, experience, current_hp, attack, defence, speed, creatures(id, name, type, image, base_hp, base_attack, base_defence, base_speed, description)').eq('player_id', userId!).single(),
-        supabase.from('player_stats').select('total_wins, total_losses, lives, credits').eq('player_id', userId!).single(),
+        supabase.from('player_stats').select('*').eq('player_id', userId!).single(),
       ]);
-      console.log(statsData)
-      if (statsData) {
-        setPlayerStats(statsData);
+
+      if (profileError) console.error('profiles fetch failed:', profileError.message);
+      if (pcError) console.error('player_creatures fetch failed:', pcError.message);
+      if (statsError) console.error('player_stats fetch failed:', statsError.message);
+
+      if (profileError || pcError || statsError) {
+        setError('Failed to load player data.');
+        setLoading(false);
+        return;
       }
 
+      if (statsData) setPlayerStats(statsData);
       if (!profileData || !pcData) return;
 
       const profile = profileData;
-      console.log(profileData)
       const pc = pcData as PlayerCreatureData;
       const creatureRaw = (Array.isArray(pc.creatures) ? pc.creatures[0] : pc.creatures) as NonNullable<PlayerCreatureData['creatures']> | undefined;
 
@@ -118,6 +124,7 @@ export default function GameMenuBody() {
           speed: pc.speed,
         },
       });
+      setLoading(false);
     }
 
     void fetchTrainerData();
@@ -128,6 +135,8 @@ export default function GameMenuBody() {
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
 
   const hasBoss = wins >= 6;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p role="alert">{error}</p>;
 
   return (
     <main className={styles.mainGM}>
