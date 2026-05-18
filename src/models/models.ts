@@ -132,11 +132,11 @@ export interface Item {
 export type ResultOutcome = 'win' | 'loss';
 
 export interface ResultData {
-    outcome: ResultOutcome
-    isCpu: boolean
-    opponentUsername: string | null
-    totalWins: number
-    totalLosses: number
-    totalBattles: number
-    credits: number
+    outcome: ResultOutcome;
+    isCpu: boolean;
+    opponentUsername: string | null;
+    totalWins: number;
+    totalLosses: number;
+    totalBattles: number;
+    credits: number;
 }
