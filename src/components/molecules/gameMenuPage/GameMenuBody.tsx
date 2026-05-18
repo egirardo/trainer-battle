@@ -7,7 +7,6 @@ import styles from './GameMenuBody.module.css';
 import BossDialog from './BossDialog';
 import LifeCreditTracker from './LifeCreditTracker';
 import { useAuth } from '@/hooks/useAuth';
-import { usePlayerStats } from '@/hooks/usePlayerStats';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
 import Button from '@/components/atoms/button';
@@ -41,10 +40,17 @@ type PlayerCreatureData = {
   } | null;
 };
 
+type PlayerStats = {
+  total_wins: number;
+  total_losses: number;
+  lives: number;
+  credits: number;
+};
+
 export default function GameMenuBody() {
   const { user } = useAuth();
-  const { stats } = usePlayerStats();
-  const [trainer, setTrainer] = useState<TrainerPreview | null>(null); 
+  const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
+  const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const navigate = useNavigate();
   const userId = user?.id;
 
@@ -63,14 +69,20 @@ export default function GameMenuBody() {
     if (!userId) return;
 
     async function fetchTrainerData() {
-      const [{ data: profileData }, { data: pcData }] = await Promise.all([
+      const [{ data: profileData }, { data: pcData }, { data: statsData }] = await Promise.all([
         supabase.from('profiles').select('id, username, trainer_gender, centralbank_uuid').eq('id', userId!).single(),
         supabase.from('player_creatures').select('id, level, creature_id, player_id, nickname, experience, current_hp, attack, defence, speed, creatures(id, name, type, image, base_hp, base_attack, base_defence, base_speed, description)').eq('player_id', userId!).single(),
+        supabase.from('player_stats').select('total_wins, total_losses, lives, credits').eq('player_id', userId!).single(),
       ]);
+      console.log(statsData)
+      if (statsData) {
+        setPlayerStats(statsData);
+      }
 
       if (!profileData || !pcData) return;
 
       const profile = profileData;
+      console.log(profileData)
       const pc = pcData as PlayerCreatureData;
       const creatureRaw = (Array.isArray(pc.creatures) ? pc.creatures[0] : pc.creatures) as NonNullable<PlayerCreatureData['creatures']> | undefined;
 
@@ -111,8 +123,8 @@ export default function GameMenuBody() {
     void fetchTrainerData();
   }, [userId]);
 
-  const wins = stats?.total_wins ?? 0;
-  const losses = stats?.total_losses ?? 0;
+  const wins = playerStats?.total_wins ?? 0;
+  const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
 
   const hasBoss = wins >= 6;
@@ -121,7 +133,7 @@ export default function GameMenuBody() {
     <main className={styles.mainGM}>
       <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
         <div className={styles.creditsRow}>
-          <LifeCreditTracker />
+          <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0} />
         </div>
         <div className={styles.actionsCol}>
           <ButtonGroup horizontal={hasBoss} />
