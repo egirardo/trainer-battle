@@ -17,7 +17,7 @@
   margin: 0;
 }
 
-.stickyHeader button {
+.stickyContainer button {
   padding: 0;
   display: flex;
   justify-content: end;

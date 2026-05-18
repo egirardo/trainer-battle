@@ -52,12 +52,7 @@ export default function GameMenuBody() {
 
   async function handleLogout(): Promise<void> {
       const { error } = await supabase.auth.signOut();
-
-      if (error) {
-          console.error("Failed to sign out:", error);
-          return;
-      }
-
+      if (error) console.error("Failed to sign out:", error);
       void navigate(ROUTES.start);
   }
 
@@ -74,10 +69,6 @@ export default function GameMenuBody() {
         supabase.from('player_creatures').select('id, level, creature_id, player_id, nickname, experience, current_hp, attack, defence, speed, creatures(id, name, type, image, base_hp, base_attack, base_defence, base_speed, description)').eq('player_id', userId!).single(),
         supabase.from('player_stats').select('*').eq('player_id', userId!).single(),
       ]);
-
-      if (profileError) console.error('profiles fetch failed:', profileError.message);
-      if (pcError) console.error('player_creatures fetch failed:', pcError.message);
-      if (statsError) console.error('player_stats fetch failed:', statsError.message);
 
       if (profileError || pcError || statsError) {
         setError('Failed to load player data.');
