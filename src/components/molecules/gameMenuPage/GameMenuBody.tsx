@@ -5,6 +5,7 @@ import ProgressPreview from './ProgressPreview';
 import styles from './GameMenuBody.module.css';
 import fireCreature from '@/assets/sprites/creatures/fire-creature.png';
 import BossDialog from './BossDialog';
+import LifeCreditTracker from './LifeCreditTracker';
 
 const mockTrainer: Trainer = {
   name: 'Ash Ketchum',
@@ -44,6 +45,7 @@ const mockTrainer: Trainer = {
 export default function GameMenuBody() {
   return (
     <div className={styles.gameMenuBody}>
+      <LifeCreditTracker />
       <ButtonGroup />
       {mockTrainer.wins >= 6 && (
         <BossDialog />
