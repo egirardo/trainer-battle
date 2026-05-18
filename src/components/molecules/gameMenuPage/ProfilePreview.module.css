@@ -18,6 +18,7 @@
   aspect-ratio: 2 / 3;
   overflow: hidden;
   max-height: 10em;
+  width: 100%;
 }
 
 .imageContainer img {
@@ -33,18 +34,36 @@
   height: 90%;
   object-position: bottom center;
   z-index: 1;
+  transition:
+    left 0.3s ease,
+    right 0.3s ease;
+}
+
+@media (min-width: 600px) {
+  .trainerImg {
+    right: auto;
+    left: 1em;
+  }
 }
 
 .creatureImg {
   position: absolute;
   bottom: 5px;
-  right: 0;
+  right: auto;
   left: -15px;
-  width: 100%;
   height: 60%;
   object-position: bottom right;
   transform: translateX(35%) translateY(10%);
   z-index: 2;
+  transition:
+    left 0.3s ease,
+    right 0.3s ease;
+}
+
+@media (min-width: 600px) {
+  .creatureImg {
+    left: 2.5em;
+  }
 }
 
 .titleContainer {

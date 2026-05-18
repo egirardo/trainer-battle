@@ -13,11 +13,15 @@ export default function LifeCreditTracker({ lives, credits }: Props) {
   return (
     <div className={styles.trackerContainer}>
       <div className={styles.livesRow}>
-        <img
-          src={lives >= 1 ? filledHeart : emptyHeart}
-          alt={lives >= 1 ? 'Life remaining' : 'No lives remaining'}
-          className={styles.heartIcon}
-        />
+        { // Length is shows max amount of lives player can have
+        Array.from({ length: 1 }, (_, i) => (
+          <img
+            key={i}
+            src={i < lives ? filledHeart : emptyHeart}
+            alt=""
+            className={styles.heartIcon}
+          />
+        ))}
       </div>
       <div className={styles.creditsRow}>
         <img src={starIcon} alt="Credits Icon" className={styles.starIcon} />
