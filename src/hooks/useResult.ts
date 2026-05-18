@@ -19,6 +19,8 @@ export function useResult(sessionId: number) {
             return;
         }
 
+        const currentUser = user;
+
         async function loadResult() {
             try {
                 // Fetch session
@@ -31,12 +33,12 @@ export function useResult(sessionId: number) {
                 if (sessionErr || !session) throw new Error('Session not found');
 
                 // Determine outcome
-                const outcome: ResultOutcome = session.winner_id === user.id ? 'win' : 'loss'
+                const outcome: ResultOutcome = session.winner_id === currentUser.id ? 'win' : 'loss'
 
                 // Fetch opponent username for PVP
                 let opponentUsername: string | null = null;
                 if (!session.is_cpu) {
-                    const opponentId = session.player1_id === user.id
+                    const opponentId = session.player1_id === currentUser.id
                         ? session.player2_id
                         : session.player1_id;
 
@@ -54,7 +56,7 @@ export function useResult(sessionId: number) {
                 const { data: stats } = await supabase
                     .from('player_stats')
                     .select('total_wins, total_losses, total_battles, credits')
-                    .eq('player_id', user.id)
+                    .eq('player_id', currentUser.id)
                     .single();
 
                 setResult({
