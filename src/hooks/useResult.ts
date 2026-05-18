@@ -10,11 +10,16 @@ export function useResult(sessionId: number) {
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!user) return;
+        setLoading(true);
+        setError(null);
+        setResult(null);
+
+        if (!user) {
+            setLoading(false);
+            return;
+        }
 
         async function loadResult() {
-            if (!user) return;
-
             try {
                 // Fetch session
                 const { data: session, error: sessionErr } = await supabase
