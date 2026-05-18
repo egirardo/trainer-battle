@@ -1,10 +1,9 @@
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
-import { supabase } from "../lib/supabase";
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase';
 import { ROUTES } from '../routes';
-import StickyHeader from "@/components/atoms/StickyHeader";
-import MenuButton from "@/components/atoms/headerButtons/MenuButton";
-import GameMenuBody from "@/components/molecules/gameMenuPage/GameMenuBody";
+import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
+import GameMenuBody from '@/components/molecules/gameMenuPage/GameMenuBody';
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
@@ -21,6 +20,16 @@ export default function GameMenuScreen(){
         void navigate(ROUTES.start);
     }
 
+    const navItems: NavItem[] = [
+        { label: 'Dashboard', to: ROUTES.gameMenu },
+        { label: 'Lobby', to: ROUTES.lobby },
+        { label: 'Shop', to: ROUTES.shop },
+        { label: 'Help', to: ROUTES.help },
+        { label: 'Credits', to: ROUTES.credits },
+        { label: 'View Profile', to: ROUTES.profile },
+        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+    ]
+
     if (loading) {
         return <p>Loading...</p>;
     }
@@ -28,13 +37,10 @@ export default function GameMenuScreen(){
     return(
         <>
             <header>
-                <StickyHeader label="Dashboard" action={<MenuButton />}/>
+                <NavigableHeader label="Dashboard" navItems={navItems} />
             </header>
             <main>
-                
                 <GameMenuBody />
-                <Link to={ROUTES.lobby}>Play - go to lobby</Link>
-                <button onClick={() => void handleLogout()}>Logout</button>
             </main>
         </>
     )

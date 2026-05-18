@@ -13,4 +13,7 @@ export const ROUTES = {
   adminLogin: '/admin-login',
   adminPanel: '/admin-panel',
   shop: '/shop',
+  help: '/help',
+  credits: '/credits',
+  profile: '/profile',
 } as const

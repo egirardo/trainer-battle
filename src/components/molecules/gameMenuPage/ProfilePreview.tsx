@@ -5,6 +5,7 @@ import maleTrainer from '@/assets/sprites/trainers/avatar-m.svg';
 import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
 import { Link } from 'react-router-dom';
 import Button from '@/components/atoms/button';
+import { ROUTES } from '@/routes';
 
 const trainerImages: Record<TrainerGender, string> = {
     female: femaleTrainer,
@@ -42,7 +43,7 @@ export default function ProfilePreview({ trainer }: ProfilePreviewProps) {
                     <p>{trainer.creature.name}</p>
                     <p className={styles.creatureType}>Type: {trainer.creature.type}</p>
                 </div>
-                <Button as={Link} to={`/trainers/${trainer.id}`} className={styles.viewProfileLink}>
+                <Button as={Link} to={ROUTES.profile} className={styles.viewProfileLink}>
                     View Full Profile
                 </Button>
             </div>

@@ -6,18 +6,12 @@
     80%       { transform: translateX(4px); }
 }
 
-.shopLayout {
-    height: 100svh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
 .shopMain {
     display: flex;
     flex-direction: column;
     flex: 1;
     min-height: 0;
+    overflow: hidden;
 }
 
 .itemsScroll {
@@ -34,10 +28,17 @@
     margin: 0 auto;
 }
 
-/* Override ItemBox's own width: fit-content so flex stretch applies,
-   making every box expand to the width of the widest one. */
+/* Override ItemBox's own width: fit-content so items expand uniformly. */
 .itemsColumn > * {
     width: auto;
+}
+
+@media (min-width: 768px) {
+    .itemsColumn {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+    }
 }
 
 .fundsError {

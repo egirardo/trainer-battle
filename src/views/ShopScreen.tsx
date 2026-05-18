@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import MenuButton from '@/components/atoms/headerButtons/MenuButton';
-import StickyHeader from '@/components/atoms/StickyHeader';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
+import { ROUTES } from '@/routes';
+import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
@@ -19,7 +21,24 @@ import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
 //      then setCredits / clear cart only on success.
 
 export default function ShopScreen() {
+    const navigate = useNavigate();
     const { items, loading: itemsLoading, error: itemsError } = useItems();
+
+    async function handleLogout(): Promise<void> {
+        const { error } = await supabase.auth.signOut();
+        if (error) { console.error("Failed to sign out:", error); return; }
+        void navigate(ROUTES.start);
+    }
+
+    const navItems: NavItem[] = [
+        { label: 'Dashboard', to: ROUTES.gameMenu },
+        { label: 'Lobby', to: ROUTES.lobby },
+        { label: 'Shop', to: ROUTES.shop },
+        { label: 'Help', to: ROUTES.help },
+        { label: 'Credits', to: ROUTES.credits },
+        { label: 'View Profile', to: ROUTES.profile },
+        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+    ]
     const [credits, setCredits] = useState(300);
     const [cart, setCart] = useState<Record<number, number>>({});
     const [isCartExpanded, setIsCartExpanded] = useState(false);
@@ -72,9 +91,9 @@ export default function ShopScreen() {
     if (itemsError) return <p>Failed to load shop.</p>;
 
     return (
-        <div className={styles.shopLayout}>
+        <>
             <header>
-                <StickyHeader label="Shop" action={<MenuButton/>}/>
+                <NavigableHeader label="Shop" navItems={navItems} />
             </header>
             <main className={styles.shopMain}>
                 <CreditsDisplay credits={credits} />
@@ -92,16 +111,16 @@ export default function ShopScreen() {
                         ))}
                     </div>
                 </div>
-                <TotalDisplay
-                    total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)}
-                    onBuy={handleBuy}
-                    cartItems={items
-                        .filter(i => (cart[i.id] ?? 0) > 0)
-                        .map(i => ({ id: i.id, name: i.name, quantity: cart[i.id] ?? 0, price: i.price }))}
-                    isExpanded={isCartExpanded}
-                    onToggleExpanded={() => setIsCartExpanded(e => !e)}
-                />
             </main>
-        </div>
+            <TotalDisplay
+                total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)}
+                onBuy={handleBuy}
+                cartItems={items
+                    .filter(i => (cart[i.id] ?? 0) > 0)
+                    .map(i => ({ id: i.id, name: i.name, quantity: cart[i.id] ?? 0, price: i.price }))}
+                isExpanded={isCartExpanded}
+                onToggleExpanded={() => setIsCartExpanded(e => !e)}
+            />
+        </>
     );
 }

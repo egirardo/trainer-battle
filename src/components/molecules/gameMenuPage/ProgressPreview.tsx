@@ -1,16 +1,14 @@
 import styles from './ProgressPreview.module.css';
 import swordBadge from '@/assets/sprites/badges/sword-badge.svg';
 import swordBadgeShadow from '@/assets/sprites/badges/sword-badge-shadow.svg';
-import starBadge from '@/assets/sprites/badges/star-badge.svg';
-import starBadgeShadow from '@/assets/sprites/badges/star-badge-shadow.svg';
 
 const BADGE_DEFINITIONS = [
     { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
-    { earned: starBadge,  shadow: starBadgeShadow,  name: 'Star Badge'  },
     { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
-    { earned: starBadge,  shadow: starBadgeShadow,  name: 'Star Badge'  },
     { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
-    { earned: starBadge,  shadow: starBadgeShadow,  name: 'Star Badge'  },
+    { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
+    { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
+    { earned: swordBadge, shadow: swordBadgeShadow, name: 'Sword Badge' },
 ];
 
 interface ProgressPreviewProps {
