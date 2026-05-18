@@ -9,7 +9,6 @@
   background-color: var(--purp-card-bg);
   background-clip: border-box;
   image-rendering: pixelated;
-  margin: 0.5rem 0;
 }
 
 .imageContainer {
