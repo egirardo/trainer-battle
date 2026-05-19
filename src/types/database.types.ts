@@ -390,6 +390,7 @@ export type Database = {
           total_forfeits: number
           total_losses: number
           total_wins: number
+          transaction_id: string | null
         }
         Insert: {
           credits?: number
@@ -400,6 +401,7 @@ export type Database = {
           total_forfeits?: number
           total_losses?: number
           total_wins?: number
+          transaction_id?: string | null
         }
         Update: {
           credits?: number
@@ -410,6 +412,7 @@ export type Database = {
           total_forfeits?: number
           total_losses?: number
           total_wins?: number
+          transaction_id?: string | null
         }
         Relationships: []
       }
@@ -447,6 +450,10 @@ export type Database = {
     Functions: {
       increment_player_stats: {
         Args: { p_battles: number; p_player_id: string; p_wins: number }
+        Returns: undefined
+      }
+      purchase_items: {
+        Args: { p_items: Json; p_player_id: string; p_total: number }
         Returns: undefined
       }
     }

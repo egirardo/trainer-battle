@@ -70,42 +70,26 @@ export default function ShopScreen() {
         if (total === 0 || !user || buying) return;
         setBuying(true);
 
-        const { error: creditsErr } = await supabase
-            .from('player_stats')
-            .update({ credits: credits - total })
-            .eq('player_id', user.id);
+        const purchases = Object.entries(cart)
+            .filter(([, qty]) => qty > 0)
+            .map(([itemId, qty]) => ({ item_id: Number(itemId), quantity: qty }));
 
-        if (creditsErr) {
-            console.error('Failed to update credits:', creditsErr);
+        const { error } = await supabase.rpc('purchase_items', {
+            p_player_id: user.id,
+            p_total: total,
+            p_items: purchases,
+        });
+
+        setBuying(false);
+
+        if (error) {
+            console.error('Purchase failed:', error);
             return;
-        }
-
-        for (const [itemId, qty] of Object.entries(cart).filter(([, q]) => q > 0)) {
-            const { data: existing } = await supabase
-                .from('player_items')
-                .select('id, quantity')
-                .eq('player_id', user.id)
-                .eq('item_id', Number(itemId))
-                .maybeSingle();
-
-            if (existing) {
-                const { error } = await supabase
-                    .from('player_items')
-                    .update({ quantity: (existing.quantity ?? 0) + qty })
-                    .eq('id', existing.id);
-                if (error) console.error('Failed to update item quantity:', error);
-            } else {
-                const { error } = await supabase
-                    .from('player_items')
-                    .insert({ player_id: user.id, item_id: Number(itemId), quantity: qty });
-                if (error) console.error('Failed to insert player item:', error);
-            }
         }
 
         setSpent(prev => prev + total);
         setCart({});
         setIsCartExpanded(false);
-        setBuying(false);
     }
 
     function handleRemove(itemId: number) {
