@@ -90,7 +90,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     name: myPC.nickname ?? myCreature.name,
                     level: myPC.level ?? 1,
                     currentHp: myHp,
-                    maxHp: myCreature.base_hp,
+                    maxHp: myPC.current_hp ?? myCreature.base_hp,
                     creatureImage: getCreatureImage(myCreature.image),
                     creatureType: myCreature.type as 'fire' | 'water' | 'grass',
                 });
@@ -125,7 +125,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         name: oppCreature.name,
                         level: oppPC.level ?? 1,
                         currentHp: oppBattleHp ?? oppCreature.base_hp,
-                        maxHp: oppCreature.base_hp,
+                        maxHp: oppPC.current_hp ?? oppCreature.base_hp,
                         creatureImage: getCreatureImage(oppCreature.image),
                         creatureType: oppCreature.type as 'fire' | 'water' | 'grass',
                     });
