@@ -77,8 +77,6 @@ export default function ShopScreen() {
 
         try {
             const { error } = await supabase.rpc('purchase_items', {
-                p_player_id: user.id,
-                p_total: total,
                 p_items: purchases,
             });
 
