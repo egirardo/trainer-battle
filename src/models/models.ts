@@ -98,6 +98,7 @@ export interface PlayerCreature {
 
 export interface BattleParticipantInfo {
     name: string;
+    trainerName: string;
     level: number;
     currentHp: number;
     maxHp: number;

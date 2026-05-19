@@ -68,16 +68,18 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setIsMyTurn(session.is_cpu ? true : session.current_turn === user.id);
                 setOpponentUserId(isPlayer1 ? session.player2_id : session.player1_id);
 
-                // 2. Fetch player's creature and battle state in parallel
-                const [myPCResult, battleStateResult] = await Promise.all([
+                // 2. Fetch player's creature, battle state, and trainer profile in parallel
+                const [myPCResult, battleStateResult, myProfileResult] = await Promise.all([
                     supabase.from('player_creatures').select('*, creatures(*)').eq('id', myCreatureId).single(),
                     supabase.from('battle_state').select('player1_hp, player2_hp, last_move_description').eq('session_id', sessionId).single(),
+                    supabase.from('profiles').select('username').eq('id', user.id).single(),
                 ]);
                 if (myPCResult.error || !myPCResult.data) throw new Error('Could not load your creature');
 
                 const myPC = myPCResult.data;
                 const myCreature = myPC.creatures as { name: string; type: string; image: string; base_hp: number };
                 const battleState = battleStateResult.data;
+                const myTrainerName = myProfileResult.data?.username ?? 'You';
 
                 const myHp = (isPlayer1 ? battleState?.player1_hp : battleState?.player2_hp) ?? myCreature.base_hp;
                 const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
@@ -88,6 +90,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
                 setPlayer({
                     name: myPC.nickname ?? myCreature.name,
+                    trainerName: myTrainerName,
                     level: myPC.level ?? 1,
                     currentHp: myHp,
                     maxHp: myCreature.base_hp,
@@ -100,11 +103,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     const { data: cpuCreature, error: cpuErr } = await supabase
                         .from('creatures')
                         .select('name, type, image, base_hp')
-                        .eq('id', session.cpu_creature_id as number)
+                        .eq('id', session.cpu_creature_id)
                         .single();
                     if (cpuErr || !cpuCreature) throw new Error('Could not load CPU creature');
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
+                        trainerName: 'CPU',
                         level: 1,
                         currentHp: oppBattleHp ?? cpuCreature.base_hp ?? 100,
                         maxHp: cpuCreature.base_hp ?? 100,
@@ -112,17 +116,19 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
                     });
                 } else {
+                    const opponentUserId = isPlayer1 ? session.player2_id : session.player1_id;
                     const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id;
                     if (!opponentCreatureId) throw new Error('Opponent creature ID missing');
-                    const { data: oppPC, error: oppErr } = await supabase
-                        .from('player_creatures')
-                        .select('*, creatures(*)')
-                        .eq('id', opponentCreatureId)
-                        .single();
-                    if (oppErr || !oppPC) throw new Error('Could not load opponent creature');
+                    const [oppPCResult, oppProfileResult] = await Promise.all([
+                        supabase.from('player_creatures').select('*, creatures(*)').eq('id', opponentCreatureId).single(),
+                        opponentUserId ? supabase.from('profiles').select('username').eq('id', opponentUserId).single() : Promise.resolve({ data: null }),
+                    ]);
+                    if (oppPCResult.error || !oppPCResult.data) throw new Error('Could not load opponent creature');
+                    const oppPC = oppPCResult.data;
                     const oppCreature = oppPC.creatures as { name: string; type: string; image: string; base_hp: number };
                     setOpponent({
                         name: oppCreature.name,
+                        trainerName: oppProfileResult.data?.username ?? 'Opponent',
                         level: oppPC.level ?? 1,
                         currentHp: oppBattleHp ?? oppCreature.base_hp,
                         maxHp: oppCreature.base_hp,
@@ -197,7 +203,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     last_move_description: string | null;
                     is_finished: boolean;
                 }
-
+                
                 const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
                 const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
