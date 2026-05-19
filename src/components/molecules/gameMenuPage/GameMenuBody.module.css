@@ -17,7 +17,7 @@
     }
 
     .creditsRow  { grid-area: credits; }
-    .profileCol  { grid-area: profile; }
+    .profileCol  { grid-area: profile; display: flex; flex-direction: column; }
     .actionsCol  {
         grid-area: actions;
         display: flex;
@@ -25,13 +25,13 @@
         justify-content: center;
     }
     .bossCol     { grid-area: boss; }
-    .progressRow { grid-area: progress; }
+    .progressRow { grid-area: progress; display: flex; flex-direction: column; }
 
     .bossActive {
         grid-template-areas:
             "credits  credits"
             "actions  actions"
-            "profile  boss"
-            "progress progress";
+            "profile  progress"
+            "boss     boss";
     }
 }

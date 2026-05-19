@@ -19,3 +19,9 @@
     text-transform: uppercase;
     font-size: 2rem;
 }
+
+@media (max-width: 520px) {
+    .bossDialog {
+        margin: .5rem;
+    }
+}

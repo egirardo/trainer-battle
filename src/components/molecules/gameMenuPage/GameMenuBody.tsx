@@ -131,14 +131,14 @@ export default function GameMenuBody() {
       <div className={styles.profileCol}>
         <ProfilePreview trainer={trainerWithStats} />
       </div>
+      <div className={styles.progressRow}>
+        <ProgressPreview wins={wins} />
+      </div>
       {hasBoss && (
         <div className={styles.bossCol}>
           <BossDialog />
         </div>
       )}
-      <div className={styles.progressRow}>
-        <ProgressPreview wins={wins} />
-      </div>
     </div>
   );
 }
