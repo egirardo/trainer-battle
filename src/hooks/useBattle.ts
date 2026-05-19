@@ -85,7 +85,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
 
                 if (battleState?.last_move_description) {
-                    setMessages([battleState.last_move_description]);
+                    setMessages(battleState.last_move_description.split('\n'));
                 }
 
                 setPlayer({
@@ -301,18 +301,9 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setIsMyTurn(true)
             return
         }
-        if (data) {
-            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp
-            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp
-            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
-            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
-            if (data.descriptions?.length) {
-                setMessages(prev => [...prev, ...data.descriptions])
-            }
-            if (data.isFinished) {
-                void navigate(`/battle-result/${sessionId}`)
-                return
-            }
+        if (data?.isFinished) {
+            void navigate(`/battle-result/${sessionId}`)
+            return
         }
 
         if (isCpuRef.current) {
