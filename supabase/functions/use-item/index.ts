@@ -104,20 +104,27 @@ Deno.serve(async (req) => {
             )
         }
 
-        const { count } = await supabase
+        const { data: claimedRows } = await supabase
             .from('game_sessions')
             .update({ current_turn: null })
             .eq('id', sessionId)
             .eq('current_turn', playerId)
-            .select('*', { count: 'exact', head: true })
+            .select('id')
 
-        if (!count) {
+        if (!claimedRows || claimedRows.length === 0) {
             return new Response(
                 JSON.stringify({ error: 'Not your turn' }),
                 { status: 409, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
             )
         }
 
+        const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id
+        if (!myCreatureId) {
+            return new Response(
+                JSON.stringify({ error: 'Player creature ID missing' }),
+                { status: 400, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
+            )
+        }
 
         const { data: myPC, error: myPCErr } = await supabase
             .from('player_creatures')
