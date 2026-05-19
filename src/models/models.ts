@@ -139,4 +139,7 @@ export interface ResultData {
     totalLosses: number;
     totalBattles: number;
     credits: number;
+    xpGained: number;
+    newLevel: number;
+    leveledUp: boolean;
 }
