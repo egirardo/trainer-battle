@@ -121,12 +121,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
                     });
                 } else {
-                    const opponentUserId = isPlayer1 ? session.player2_id : session.player1_id;
+                    const opponentId = isPlayer1 ? session.player2_id : session.player1_id;
                     const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id;
                     if (!opponentCreatureId) throw new Error('Opponent creature ID missing');
                     const [oppPCResult, oppProfileResult] = await Promise.all([
                         supabase.from('player_creatures').select('*, creatures(*)').eq('id', opponentCreatureId).single(),
-                        opponentUserId ? supabase.from('profiles').select('username').eq('id', opponentUserId).single() : Promise.resolve({ data: null }),
+                        opponentId ? supabase.from('profiles').select('username').eq('id', opponentId).single() : Promise.resolve({ data: null }),
                     ]);
                     if (oppPCResult.error || !oppPCResult.data) throw new Error('Could not load opponent creature');
                     const oppPC = oppPCResult.data;
@@ -248,7 +248,6 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
-        wasMyMoveRef.current = true
         setIsMyTurn(false)
 
         type InvokeError = { message: string; context?: Response };
@@ -285,7 +284,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             return
         }
 
-        // Explicitly pass Authorization header
+        wasMyMoveRef.current = true
         const { data, error } = await supabase.functions.invoke('resolve-turn', {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -326,11 +325,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     async function onUseItem(itemId: number) {
         if (!user || !isMyTurn) return;
-        wasMyMoveRef.current = true
         setIsMyTurn(false);
 
         type UseItemResponse = { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean };
         type InvokeResponse = { data: UseItemResponse | null; error: { message: string } | null };
+        wasMyMoveRef.current = true
         const { data, error } = await supabase.functions.invoke('use-item', {
             body: { sessionId, playerId: user.id, itemId }
         }) as InvokeResponse;
