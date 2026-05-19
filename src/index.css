@@ -35,9 +35,6 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  a {
-    color: var(--primary);
-  }
 }
 
 @font-face {
@@ -138,6 +135,10 @@ h2 {
 }
 p {
   margin: 0;
+}
+
+.link {
+  color: var(--primary);
 }
 
 code,
