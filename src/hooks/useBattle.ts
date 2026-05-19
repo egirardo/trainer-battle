@@ -86,7 +86,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
 
                 if (battleState?.last_move_description) {
-                    setMessages(battleState.last_move_description.split('\n').map(text => ({ text, side: 'neutral' as const })));
+                    const lines = battleState.last_move_description.split('\n');
+                    const tagged: BattleMessage[] = session.is_cpu
+                        ? lines.map(text => ({ text, side: text.startsWith("CPU's ") ? 'opponent' as const : 'player' as const }))
+                        : lines.map(text => ({ text, side: session.current_turn !== user.id ? 'player' as const : 'opponent' as const }));
+                    setMessages(tagged);
                 }
 
                 setPlayer({
@@ -205,8 +209,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     is_finished: boolean;
                 }
                 
-                const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
-                const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
+                const myNewHp: number = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
+                const oppNewHp: number = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
                 setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
                 if (state.last_move_description) {
