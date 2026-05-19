@@ -390,6 +390,7 @@ export type Database = {
           total_forfeits: number
           total_losses: number
           total_wins: number
+          transaction_id: string | null
         }
         Insert: {
           credits?: number
@@ -400,6 +401,7 @@ export type Database = {
           total_forfeits?: number
           total_losses?: number
           total_wins?: number
+          transaction_id?: string | null
         }
         Update: {
           credits?: number
@@ -410,6 +412,7 @@ export type Database = {
           total_forfeits?: number
           total_losses?: number
           total_wins?: number
+          transaction_id?: string | null
         }
         Relationships: []
       }
