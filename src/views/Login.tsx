@@ -88,7 +88,7 @@ export default function Login() {
                     {loading ? "Logging in..." : "Login"}
                 </Button>
             </form>
-            <Link to="/register">Don't have an account? Register</Link>
+            <Link className={styles.regLink} to="/register">Don't have an account? Register</Link>
         </main>
     );
 }
