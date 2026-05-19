@@ -377,10 +377,11 @@ Deno.serve(async (req) => {
 
                 const updateData: Record<string, number> = { experience: newExp, level: computedNewLevel }
                 if (levelsGained > 0) {
-                    updateData.attack = (myPCForXp.attack ?? 0) + levelsGained * 2
-                    updateData.defence = (myPCForXp.defence ?? 0) + levelsGained * 2
-                    updateData.speed = (myPCForXp.speed ?? 0) + levelsGained
-                    updateData.current_hp = (myPCForXp.current_hp ?? 0) + levelsGained * 25
+                    updateData.attack = (myPCForXp.attack ?? 0) + levelsGained * (config?.stat_boost_attack ?? 2)
+                    updateData.defence = (myPCForXp.defence ?? 0) + levelsGained * (config?.stat_boost_defence ?? 2)
+                    updateData.speed = (myPCForXp.speed ?? 0) + levelsGained * (config?.stat_boost_speed ?? 1)
+                    updateData.current_hp = (myPCForXp.current_hp ?? 0) + levelsGained * (config?.stat_boost_hp ?? 25)
+
                 }
 
                 const { error: xpErr } = await adminClient
