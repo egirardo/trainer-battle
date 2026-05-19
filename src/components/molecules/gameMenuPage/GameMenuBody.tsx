@@ -47,7 +47,7 @@ export default function GameMenuBody() {
   const userId = user?.id;
 
   useEffect(() => {
-    if (!userId) return;
+    if (!userId) { setLoading(false); return; }
 
     async function fetchTrainerData() {
       const [
@@ -67,7 +67,7 @@ export default function GameMenuBody() {
       }
 
       if (statsData) setPlayerStats(statsData);
-      if (!profileData || !pcData) return;
+      if (!profileData || !pcData) { setLoading(false); return; }
 
       const profile = profileData;
       const pc = pcData as PlayerCreatureData;
