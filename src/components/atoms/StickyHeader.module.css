@@ -1,4 +1,4 @@
-.stickyHeader {
+.stickyContainer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -9,14 +9,16 @@
   box-shadow: var(--light-shadow);
 }
 
-.stickyHeader h1 {
+.stickyHeading {
   font-size: 2em;
+  text-align: left;
+  line-height: 0.9em;
   text-transform: uppercase;
   /* letter-spacing: 0.1em; */
   margin: 0;
 }
 
-.stickyHeader button {
+.stickyContainer button {
   padding: 0;
   display: flex;
   justify-content: end;
