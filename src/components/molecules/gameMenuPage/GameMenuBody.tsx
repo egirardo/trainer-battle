@@ -40,14 +40,14 @@ type PlayerCreatureData = {
 
 export default function GameMenuBody() {
   const { user } = useAuth();
+  const userId = user?.id;
   const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
-  const userId = user?.id;
 
   useEffect(() => {
-    if (!userId) { setLoading(false); return; }
+    if (!userId) return;
 
     async function fetchTrainerData() {
       const [
