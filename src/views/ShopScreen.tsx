@@ -48,6 +48,7 @@ export default function ShopScreen() {
     }, []);
 
     function handleAdd(itemId: number) {
+        if (buying) return;
         const item = items.find(i => i.id === itemId);
         if (!item) return;
 
@@ -74,25 +75,28 @@ export default function ShopScreen() {
             .filter(([, qty]) => qty > 0)
             .map(([itemId, qty]) => ({ item_id: Number(itemId), quantity: qty }));
 
-        const { error } = await supabase.rpc('purchase_items', {
-            p_player_id: user.id,
-            p_total: total,
-            p_items: purchases,
-        });
+        try {
+            const { error } = await supabase.rpc('purchase_items', {
+                p_player_id: user.id,
+                p_total: total,
+                p_items: purchases,
+            });
 
-        setBuying(false);
+            if (error) {
+                console.error('Purchase failed:', error);
+                return;
+            }
 
-        if (error) {
-            console.error('Purchase failed:', error);
-            return;
+            setSpent(prev => prev + total);
+            setCart({});
+            setIsCartExpanded(false);
+        } finally {
+            setBuying(false);
         }
-
-        setSpent(prev => prev + total);
-        setCart({});
-        setIsCartExpanded(false);
     }
 
     function handleRemove(itemId: number) {
+        if (buying) return;
         const currentQty = cart[itemId] ?? 0;
         if (currentQty === 0) return;
         const next = { ...cart, [itemId]: currentQty - 1 };
@@ -121,6 +125,7 @@ export default function ShopScreen() {
                                 quantity={cart[item.id] ?? 0}
                                 onAdd={handleAdd}
                                 onRemove={handleRemove}
+                                disabled={buying}
                             />
                         ))}
                     </div>
