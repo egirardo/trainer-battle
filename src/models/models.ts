@@ -130,6 +130,13 @@ export interface Item {
     price: number;
 }
 
+export type BattleMessageSide = 'player' | 'opponent' | 'neutral';
+
+export interface BattleMessage {
+    text: string;
+    side: BattleMessageSide;
+}
+
 export type ResultOutcome = 'win' | 'loss';
 
 export interface ResultData {

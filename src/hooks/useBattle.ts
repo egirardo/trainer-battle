@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { ROUTES } from '@/routes';
-import type { BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
+import type { BattleMessage, BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
 import { getCreatureImage } from '@/lib/creatureImages';
 
 interface UseBattleReturn {
     player: BattleParticipantInfo | null;
     opponent: BattleParticipantInfo | null;
-    messages: string[];
+    messages: BattleMessage[];
     isMyTurn: boolean;
     loading: boolean;
     error: string | null;
@@ -28,7 +28,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const isCpuRef = useRef<boolean>(false)
     const [player, setPlayer] = useState<BattleParticipantInfo | null>(null);
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<BattleMessage[]>([]);
+    const wasMyMoveRef = useRef(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [opponentUserId, setOpponentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -85,7 +86,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
 
                 if (battleState?.last_move_description) {
-                    setMessages(battleState.last_move_description.split('\n'));
+                    setMessages(battleState.last_move_description.split('\n').map(text => ({ text, side: 'neutral' as const })));
                 }
 
                 setPlayer({
@@ -209,7 +210,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
                 setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
                 if (state.last_move_description) {
-                    setMessages(prev => [...prev, ...state.last_move_description!.split('\n')]);
+                    const lines = state.last_move_description.split('\n')
+                    const tagged: BattleMessage[] = isCpuRef.current
+                        ? lines.map((text, i) => ({ text, side: i === 0 ? 'player' as const : 'opponent' as const }))
+                        : lines.map(text => ({ text, side: wasMyMoveRef.current ? 'player' as const : 'opponent' as const }))
+                    wasMyMoveRef.current = false
+                    setMessages(prev => [...prev, ...tagged])
                 }
                 if (state.is_finished) {
                     void navigateRef.current(`/battle-result/${sessionId}`);
@@ -238,6 +244,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn) return;
+        wasMyMoveRef.current = true
         setIsMyTurn(false)
 
         type InvokeError = { message: string; context?: Response };
@@ -315,6 +322,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     async function onUseItem(itemId: number) {
         if (!user || !isMyTurn) return;
+        wasMyMoveRef.current = true
         setIsMyTurn(false);
 
         type UseItemResponse = { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean };

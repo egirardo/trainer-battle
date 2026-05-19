@@ -8,7 +8,7 @@
   --purp-card-bg: #d5d3fc;
   --red-card-bg: #fcd3d3;
   --primary: #6366f1;
-  --battle-green: #0a7611;
+  --battle-green: #0a7611; /* battle log: player's own attack messages */
   --accent: #d91233;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(244, 63, 94, 0.502);
