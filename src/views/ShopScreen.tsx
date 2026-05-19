@@ -6,23 +6,16 @@ import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableH
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
+import { usePlayerStats } from '@/hooks/usePlayerStats';
+import { useAuth } from '@/hooks/useAuth';
 import styles from './ShopScreen.module.css';
 import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
-
-// TODO: replace mock credits with live data once player_stats db is updated.
-// Steps to switch:
-//   1. Import usePlayerStats: import { usePlayerStats } from '@/hooks/usePlayerStats';
-//   2. Call the hook:          const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
-//   3. Replace useState(100):  const [credits, setCredits] = useState(stats?.credits ?? 0);
-//      (or derive credits from stats and remove local state entirely — see handleBuy note)
-//   4. Add to loading guard:   if (itemsLoading || statsLoading) ...
-//   5. Add to error guard:     if (itemsError || statsError) ...
-//   6. In handleBuy: call supabase to decrement player_stats.credits and insert into player_items,
-//      then setCredits / clear cart only on success.
 
 export default function ShopScreen() {
     const navigate = useNavigate();
     const { items, loading: itemsLoading, error: itemsError } = useItems();
+    const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
+    const { user } = useAuth();
 
     async function handleLogout(): Promise<void> {
         const { error } = await supabase.auth.signOut();
@@ -39,8 +32,10 @@ export default function ShopScreen() {
         { label: 'View Profile', to: ROUTES.profile },
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
-    const [credits, setCredits] = useState(300);
+    const [spent, setSpent] = useState(0);
+    const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
+    const [buying, setBuying] = useState(false);
     const [isCartExpanded, setIsCartExpanded] = useState(false);
     const [fundsError, setFundsError] = useState<string | null>(null);
     const [fundsErrorKey, setFundsErrorKey] = useState(0);
@@ -70,12 +65,47 @@ export default function ShopScreen() {
         setCart(nextCart);
     }
 
-    function handleBuy() {
+    async function handleBuy(): Promise<void> {
         const total = items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0);
-        if (total === 0) return;
-        setCredits(prev => prev - total);
+        if (total === 0 || !user || buying) return;
+        setBuying(true);
+
+        const { error: creditsErr } = await supabase
+            .from('player_stats')
+            .update({ credits: credits - total })
+            .eq('player_id', user.id);
+
+        if (creditsErr) {
+            console.error('Failed to update credits:', creditsErr);
+            return;
+        }
+
+        for (const [itemId, qty] of Object.entries(cart).filter(([, q]) => q > 0)) {
+            const { data: existing } = await supabase
+                .from('player_items')
+                .select('id, quantity')
+                .eq('player_id', user.id)
+                .eq('item_id', Number(itemId))
+                .maybeSingle();
+
+            if (existing) {
+                const { error } = await supabase
+                    .from('player_items')
+                    .update({ quantity: (existing.quantity ?? 0) + qty })
+                    .eq('id', existing.id);
+                if (error) console.error('Failed to update item quantity:', error);
+            } else {
+                const { error } = await supabase
+                    .from('player_items')
+                    .insert({ player_id: user.id, item_id: Number(itemId), quantity: qty });
+                if (error) console.error('Failed to insert player item:', error);
+            }
+        }
+
+        setSpent(prev => prev + total);
         setCart({});
         setIsCartExpanded(false);
+        setBuying(false);
     }
 
     function handleRemove(itemId: number) {
@@ -87,8 +117,8 @@ export default function ShopScreen() {
     }
 
 
-    if (itemsLoading) return <p>Loading...</p>;
-    if (itemsError) return <p>Failed to load shop.</p>;
+    if (itemsLoading || statsLoading) return <p>Loading...</p>;
+    if (itemsError || statsError) return <p>Failed to load shop.</p>;
 
     return (
         <>
@@ -114,7 +144,8 @@ export default function ShopScreen() {
             </main>
             <TotalDisplay
                 total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)}
-                onBuy={handleBuy}
+                onBuy={() => void handleBuy()}
+                buyDisabled={buying}
                 cartItems={items
                     .filter(i => (cart[i.id] ?? 0) > 0)
                     .map(i => ({ id: i.id, name: i.name, quantity: cart[i.id] ?? 0, price: i.price }))}
