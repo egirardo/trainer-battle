@@ -126,7 +126,7 @@ export default function GameMenuBody() {
         <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
       </div>
       <div className={styles.actionsCol}>
-        <ButtonGroup horizontal={hasBoss} />
+        <ButtonGroup horizontal />
       </div>
       <div className={styles.profileCol}>
         <ProfilePreview trainer={trainerWithStats} />
