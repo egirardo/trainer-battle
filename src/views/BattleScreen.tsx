@@ -9,7 +9,6 @@ import styles from './BattleScreen.module.css';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import HelpButton from '@/components/atoms/headerButtons/HelpButton';
 import { useState } from 'react';
-import BattleHelp from '@/components/molecules/battle/BattleHelp';
 import Overlay from '@/components/atoms/Overlay';
 import CloseButton from '@/components/atoms/headerButtons/CloseButton';
 import BattleInstructions from '@/components/molecules/gameInstructions/BattleInstructions';
