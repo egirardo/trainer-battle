@@ -65,7 +65,14 @@ export default function LobbyScreen() {
 
         if (sessionId) {
             sessionChannelRef.current = subscribeToSessionAccepted(sessionId, () => {
-                setInviteState({ playerId: opponentId, status: 'declined' });
+                setInviteState(prev => {
+                    if (prev?.playerId === opponentId && prev.status === 'waiting') {
+                        return { playerId: opponentId, status: 'declined' };
+                    }
+                    return prev;
+                });
+                void sessionChannelRef.current?.unsubscribe();
+                sessionChannelRef.current = null;
             });
         } else {
             setInviteState(null);
@@ -156,9 +163,13 @@ export default function LobbyScreen() {
                                                 (inviteState?.playerId === player.userId && inviteState?.status === 'declined')
                                             }
                                         >
-                                            {inviteState?.playerId === player.userId
-                                                ? inviteState.status === 'waiting' ? "Waiting..." : "Declined"
-                                                : "Invite"}
+                                            {(() => {
+                                                const invite = inviteState;
+                                                if (invite?.playerId === player.userId) {
+                                                    return invite.status === 'waiting' ? "Waiting..." : "Declined";
+                                                }
+                                                return "Invite";
+                                            })()}
                                         </Button>
                                     </div>
                                 </div>
