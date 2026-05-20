@@ -10,7 +10,7 @@ interface Props {
 export default function ButtonGroup({ horizontal = false }: Props) {
     return (
         <div className={`${styles.buttonGroup}${horizontal ? ` ${styles.horizontal}` : ''}`}>
-            <Button as={Link} to={ROUTES.lobby}>
+            <Button variant='danger' as={Link} to={ROUTES.lobby}>
                 Find a Match
             </Button>
             <div className={styles.lowerGroup}>
