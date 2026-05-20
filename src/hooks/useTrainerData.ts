@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
-import type { Trainer, PlayerStats, PlayerItem } from '@/models/models';
+import type { Trainer, PlayerStats, PlayerItem, Move } from '@/models/models';
 
 type PlayerItemRow = {
   id: number;
@@ -16,6 +16,18 @@ type PlayerItemRow = {
     on_use: string | null;
     image: string | null;
     price: number | null;
+  } | null;
+};
+
+type CreatureMoveRow = {
+  moves: {
+    id: number;
+    name: string | null;
+    type: string | null;
+    power: number | null;
+    accuracy: number | null;
+    effect: string | null;
+    description: string | null;
   } | null;
 };
 
@@ -47,6 +59,7 @@ type State = {
   trainer: Trainer | null;
   playerStats: PlayerStats | null;
   playerItems: PlayerItem[];
+  moves: Move[];
   loading: boolean;
   error: string | null;
 };
@@ -55,15 +68,17 @@ type Options = {
   trainer?: boolean;
   stats?: boolean;
   items?: boolean;
+  moves?: boolean;
 };
 
-const EMPTY: State = { trainer: null, playerStats: null, playerItems: [], loading: false, error: null };
+const EMPTY: State = { trainer: null, playerStats: null, playerItems: [], moves: [], loading: false, error: null };
 const SKIP = Promise.resolve({ data: null, error: null });
 
 export function useTrainerData({
   trainer: fetchTrainer = true,
   stats: fetchStats = true,
   items: fetchItems = true,
+  moves: fetchMoves = false,
 }: Options = {}) {
   const { user } = useAuth();
   const userId = user?.id;
@@ -137,7 +152,7 @@ export function useTrainerData({
         : [];
 
       if (!profileData || !pcData) {
-        setState(prev => ({ ...prev, playerStats: statsData ?? null, playerItems, loading: false }));
+        setState(prev => ({ ...prev, playerStats: statsData ?? null, playerItems, moves: [], loading: false }));
         return;
       }
 
@@ -145,8 +160,22 @@ export function useTrainerData({
       const creatureRaw = (Array.isArray(pc.creatures) ? pc.creatures[0] : pc.creatures) as NonNullable<PlayerCreatureData['creatures']> | undefined;
 
       if (!creatureRaw) {
-        setState(prev => ({ ...prev, playerStats: statsData ?? null, playerItems, loading: false }));
+        setState(prev => ({ ...prev, playerStats: statsData ?? null, playerItems, moves: [], loading: false }));
         return;
+      }
+
+      let moves: Move[] = [];
+      if (fetchMoves) {
+        const { data: movesData } = await supabase
+          .from('creature_moves')
+          .select('moves(id, name, type, power, accuracy, effect, description)')
+          .eq('creature_id', pc.creature_id);
+        if (movesData) {
+          moves = (movesData as CreatureMoveRow[]).flatMap((row) => {
+            const move = row.moves;
+            return move ? [move as Move] : [];
+          });
+        }
       }
 
       setState({
@@ -154,6 +183,7 @@ export function useTrainerData({
         error: null,
         playerStats: statsData ?? null,
         playerItems,
+        moves,
         trainer: {
           id: profileData.id,
           name: profileData.username ?? '',
@@ -192,7 +222,7 @@ export function useTrainerData({
     }
 
     void fetchTrainerData();
-  }, [userId, fetchTrainer, fetchStats, fetchItems]);
+  }, [userId, fetchTrainer, fetchStats, fetchItems, fetchMoves]);
 
   return state;
 }

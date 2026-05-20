@@ -2,7 +2,7 @@ import { useTrainerData } from '@/hooks/useTrainerData';
 import ProfileBody from '@/components/molecules/profilePage/ProfileBody';
 
 export default function ProfilePageScreen() {
-  const { trainer, playerStats, loading, error } = useTrainerData();
+  const { trainer, playerStats, moves, loading, error } = useTrainerData({ moves: true });
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">{error}</p>;
@@ -10,7 +10,7 @@ export default function ProfilePageScreen() {
 
   return (
     <div>
-      <ProfileBody trainer={trainer} playerStats={playerStats} />
+      <ProfileBody trainer={trainer} playerStats={playerStats} creature={trainer.creature} playerCreature={trainer.playerCreature} moves={moves} />
     </div>
   );
 }
