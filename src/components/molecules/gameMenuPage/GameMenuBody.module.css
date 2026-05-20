@@ -11,8 +11,8 @@
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
             "credits  credits"
-            "profile  actions"
-            "progress progress";
+            "actions  actions"
+            "profile  progress";
         gap: 1rem;
     }
 
