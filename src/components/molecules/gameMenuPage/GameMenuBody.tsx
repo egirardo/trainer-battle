@@ -6,9 +6,11 @@ import BossDialog from './BossDialog';
 import LifeCreditTracker from './LifeCreditTracker';
 import { PlayerStats, Trainer } from '@/models/models';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
+import { ROUTES } from '@/routes';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -40,6 +42,7 @@ type PlayerCreatureData = {
 
 export default function GameMenuBody() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const userId = user?.id;
   const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
@@ -50,30 +53,51 @@ export default function GameMenuBody() {
     if (!userId) return;
 
     async function fetchTrainerData() {
-      const [
-        { data: profileData, error: profileError },
-        { data: pcData, error: pcError },
-        { data: statsData, error: statsError },
-      ] = await Promise.all([
-        supabase.from('profiles').select('id, username, trainer_gender, centralbank_uuid').eq('id', userId!).single(),
-        supabase.from('player_creatures').select('id, level, creature_id, player_id, nickname, experience, current_hp, attack, defence, speed, creatures(id, name, type, image, base_hp, base_attack, base_defence, base_speed, description)').eq('player_id', userId!).single(),
-        supabase.from('player_stats').select('*').eq('player_id', userId!).single(),
+      const [profileResult, pcResult, statsResult] = await Promise.all([
+        supabase.from('profiles').select('id, username, trainer_gender, centralbank_uuid').eq('id', userId!).maybeSingle(),
+        supabase.from('player_creatures').select('id, level, creature_id, player_id, nickname, experience, current_hp, attack, defence, speed, creatures(id, name, type, image, base_hp, base_attack, base_defence, base_speed, description)').eq('player_id', userId!).maybeSingle(),
+        supabase.from('player_stats').select('*').eq('player_id', userId!).maybeSingle(),
       ]);
 
-      if (profileError || pcError || statsError) {
+      if (profileResult.error || pcResult.error || statsResult.error) {
         setError('Failed to load player data.');
         setLoading(false);
         return;
       }
 
-      if (statsData) setPlayerStats(statsData);
-      if (!profileData || !pcData) { setLoading(false); return; }
+      if (!profileResult.data || !pcResult.data) {
+        void navigate(ROUTES.characterSelect, { replace: true });
+        setLoading(false);
+        return;
+      }
 
-      const profile = profileData;
-      const pc = pcData as PlayerCreatureData;
+      const profile = profileResult.data;
+      const pc = pcResult.data as PlayerCreatureData;
       const creatureRaw = (Array.isArray(pc.creatures) ? pc.creatures[0] : pc.creatures) as NonNullable<PlayerCreatureData['creatures']> | undefined;
 
-      if (!creatureRaw) return;
+      if (!creatureRaw) {
+        void navigate(ROUTES.characterSelect, { replace: true });
+        setLoading(false);
+        return;
+      }
+
+      const defaultStats: PlayerStats = {
+        id: 0,
+        player_id: userId!,
+        total_battles: 0,
+        total_wins: 0,
+        total_losses: 0,
+        total_forfeits: 0,
+        lives: 3,
+        credits: 0,
+      }
+
+      if (statsResult.data) {
+        setPlayerStats(statsResult.data)
+      } else {
+        setPlayerStats(defaultStats)
+        void supabase.from('player_stats').upsert(defaultStats, { onConflict: 'player_id' })
+      }
 
       setTrainer({
         id: profile.id,

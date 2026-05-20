@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
 import { useAuth } from './hooks/useAuth'
+import { useIdentityToken } from './hooks/useIdentityToken'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
 import GameMenuScreen from './views/GameMenuScreen'
@@ -21,15 +22,29 @@ import ShopScreen from './views/ShopScreen'
 
 function App() {
   const { user, loading } = useAuth()
+  const { error, processing } = useIdentityToken()
 
-  if (loading) return <div>Loading...</div>
+  if (loading || processing) return <div>Loading...</div>
+
+  if (error) return (
+    <main>
+      <p>{error}</p>
+      <a href="https://frontend-main-1ac7.up.railway.app/">Return to Tivoli</a>
+    </main>
+  )
 
   return (
     <Routes>
         {/* Public routes */}
         <Route 
           path={ROUTES.start} 
-          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <StartScreen />}
+          element={
+            new URLSearchParams(window.location.search).get('identity_token')
+              ? <StartScreen />
+              : user
+                ? <Navigate to={ROUTES.gameMenu} replace />
+                : <StartScreen />
+          }
         />
 
         {/* Auth routes - redirect away if already logged in */}
