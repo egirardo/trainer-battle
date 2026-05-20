@@ -9,15 +9,22 @@ interface AudioContextValue {
     toggleMute: () => void;
 }
 
+const MUSIC_MUTED_KEY = 'musicMuted';
+
 const AudioCtx = createContext<AudioContextValue | null>(null);
 
 export function AudioProvider({ children }: { children: ReactNode }) {
     const location = useLocation();
-    const [muted, setMuted] = useState(true);
+    const [muted, setMuted] = useState(() => localStorage.getItem(MUSIC_MUTED_KEY) !== 'false');
     const [started, setStarted] = useState(false);
     const menuRef = useRef<HTMLAudioElement | null>(null);
     const battleRef = useRef<HTMLAudioElement | null>(null);
     const activeRef = useRef<'menu' | 'battle'>('menu');
+
+    // Persist muted preference
+    useEffect(() => {
+        localStorage.setItem(MUSIC_MUTED_KEY, String(muted));
+    }, [muted]);
 
     useEffect(() => {
         const menu = new Audio(menuTrack);
@@ -30,9 +37,29 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         battle.volume = 0.5;
         battleRef.current = battle;
 
+        let removeInteractionListener: (() => void) | null = null;
+
+        // Resume playback if user had music on before reload
+        if (localStorage.getItem(MUSIC_MUTED_KEY) === 'false') {
+            const isBattle = window.location.pathname.startsWith('/battle');
+            activeRef.current = isBattle ? 'battle' : 'menu';
+            const track = isBattle ? battle : menu;
+            track.play()
+                .then(() => setStarted(true))
+                .catch(() => {
+                    // Autoplay blocked — start on first click anywhere
+                    const startOnInteraction = () => {
+                        track.play().then(() => setStarted(true)).catch(() => {});
+                    };
+                    document.addEventListener('click', startOnInteraction, { once: true });
+                    removeInteractionListener = () => document.removeEventListener('click', startOnInteraction);
+                });
+        }
+
         return () => {
             menu.pause();
             battle.pause();
+            removeInteractionListener?.();
         };
     }, []);
 
@@ -63,7 +90,7 @@ export function AudioProvider({ children }: { children: ReactNode }) {
         if (muted) {
             active.pause();
         } else {
-            void active.play();
+            active.play().catch(() => {});
         }
     }, [muted, started]);
 
