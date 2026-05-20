@@ -93,7 +93,7 @@ export function useLobby() {
         return channel;
     }, [user?.id]);
 
-    const subscribeToSessionAccepted = useCallback((sessionId: number): ReturnType<typeof supabase.channel> => {
+    const subscribeToSessionAccepted = useCallback((sessionId: number, onDeclined: () => void): ReturnType<typeof supabase.channel> => {
         const channel = supabase
             .channel(`session_accepted:${sessionId}`)
             .on(
@@ -108,6 +108,8 @@ export function useLobby() {
                     const updated = payload.new as { status: string; id: number };
                     if (updated.status === "active") {
                         void navigate(`${ROUTES.battle}/${updated.id}`);
+                    } else if (updated.status === "declined") {
+                        onDeclined();
                     }
                 }
             )

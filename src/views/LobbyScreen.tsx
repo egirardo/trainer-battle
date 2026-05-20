@@ -31,7 +31,7 @@ export default function LobbyScreen() {
         { label: 'View Profile', to: ROUTES.profile },
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
-    const [inviteSent, setInviteSent] = useState<boolean>(false);
+    const [inviteState, setInviteState] = useState<{ playerId: string; status: 'waiting' | 'declined' } | null>(null);
 
     const {
         playersInLobby,
@@ -54,20 +54,21 @@ export default function LobbyScreen() {
     }, []);
 
     async function handleInvite(opponentId: string): Promise<void> {
-        if (!myCreatureId || inviteSent) return;
+        if (!myCreatureId || inviteState?.status === 'waiting') return;
 
-        // Unsubscribe from any existing session channel before subscribing to the new one
         await sessionChannelRef.current?.unsubscribe();
         sessionChannelRef.current = null;
 
-        setInviteSent(true);
+        setInviteState({ playerId: opponentId, status: 'waiting' });
 
         const sessionId = await createPvpSession(opponentId, myCreatureId);
 
         if (sessionId) {
-            sessionChannelRef.current = subscribeToSessionAccepted(sessionId);
+            sessionChannelRef.current = subscribeToSessionAccepted(sessionId, () => {
+                setInviteState({ playerId: opponentId, status: 'declined' });
+            });
         } else {
-            setInviteSent(false);
+            setInviteState(null);
         }
     }
 
@@ -149,9 +150,15 @@ export default function LobbyScreen() {
                                         <Button
                                             className={styles.invBtn}
                                             onClick={() => void handleInvite(player.userId)}
-                                            disabled={!!incomingInvitation || inviteSent}
+                                            disabled={
+                                                !!incomingInvitation ||
+                                                inviteState?.status === 'waiting' ||
+                                                (inviteState?.playerId === player.userId && inviteState?.status === 'declined')
+                                            }
                                         >
-                                            {inviteSent ? "Waiting..." : "Invite"}
+                                            {inviteState?.playerId === player.userId
+                                                ? inviteState.status === 'waiting' ? "Waiting..." : "Declined"
+                                                : "Invite"}
                                         </Button>
                                     </div>
                                 </div>
