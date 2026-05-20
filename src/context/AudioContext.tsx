@@ -14,7 +14,7 @@ const AudioCtx = createContext<AudioContextValue | null>(null);
 
 export function AudioProvider({ children }: { children: ReactNode }) {
     const location = useLocation();
-    const [muted, setMuted] = useState(true);
+    const [muted, setMuted] = useState(() => localStorage.getItem(MUSIC_MUTED_KEY) !== 'false');
     const [started, setStarted] = useState(false);
     const menuRef = useRef<HTMLAudioElement | null>(null);
     const battleRef = useRef<HTMLAudioElement | null>(null);
