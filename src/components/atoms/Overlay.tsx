@@ -1,7 +1,8 @@
+import type { ReactNode } from 'react';
 import styles from './Overlay.module.css';
 
 interface Props {
-    children: React.ReactNode;
+    children: ReactNode;
     className?: string;
 }
 
