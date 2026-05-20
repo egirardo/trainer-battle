@@ -42,8 +42,8 @@
 
   .bossActive {
     grid-template-areas:
-      "credits  credits"
       "actions  actions"
+      "credits  credits"
       "profile  progress"
       "boss     boss";
   }
