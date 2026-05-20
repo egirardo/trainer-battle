@@ -174,6 +174,42 @@ export type Database = {
         }
         Relationships: []
       }
+      game_config: {
+        Row: {
+          id: number
+          stat_boost_attack: number
+          stat_boost_defence: number
+          stat_boost_hp: number
+          stat_boost_speed: number
+          xp_cpu_loss: number
+          xp_cpu_win: number
+          xp_pvp_loss: number
+          xp_pvp_win: number
+        }
+        Insert: {
+          id?: number
+          stat_boost_attack?: number
+          stat_boost_defence?: number
+          stat_boost_hp?: number
+          stat_boost_speed?: number
+          xp_cpu_loss?: number
+          xp_cpu_win?: number
+          xp_pvp_loss?: number
+          xp_pvp_win?: number
+        }
+        Update: {
+          id?: number
+          stat_boost_attack?: number
+          stat_boost_defence?: number
+          stat_boost_hp?: number
+          stat_boost_speed?: number
+          xp_cpu_loss?: number
+          xp_cpu_win?: number
+          xp_pvp_loss?: number
+          xp_pvp_win?: number
+        }
+        Relationships: []
+      }
       game_sessions: {
         Row: {
           cpu_creature_id: number | null
@@ -452,6 +488,7 @@ export type Database = {
         Args: { p_battles: number; p_player_id: string; p_wins: number }
         Returns: undefined
       }
+      purchase_items: { Args: { p_items: Json }; Returns: undefined }
     }
     Enums: {
       item_effect_type: "heal" | "attack_boost" | "defence_boost"

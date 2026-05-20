@@ -10,9 +10,10 @@ type ItemBoxProps = {
     quantity: number;
     onAdd: (itemId: number) => void;
     onRemove: (itemId: number) => void;
+    disabled?: boolean;
 };
 
-export default function ItemBox({ item, quantity, onAdd, onRemove }: ItemBoxProps) {
+export default function ItemBox({ item, quantity, onAdd, onRemove, disabled = false }: ItemBoxProps) {
     return (
         <div className={styles.itemBox}>
             <img src={item.image} alt={item.name} className={styles.itemImage} />
@@ -27,11 +28,11 @@ export default function ItemBox({ item, quantity, onAdd, onRemove }: ItemBoxProp
                         <span className={styles.itemPrice}>{item.price}</span>
                     </div>
                     <div className={styles.purchaseButtons}>
-                        <IconButton image={minusButton} ariaLabel="Remove Item" onClick={() => onRemove(item.id)} />
+                        <IconButton image={minusButton} ariaLabel="Remove Item" onClick={() => onRemove(item.id)} disabled={disabled} />
                         <div className={styles.countIcon}>
                             <p className={styles.count}>{quantity}</p>
                         </div>
-                        <IconButton image={plusButton} ariaLabel="Add Item" onClick={() => onAdd(item.id)} />
+                        <IconButton image={plusButton} ariaLabel="Add Item" onClick={() => onAdd(item.id)} disabled={disabled} />
                     </div>
                 </div>
             </div>
