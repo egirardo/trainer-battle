@@ -4,10 +4,53 @@ import { supabase } from '../lib/supabase';
 import { ROUTES } from '../routes';
 import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
 import GameMenuBody from '@/components/molecules/gameMenuPage/GameMenuBody';
+import { useEffect, useState } from 'react';
 
 export default function GameMenuScreen(){
-    const { loading } = useAuth();
+    const { user, loading, profile } = useAuth();
+    const [credits, setCredits] = useState<number>(0)
+    const [transactionId, setTransactionId] = useState<string | null>(null)
     const navigate = useNavigate();
+    const [startingCredits, setStartingCredits] = useState<number>(50)
+
+    useEffect(() => {
+        if (!user) return
+        async function fetchStats() {
+            const { data } = await supabase
+                .from('player_stats')
+                .select('credits, transaction_id, starting_credits')
+                .eq('player_id', user!.id)
+                .single()
+            if (data) {
+                setCredits(data.credits)
+                setTransactionId(data.transaction_id)
+                setStartingCredits(data.starting_credits)
+            }
+        }
+        void fetchStats()
+    }, [user])
+
+    const isCentralbankUser = !!profile?.centralbank_uuid
+    const canCashOut = isCentralbankUser && !!transactionId && credits > startingCredits
+
+    async function handleCashOut(): Promise<void> {
+        const { data, error } = await supabase.functions.invoke('cashout')
+
+        if (error) {
+            console.error('Cash out failed:', error)
+            return
+        }
+
+        // Sign out after cashout
+        await supabase.auth.signOut()
+        void navigate(ROUTES.start)
+    }
+
+    async function handleLeaveGame(): Promise<void> {
+        await supabase.auth.signOut()
+        sessionStorage.removeItem('identity_token')
+        void navigate(ROUTES.start)
+    }
 
     async function handleLogout(): Promise<void> {
         const { error } = await supabase.auth.signOut();
@@ -20,6 +63,12 @@ export default function GameMenuScreen(){
         void navigate(ROUTES.start);
     }
 
+    function calculatePayout(credits: number): number {
+        const raw = credits * 0.03
+        return Math.floor(raw / 0.5) * 0.5
+    }
+
+    console.log('credits:', credits, 'canCashOut:', canCashOut, 'payout:', calculatePayout(credits))
     const navItems: NavItem[] = [
         { label: 'Dashboard', to: ROUTES.gameMenu },
         { label: 'Lobby', to: ROUTES.lobby },
@@ -27,6 +76,13 @@ export default function GameMenuScreen(){
         { label: 'Help', to: ROUTES.help },
         { label: 'Credits', to: ROUTES.credits },
         { label: 'View Profile', to: ROUTES.profile },
+        ...(isCentralbankUser ? [{ 
+            label: 'Cash Out', 
+            onClick: () => void handleCashOut(), 
+            variant: 'success' as const, 
+            disabled: !canCashOut,
+            subtitle: !canCashOut ? 'Win more credits to cash out' : `€${calculatePayout(credits)}`
+        }] : []),
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
 

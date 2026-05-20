@@ -185,6 +185,7 @@ Deno.serve(async (req) => {
       .update({
         credits: startingCredits,
         transaction_id: transactionId,
+        starting_credits: startingCredits,
       })
       .eq('player_id', supabaseUserId)
 

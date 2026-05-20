@@ -4,8 +4,8 @@ import MenuButton from '@/components/atoms/headerButtons/MenuButton'
 import CloseButton from '@/components/atoms/headerButtons/CloseButton'
 import styles from './NavigableHeader.module.css'
 
-type LinkNavItem   = { label: string; to: string;          variant?: 'danger' }
-type ActionNavItem = { label: string; onClick: () => void; variant?: 'danger' }
+type LinkNavItem   = { label: string; to: string;          variant?: 'danger' | 'success'; disabled?: boolean }
+type ActionNavItem = { label: string; onClick: () => void; variant?: 'danger' | 'success'; disabled?: boolean; subtitle?: string }
 export type NavItem = LinkNavItem | ActionNavItem
 
 interface Props {
@@ -58,7 +58,7 @@ export default function NavigableHeader({ label, navItems = [] }: Props) {
                     {'to' in item ? (
                       <Link
                         to={item.to}
-                        className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : ''}`}
+                        className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : item.variant === 'success' ? ` ${styles.navLinkSuccess}` : ''}`}
                         onClick={() => setIsOpen(false)}
                       >
                         {item.label}
@@ -66,13 +66,17 @@ export default function NavigableHeader({ label, navItems = [] }: Props) {
                     ) : (
                       <button
                         type="button"
-                        className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : ''}`}
+                        disabled={'disabled' in item ? item.disabled : false}
+                        className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : item.variant === 'success' ? ` ${styles.navLinkSuccess}` : ''}`}
                         onClick={() => {
                           item.onClick()
                           setIsOpen(false)
                         }}
                       >
                         {item.label}
+                        {'subtitle' in item && item.subtitle && (
+                          <span className={styles.navItemSubtitle}>{item.subtitle}</span>
+                        )}
                       </button>
                     )}
                   </li>
