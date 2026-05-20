@@ -11,6 +11,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
+import GameInstructions from '../gameInstructions/GameInstructions';
+import Overlay from '@/components/atoms/Overlay';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -48,7 +50,7 @@ export default function GameMenuBody() {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
-
+  const [showInstructions, setShowInstructions] = useState(false);
   useEffect(() => {
     if (!userId) return;
 
@@ -150,19 +152,25 @@ export default function GameMenuBody() {
         <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
       </div>
       <div className={styles.actionsCol}>
-        <ButtonGroup horizontal={hasBoss} />
+        <ButtonGroup horizontal />
       </div>
       <div className={styles.profileCol}>
         <ProfilePreview trainer={trainerWithStats} />
+      </div>
+      <div className={styles.progressRow}>
+        <ProgressPreview wins={wins} />
       </div>
       {hasBoss && (
         <div className={styles.bossCol}>
           <BossDialog />
         </div>
       )}
-      <div className={styles.progressRow}>
-        <ProgressPreview wins={wins} />
-      </div>
+
+      {showInstructions && (
+        <Overlay>
+            <GameInstructions onClose={() => setShowInstructions(false)} />
+        </Overlay>
+      )}
     </div>
   );
 }

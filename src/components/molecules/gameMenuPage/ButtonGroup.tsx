@@ -5,12 +5,13 @@ import { ROUTES } from '@/routes';
 
 interface Props {
     horizontal?: boolean;
+    onShowInstructions?: () => void;
 }
 
-export default function ButtonGroup({ horizontal = false }: Props) {
+export default function ButtonGroup({ horizontal = false, onShowInstructions }: Props) {
     return (
         <div className={`${styles.buttonGroup}${horizontal ? ` ${styles.horizontal}` : ''}`}>
-            <Button as={Link} to={ROUTES.lobby}>
+            <Button variant='danger' as={Link} to={ROUTES.lobby}>
                 Find a Match
             </Button>
             <div className={styles.lowerGroup}>
@@ -20,9 +21,9 @@ export default function ButtonGroup({ horizontal = false }: Props) {
                 <Button as={Link} to="/bag">
                     Bag
                 </Button>
-                <Button as={Link} to="/help">
+                <Button onClick={onShowInstructions}>
                     Help
-                </Button> {/* Will be a help popup eventually, the link is just a placeholder for now.*/}
+                </Button>
             </div>
         </div>
     )

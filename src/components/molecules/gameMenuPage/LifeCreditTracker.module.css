@@ -3,6 +3,13 @@
   justify-content: space-between;
 }
 
+@media (max-width: 335px) {
+  .trackerContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 .livesRow {
   display: flex;
   align-items: center;

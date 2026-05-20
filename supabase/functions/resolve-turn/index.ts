@@ -152,6 +152,13 @@ Deno.serve(async (req) => {
         const myPC = myPCResult.data
         const myCreature = myPC.creatures as { type: string }
 
+        const { data: myProfile } = await adminClient
+            .from('profiles')
+            .select('username')
+            .eq('id', userId)
+            .single()
+        const playerPrefix = `${myProfile?.username ?? 'You'}: `
+
         // Validate move belongs to player's creature
         const { data: validMove, error: validMoveErr } = await adminClient
             .from('creature_moves')
@@ -238,7 +245,7 @@ Deno.serve(async (req) => {
         const newOppHp = Math.max(0, currentOppHp - playerDamage)
 
         const descriptions: string[] = [
-            buildDescription(move.name, playerDamage, myCreature.type, oppType)
+            buildDescription(move.name, playerDamage, myCreature.type, oppType, playerPrefix)
         ]
 
         let finalMyHp = currentMyHp

@@ -9,7 +9,9 @@ import styles from './BattleScreen.module.css';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import HelpButton from '@/components/atoms/headerButtons/HelpButton';
 import { useState } from 'react';
-import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
+import Overlay from '@/components/atoms/Overlay';
+import CloseButton from '@/components/atoms/headerButtons/CloseButton';
+import BattleInstructions from '@/components/molecules/gameInstructions/BattleInstructions';
 
 export default function BattleScreen() {
     const { sessionId } = useParams<{ sessionId: string }>();
@@ -53,7 +55,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
             <section className={styles.arena} aria-label="Battle arena">
                 <div className={styles.opponentInfo}>
                     <HealthBar
-                        name={opponent.name}
+                        name={opponent.trainerName}
                         level={opponent.level}
                         currentHp={opponent.currentHp}
                         maxHp={opponent.maxHp}
@@ -77,7 +79,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
 
                 <div className={styles.playerInfo}>
                     <HealthBar
-                        name={player.name}
+                        name={player.trainerName}
                         level={player.level}
                         currentHp={player.currentHp}
                         maxHp={player.maxHp}
@@ -97,9 +99,13 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                 onUseItem={onUseItem}
             />
             {showInstructions && (
-                <div className={styles.infoOverlay}>
-                    <GameInstructions onClose={() => setShowInstructions(false)} />
-                </div>
+                <Overlay>
+                    <StickyHeader
+                        label="How to battle"
+                        action={<CloseButton onClick={() => setShowInstructions(false)} />}
+                    />
+                    <BattleInstructions />
+                </Overlay>
             )}
         </main>
     );

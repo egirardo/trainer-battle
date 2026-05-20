@@ -44,3 +44,15 @@
 .badgeLocked {
     opacity: 0.4;
 }
+
+@media (min-width: 768px) {
+    .progressPreview {
+        flex: 1;
+    }
+}
+
+@media (max-width: 520px) {
+    .progressPreview {
+        margin: .5rem;
+    }
+}
