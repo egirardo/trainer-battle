@@ -1,0 +1,143 @@
+.wrapper {
+  padding: 1rem;
+  border: 21px solid transparent;
+  border-radius: 35px;
+  border-image: url('../../../assets/sprites/components/purple-dialog-box.png') 21 / 21px stretch;
+  background-color: var(--purp-card-bg);
+  background-clip: border-box;
+  image-rendering: pixelated;
+  margin: 0.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.creatureImage {
+  width: 120px;
+  height: auto;
+  image-rendering: pixelated;
+  object-fit: contain;
+}
+
+.info {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.name {
+  margin: 0;
+  color: var(--text-h);
+  line-height: 1;
+}
+
+.type {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text);
+  text-transform: capitalize;
+}
+
+.description {
+  margin: 0.5rem 0 0;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-top: 2px solid var(--text-h);
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.statLabel {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.statValue {
+  margin: 0;
+  color: var(--text-h);
+  font-size: 1rem;
+}
+
+.moves {
+  margin-top: 0.75rem;
+  width: 100%;
+}
+
+.movesLabel {
+  margin: 0 0 0.5rem;
+  color: var(--text-h);
+  font-size: 1rem;
+  border-top: 2px solid var(--text-h);
+  padding-top: 0.75rem;
+}
+
+.moveGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+}
+
+.moveCard {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  background-color: var(--purp-card-bg);
+  border: 1px solid var(--text-h);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.moveName {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-h);
+  text-transform: capitalize;
+}
+
+.movePower {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.moveCard.fire .moveName  { color: #ef4444; }
+.moveCard.water .moveName { color: #3b82f6; }
+.moveCard.grass .moveName { color: #22c55e; }
+
+@media (min-width: 505px) {
+  .wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 1.5rem;
+    max-width: 480px;
+  }
+
+  .creatureImage {
+    width: 140px;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 504px) {
+  .wrapper {
+    margin: 0.5rem;
+  }
+}
