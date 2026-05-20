@@ -9,6 +9,8 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
+import GameInstructions from '../gameInstructions/GameInstructions';
+import Overlay from '@/components/atoms/Overlay';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -45,7 +47,7 @@ export default function GameMenuBody() {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
-
+  const [showInstructions, setShowInstructions] = useState(false);
   useEffect(() => {
     if (!userId) return;
 
@@ -138,6 +140,12 @@ export default function GameMenuBody() {
         <div className={styles.bossCol}>
           <BossDialog />
         </div>
+      )}
+
+      {showInstructions && (
+        <Overlay>
+            <GameInstructions onClose={() => setShowInstructions(false)} />
+        </Overlay>
       )}
     </div>
   );
