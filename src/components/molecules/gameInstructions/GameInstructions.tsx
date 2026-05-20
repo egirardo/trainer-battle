@@ -5,11 +5,12 @@ import CloseButton from '@/components/atoms/headerButtons/CloseButton';
 
 interface Props {
     onClose?: () => void;
+    className?: string;
 }
 
-export default function GameInstructions({ onClose }: Props) {
+export default function GameInstructions({ onClose, className }: Props) {
     return(
-        <section>
+        <section className={className}>
             <StickyHeader
                 label="How to play"
                 action={<CloseButton onClick={onClose} />}

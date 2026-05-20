@@ -1,7 +1,8 @@
 import styles from './GameInstructions.module.css'
+
 export default function BattleInstructions(){
     return(
-        <>
+        <div className={styles.battleInfo}>
             <p>Battles are turn-based. On your turn, choose one of three actions:</p>
             <p><span className={styles.accentText}>- Fight</span> to attack with one of your moves</p>
             <p><span className={styles.accentText}>- Bag</span> to use an item on your creature</p>
@@ -11,6 +12,6 @@ export default function BattleInstructions(){
             </div>
             <p>Each creature has a type and some types beat others. Using the right matchup deals more damage.</p>
             <p>Fire → Grass → Water → Fire.</p>
-        </>
+        </div>
     )
 }
