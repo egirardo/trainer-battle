@@ -53,7 +53,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
             <section className={styles.arena} aria-label="Battle arena">
                 <div className={styles.opponentInfo}>
                     <HealthBar
-                        name={opponent.name}
+                        name={opponent.trainerName}
                         level={opponent.level}
                         currentHp={opponent.currentHp}
                         maxHp={opponent.maxHp}
@@ -77,7 +77,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
 
                 <div className={styles.playerInfo}>
                     <HealthBar
-                        name={player.name}
+                        name={player.trainerName}
                         level={player.level}
                         currentHp={player.currentHp}
                         maxHp={player.maxHp}

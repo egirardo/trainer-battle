@@ -165,7 +165,14 @@ Deno.serve(async (req) => {
             else newP2DefMod += itemEffect
         }
 
-        const descriptions: string[] = [itemDescription]
+        const { data: myProfile } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', playerId)
+            .single()
+        const playerPrefix = `${myProfile?.username ?? 'You'}: `
+
+        const descriptions: string[] = [`${playerPrefix}${itemDescription}`]
         let isFinished = false
 
         // CPU counter-attack — apply (and consume) the player's defence modifier
