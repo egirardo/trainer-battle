@@ -2,7 +2,7 @@ import { useTrainerData } from '@/hooks/useTrainerData';
 import ProfileBody from '@/components/molecules/profilePage/ProfileBody';
 
 export default function ProfilePageScreen() {
-  const { trainer, loading, error } = useTrainerData();
+  const { trainer, playerStats, loading, error } = useTrainerData();
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">{error}</p>;
@@ -10,7 +10,7 @@ export default function ProfilePageScreen() {
 
   return (
     <div>
-      <ProfileBody trainer={trainer} />
+      <ProfileBody trainer={trainer} playerStats={playerStats} />
     </div>
   );
 }

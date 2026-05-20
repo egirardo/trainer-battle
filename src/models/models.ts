@@ -4,6 +4,18 @@ export type Player = Tables<'profiles'>;
 
 export type TrainerGender = 'male' | 'female' | 'nb';
 
+export const GENDER_LABELS: Record<TrainerGender, string> = {
+  male: 'Male',
+  female: 'Female',
+  nb: 'Non-Binary',
+};
+
+export const GENDER_SYMBOLS: Record<TrainerGender, string> = {
+  male: '♂',
+  female: '♀',
+  nb: '⚧',
+};
+
 
 export interface Trainer extends Player {
     name: string;
