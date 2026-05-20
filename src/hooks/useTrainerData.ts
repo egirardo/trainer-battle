@@ -43,28 +43,7 @@ type PlayerCreatureData = {
   } | null;
 };
 
-type State = {
-  trainer: Trainer | null;
-  playerStats: PlayerStats | null;
-  playerItems: PlayerItem[];
-  loading: boolean;
-  error: string | null;
-};
-
-type Options = {
-  trainer?: boolean;
-  stats?: boolean;
-  items?: boolean;
-};
-
-const EMPTY: State = { trainer: null, playerStats: null, playerItems: [], loading: false, error: null };
-const SKIP = Promise.resolve({ data: null, error: null });
-
-export function useTrainerData({
-  trainer: fetchTrainer = true,
-  stats: fetchStats = true,
-  items: fetchItems = true,
-}: Options = {}) {
+export function useTrainerData() {
   const { user } = useAuth();
   const userId = user?.id;
   const [state, setState] = useState<State>({ ...EMPTY, loading: !!userId });

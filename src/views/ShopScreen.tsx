@@ -14,7 +14,7 @@ import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
 export default function ShopScreen() {
     const navigate = useNavigate();
     const { items, loading: itemsLoading, error: itemsError } = useItems();
-    const { playerStats, loading: statsLoading, error: statsError } = useTrainerData();
+    const { playerStats, loading: statsLoading, error: statsError } = useTrainerData({ trainer: false, items: false });
     const { user } = useAuth();
 
     async function handleLogout(): Promise<void> {
