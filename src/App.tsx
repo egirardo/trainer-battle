@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
 import { useAuth } from './hooks/useAuth'
@@ -18,12 +19,34 @@ import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 import ShopScreen from './views/ShopScreen'
+import { isIdentityToken } from './lib/identityToken'
+
+function IdentityTokenEntry() {
+  const { identityToken } = useParams()
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    if (isIdentityToken(identityToken)) {
+      sessionStorage.setItem('identity_token', identityToken)
+    } else {
+      sessionStorage.removeItem('identity_token')
+    }
+
+    void navigate(ROUTES.start, { replace: true })
+  }, [identityToken, navigate])
+
+  return <div>Loading...</div>
+}
 
 
 function App() {
   const { user, loading } = useAuth()
+  const location = useLocation()
   const { error, processing, flowActive } = useIdentityToken()
-  const identityTokenInUrl = new URLSearchParams(window.location.search).get('identity_token')
+  const identityTokenInUrl = new URLSearchParams(location.search).get('identity_token')
+  const validIdentityTokenInUrl = isIdentityToken(identityTokenInUrl) ? identityTokenInUrl : null
+  const storedIdentityToken = sessionStorage.getItem('identity_token')
+  const pendingIdentityToken = validIdentityTokenInUrl ?? (isIdentityToken(storedIdentityToken) ? storedIdentityToken : null)
 
   if (loading || processing) return <div>Loading...</div>
 
@@ -40,7 +63,7 @@ function App() {
         <Route 
           path={ROUTES.start} 
           element={
-            identityTokenInUrl || flowActive
+            pendingIdentityToken || flowActive
               ? <StartScreen />
               : user
                 ? <Navigate to={ROUTES.gameMenu} replace />
@@ -61,6 +84,8 @@ function App() {
           path={ROUTES.adminLogin} 
           element={<AdminLogin />}
         />
+
+        <Route path='/:identityToken' element={<IdentityTokenEntry />} />
 
         {/* Protected routes - redirect to login if not logged in */}
         <Route 

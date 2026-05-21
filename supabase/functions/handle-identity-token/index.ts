@@ -158,6 +158,21 @@ Deno.serve(async (req) => {
     const transactionId = String(transactionData.id)
     const stamp = transactionData.stamp
 
+    if (!isReturning) {
+      const { error: profileError } = await adminClient
+        .from('profiles')
+        .insert({
+          id: supabaseUserId,
+          username: playerName,
+          centralbank_uuid: centralbankUuid,
+        })
+
+      if (profileError) {
+        await cleanupCreatedAccount(supabaseUserId)
+        return errorResponse('Failed to create user profile', 500)
+      }
+    }
+
     const { data: existingCreature, error: existingCreatureError } = await adminClient
       .from('player_creatures')
       .select('id')
@@ -165,6 +180,9 @@ Deno.serve(async (req) => {
       .maybeSingle()
 
     if (existingCreatureError && existingCreatureError.code !== 'PGRST116') {
+      if (!isReturning) {
+        await cleanupCreatedAccount(supabaseUserId)
+      }
       return errorResponse('Failed to load creature state', 500)
     }
 
@@ -180,9 +198,7 @@ Deno.serve(async (req) => {
       }, { onConflict: 'player_id' })
 
     if (statsError) {
-      if (!isReturning) {
-        await cleanupCreatedAccount(supabaseUserId)
-      }
+      if (!isReturning) await cleanupCreatedAccount(supabaseUserId)
       return errorResponse('Failed to update player stats', 500)
     }
 
@@ -195,9 +211,7 @@ Deno.serve(async (req) => {
     })
 
     if (sessionErr || !sessionData) {
-      if (!isReturning) {
-        await cleanupCreatedAccount(supabaseUserId)
-      }
+      if (!isReturning) await cleanupCreatedAccount(supabaseUserId)
       return errorResponse('Failed to create session', 500)
     }
 

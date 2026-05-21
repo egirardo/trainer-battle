@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/routes";
 import { useAuth } from "./useAuth";
+import { isIdentityToken } from "@/lib/identityToken";
+const IDENTITY_TOKEN_LOCK_KEY = 'identity_token_lock'
 
 type IdentityTokenResult = {
     access_token: string
@@ -16,6 +18,7 @@ type IdentityTokenResult = {
 
 export function useIdentityToken() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { user } = useAuth()
     const [processing, setProcessing] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -26,6 +29,7 @@ export function useIdentityToken() {
         if (!redirectTo || !user) return
 
         void navigate(redirectTo, { replace: true })
+        sessionStorage.removeItem('identity_token')
         queueMicrotask(() => {
             setRedirectTo(null)
             setFlowActive(false)
@@ -33,14 +37,36 @@ export function useIdentityToken() {
     }, [navigate, redirectTo, user])
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search)
-        const identityToken = params.get('identity_token')
+        const params = new URLSearchParams(location.search)
+        const queryTokenRaw = params.get('identity_token')
+        const identityTokenFromUrl = isIdentityToken(queryTokenRaw) ? queryTokenRaw : null
+
+        const storedTokenRaw = sessionStorage.getItem('identity_token')
+        const storedToken = isIdentityToken(storedTokenRaw) ? storedTokenRaw : null
+
+        if (storedTokenRaw && !storedToken) {
+            sessionStorage.removeItem('identity_token')
+        }
+
+        if (queryTokenRaw && !identityTokenFromUrl) {
+            void navigate(location.pathname, { replace: true })
+            return
+        }
+
+        const identityToken = identityTokenFromUrl ?? storedToken
 
         if (!identityToken) return
 
-        // Strip from URL and store for re-use
-        window.history.replaceState({}, '', window.location.pathname)
+        const activeLock = sessionStorage.getItem(IDENTITY_TOKEN_LOCK_KEY)
+        if (activeLock === identityToken) return
+
+        if (identityTokenFromUrl) {
+            // Strip from URL and store for re-use
+            void navigate(location.pathname, { replace: true })
+        }
+
         sessionStorage.setItem('identity_token', identityToken)
+        sessionStorage.setItem(IDENTITY_TOKEN_LOCK_KEY, identityToken)
 
         async function processToken() {
             setProcessing(true)
@@ -78,6 +104,7 @@ export function useIdentityToken() {
                 setError('Something went wrong. Please return to Tivoli.')
             } finally {
                 setProcessing(false)
+                sessionStorage.removeItem(IDENTITY_TOKEN_LOCK_KEY)
 
                 if (!shouldRetainFlow) {
                     setFlowActive(false)
@@ -86,7 +113,7 @@ export function useIdentityToken() {
         }
 
         void processToken()
-    }, [navigate])
+    }, [location.pathname, location.search, navigate])
 
     return { processing, error, flowActive }
 }
