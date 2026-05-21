@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
+import { resolveItemImage } from '@/lib/itemImages';
 import type { Trainer, PlayerStats, PlayerItem, Move } from '@/models/models';
 
 type PlayerItemRow = {
@@ -144,7 +145,7 @@ export function useTrainerData({
               effect: item.effect ?? 0,
               effect_type: item.effect_type,
               on_use: item.on_use,
-              image: item.image ?? undefined,
+              image: resolveItemImage(item.image),
               price: item.price ?? 0,
               quantity: row.quantity ?? 0,
             }];
