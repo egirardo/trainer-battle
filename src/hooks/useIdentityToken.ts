@@ -41,10 +41,6 @@ export function useIdentityToken() {
         const queryTokenRaw = params.get('identity_token')
         const identityTokenFromUrl = isIdentityToken(queryTokenRaw) ? queryTokenRaw : null
 
-        const pathSegment = location.pathname.slice(1)
-        const pathTokenRaw = pathSegment && !pathSegment.includes('/') ? pathSegment : null
-        const pathToken = isIdentityToken(pathTokenRaw) ? pathTokenRaw : null
-
         const storedTokenRaw = sessionStorage.getItem('identity_token')
         const storedToken = isIdentityToken(storedTokenRaw) ? storedTokenRaw : null
 
@@ -53,15 +49,11 @@ export function useIdentityToken() {
         }
 
         if (queryTokenRaw && !identityTokenFromUrl) {
-            window.history.replaceState({}, '', location.pathname)
+            void navigate(location.pathname, { replace: true })
             return
         }
 
-        if (pathToken) {
-            window.history.replaceState({}, '', ROUTES.start)
-        }
-
-        const identityToken = identityTokenFromUrl ?? pathToken ?? storedToken
+        const identityToken = identityTokenFromUrl ?? storedToken
 
         if (!identityToken) return
 
@@ -70,7 +62,7 @@ export function useIdentityToken() {
 
         if (identityTokenFromUrl) {
             // Strip from URL and store for re-use
-            window.history.replaceState({}, '', location.pathname)
+            void navigate(location.pathname, { replace: true })
         }
 
         sessionStorage.setItem('identity_token', identityToken)
@@ -121,7 +113,7 @@ export function useIdentityToken() {
         }
 
         void processToken()
-    }, [location.pathname, location.search])
+    }, [location.pathname, location.search, navigate])
 
     return { processing, error, flowActive }
 }

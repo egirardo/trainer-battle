@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
 import { useAuth } from './hooks/useAuth'
@@ -22,12 +23,19 @@ import { isIdentityToken } from './lib/identityToken'
 
 function IdentityTokenEntry() {
   const { identityToken } = useParams()
+  const navigate = useNavigate()
 
-  if (!isIdentityToken(identityToken)) {
-    return <Navigate to={ROUTES.start} replace />
-  }
+  useEffect(() => {
+    if (isIdentityToken(identityToken)) {
+      sessionStorage.setItem('identity_token', identityToken)
+    } else {
+      sessionStorage.removeItem('identity_token')
+    }
 
-  return <StartScreen />
+    void navigate(ROUTES.start, { replace: true })
+  }, [identityToken, navigate])
+
+  return <div>Loading...</div>
 }
 
 
