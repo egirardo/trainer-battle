@@ -317,7 +317,10 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
             setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
             if (data.descriptions?.length) {
-                setMessages(prev => [...prev, ...data.descriptions])
+                const tagged: BattleMessage[] = isCpuRef.current
+                    ? data.descriptions.map(text => ({ text, side: text.startsWith("CPU's ") ? 'opponent' as const : 'player' as const }))
+                    : data.descriptions.map(text => ({ text, side: 'player' as const }))
+                setMessages(prev => [...prev, ...tagged])
             }
             if (data.isFinished) {
                 sessionStorage.setItem(`battle-result-${sessionId}`, JSON.stringify({
