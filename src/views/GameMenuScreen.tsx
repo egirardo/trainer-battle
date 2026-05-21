@@ -2,7 +2,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase';
 import { ROUTES } from '../routes';
-import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
+import StickyHeader from '@/components/atoms/StickyHeader';
+import { useNavItems } from '@/hooks/useNavItems';
 import GameMenuBody from '@/components/molecules/gameMenuPage/GameMenuBody';
 import { useEffect, useState } from 'react';
 
@@ -50,39 +51,19 @@ export default function GameMenuScreen(){
         void navigate(ROUTES.start)
     }
 
-    async function handleLogout(): Promise<void> {
-        const { error } = await supabase.auth.signOut();
-
-        if (error) {
-            console.error("Failed to sign out:", error);
-            return;
-        }
-
-        void navigate(ROUTES.start);
-    }
-
     function calculatePayout(credits: number): number {
         const raw = credits * 0.03
         return Math.floor(raw / 0.5) * 0.5
     }
 
     const payout = calculatePayout(Math.max(0, credits - startingCredits))
-    const navItems: NavItem[] = [
-        { label: 'Dashboard', to: ROUTES.gameMenu },
-        { label: 'Lobby', to: ROUTES.lobby },
-        { label: 'Shop', to: ROUTES.shop },
-        { label: 'Help', to: ROUTES.help },
-        { label: 'Credits', to: ROUTES.credits },
-        { label: 'View Profile', to: ROUTES.profile },
-        ...(isCentralbankUser ? [{ 
-            label: 'Cash Out', 
-            onClick: () => void handleCashOut(), 
-            variant: 'success' as const, 
-            disabled: !canCashOut,
-            subtitle: !canCashOut ? 'Win more credits to cash out' : `€${payout}`
-        }] : []),
-        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
-    ]
+    const navItems = useNavItems(isCentralbankUser ? [{
+        label: 'Cash Out',
+        onClick: () => void handleCashOut(),
+        variant: 'success' as const,
+        disabled: !canCashOut,
+        subtitle: !canCashOut ? 'Win more credits to cash out' : `€${payout}`
+    }] : [])
 
     if (loading) {
         return <p>Loading...</p>;
@@ -91,7 +72,7 @@ export default function GameMenuScreen(){
     return(
         <>
             <header>
-                <NavigableHeader label="Dashboard" navItems={navItems} />
+                <StickyHeader label="Dashboard" navItems={navItems} />
             </header>
             <main>
                 <GameMenuBody />
