@@ -1,0 +1,64 @@
+import styles from './TrainerInfo.module.css';
+import type { Trainer, TrainerGender, PlayerStats } from '@/models/models';
+import { GENDER_LABELS, GENDER_SYMBOLS } from '@/models/models';
+import femaleTrainer from '@/assets/sprites/trainers/avatar-f.svg';
+import maleTrainer from '@/assets/sprites/trainers/avatar-m.svg';
+import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
+
+const trainerImages: Record<TrainerGender, string> = {
+  female: femaleTrainer,
+  male: maleTrainer,
+  nb: nbTrainer,
+};
+
+interface Props {
+  trainer: Trainer;
+  playerStats: PlayerStats | null;
+}
+
+export default function TrainerInfo({ trainer, playerStats }: Props) {
+  return (
+    <div className={styles.wrapper}>
+      <img
+        src={trainerImages[trainer.trainer_gender]}
+        alt={`${trainer.name} avatar`}
+        className={styles.trainerImage}
+      />
+      <div className={styles.info}>
+        <div className={styles.nameRow}>
+          <div className={styles.nameBlock}>
+            <h2 className={styles.name}>{trainer.name}</h2>
+            <p className={styles.gender}>
+              {GENDER_LABELS[trainer.trainer_gender]}
+              <span aria-hidden="true" className={styles.genderSymbol}>{GENDER_SYMBOLS[trainer.trainer_gender]}</span>
+            </p>
+          </div>
+          <div className={styles.levelBlock}>
+            <p className={styles.levelLabel}>Level</p>
+            <div className={styles.levelIcon}>
+              <p className={styles.levelValue}>{trainer.playerCreature.level ?? 1}</p>
+            </div>
+          </div>
+        </div>
+      <div className={styles.stats}>
+        <div className={styles.statRow}>
+          <p className={styles.statLabel}>Wins</p>
+          <p className={styles.statValue}>{trainer.wins}</p>
+        </div>
+        <div className={styles.statRow}>
+          <p className={styles.statLabel}>Losses</p>
+          <p className={styles.statValue}>{trainer.losses}</p>
+        </div>
+        <div className={styles.statRow}>
+          <p className={styles.statLabel}>Forfeits</p>
+          <p className={styles.statValue}>{playerStats?.total_forfeits ?? 0}</p>
+        </div>
+        <div className={styles.statRow}>
+          <p className={styles.statLabel}>Badges Earned</p>
+          <p className={styles.statValue}>{Math.min(trainer.wins, 6)} / 6</p>
+        </div>
+      </div>
+      </div>
+    </div>
+  );
+}
