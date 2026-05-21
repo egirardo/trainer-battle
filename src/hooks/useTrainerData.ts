@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
-import type { Trainer, PlayerStats, PlayerItem, Move } from '@/models/models';
+import type { Trainer, PlayerStats, PlayerItem, Move, CreatureType } from '@/models/models';
 
 type PlayerItemRow = {
   id: number;
@@ -70,6 +70,11 @@ type Options = {
   items?: boolean;
   moves?: boolean;
 };
+
+const CREATURE_TYPES: CreatureType[] = ['fire', 'water', 'grass'];
+function isCreatureType(value: string | null | undefined): value is CreatureType {
+  return CREATURE_TYPES.includes(value as CreatureType);
+}
 
 const EMPTY: State = { trainer: null, playerStats: null, playerItems: [], moves: [], loading: false, error: null };
 const SKIP = Promise.resolve({ data: null, error: null });
@@ -166,14 +171,27 @@ export function useTrainerData({
 
       let moves: Move[] = [];
       if (fetchMoves) {
-        const { data: movesData } = await supabase
+        const { data: movesData, error: movesError } = await supabase
           .from('creature_moves')
           .select('moves(id, name, type, power, accuracy, effect, description)')
           .eq('creature_id', pc.creature_id);
+        if (movesError) {
+          setState(prev => ({ ...prev, loading: false, error: 'Failed to load moves.' }));
+          return;
+        }
         if (movesData) {
           moves = (movesData as CreatureMoveRow[]).flatMap((row) => {
             const move = row.moves;
-            return move ? [move as Move] : [];
+            if (!move || !move.name || !isCreatureType(move.type)) return [];
+            return [{
+              id: move.id,
+              name: move.name,
+              type: move.type,
+              power: move.power ?? 0,
+              accuracy: move.accuracy ?? 0,
+              effect: move.effect ?? '',
+              description: move.description ?? '',
+            }];
           });
         }
       }
