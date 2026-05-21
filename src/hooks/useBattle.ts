@@ -30,6 +30,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
     const [messages, setMessages] = useState<BattleMessage[]>([]);
     const wasMyMoveRef = useRef(false);
+    const submittingRef = useRef(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [opponentUserId, setOpponentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -233,6 +234,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             }, (payload) => {
                 const session = payload.new as { current_turn: string };
                 if (userIdRef.current) {
+                    submittingRef.current = false
                     setIsMyTurn(session.current_turn === userIdRef.current);
                 }
             })
@@ -247,7 +249,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
     }, [sessionId]);
 
     async function onFight(moveId: number): Promise<void> {
-        if (!user || !isMyTurn) return;
+        if (!user || !isMyTurn || submittingRef.current) return;
+        submittingRef.current = true
         setIsMyTurn(false)
 
         type InvokeError = { message: string; context?: Response };
@@ -256,6 +259,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
         if (sessionError) {
             setError(sessionError.message)
+            submittingRef.current = false
             setIsMyTurn(true)
             return
         }
@@ -271,6 +275,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
             if (refreshError) {
                 setError(`Session refresh failed: ${refreshError.message}`)
+                submittingRef.current = false
                 setIsMyTurn(true)
                 return
             }
@@ -280,6 +285,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         const accessToken = session?.access_token
         if (!accessToken) {
             setError('No active session')
+            submittingRef.current = false
             setIsMyTurn(true)
             return
         }
@@ -308,6 +314,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             }
 
             setError(message)
+            submittingRef.current = false
             setIsMyTurn(true)
             return
         }
@@ -334,6 +341,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         }
 
         if (isCpuRef.current) {
+            submittingRef.current = false
             setIsMyTurn(true)
         }
     }
