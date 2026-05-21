@@ -40,24 +40,24 @@ export default function TrainerInfo({ trainer, playerStats }: Props) {
             </div>
           </div>
         </div>
-      <div className={styles.stats}>
+      <dl className={styles.stats}>
         <div className={styles.statRow}>
-          <p className={styles.statLabel}>Wins</p>
-          <p className={styles.statValue}>{trainer.wins}</p>
+          <dt className={styles.statLabel}>Wins</dt>
+          <dd className={styles.statValue}>{trainer.wins}</dd>
         </div>
         <div className={styles.statRow}>
-          <p className={styles.statLabel}>Losses</p>
-          <p className={styles.statValue}>{trainer.losses}</p>
+          <dt className={styles.statLabel}>Losses</dt>
+          <dd className={styles.statValue}>{trainer.losses}</dd>
         </div>
         <div className={styles.statRow}>
-          <p className={styles.statLabel}>Forfeits</p>
-          <p className={styles.statValue}>{playerStats?.total_forfeits ?? 0}</p>
+          <dt className={styles.statLabel}>Forfeits</dt>
+          <dd className={styles.statValue}>{playerStats?.total_forfeits ?? 0}</dd>
         </div>
         <div className={styles.statRow}>
-          <p className={styles.statLabel}>Badges Earned</p>
-          <p className={styles.statValue}>{Math.min(trainer.wins, 6)} / 6</p>
+          <dt className={styles.statLabel}>Badges Earned</dt>
+          <dd className={styles.statValue}>{Math.min(trainer.wins, 6)} / 6</dd>
         </div>
-      </div>
+      </dl>
       </div>
     </div>
   );

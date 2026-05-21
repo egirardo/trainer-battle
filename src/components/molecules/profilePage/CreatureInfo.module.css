@@ -13,6 +13,11 @@
   gap: 0.75rem;
 }
 
+.imageColumn {
+  display: flex;
+  justify-content: center;
+}
+
 .creatureImage {
   width: 120px;
   height: auto;
@@ -75,16 +80,15 @@
 }
 
 .moves {
-  margin-top: 0.75rem;
   width: 100%;
+  border-top: 2px solid var(--text-h);
+  padding-top: 0.75rem;
 }
 
 .movesLabel {
   margin: 0 0 0.5rem;
   color: var(--text-h);
   font-size: 1rem;
-  border-top: 2px solid var(--text-h);
-  padding-top: 0.75rem;
 }
 
 .moveGrid {
@@ -124,20 +128,54 @@
 
 @media (min-width: 505px) {
   .wrapper {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 1.5rem;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 1.5rem;
+    row-gap: 0;
     max-width: 480px;
+    align-items: start;
+  }
+
+  .imageColumn {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .info {
+    grid-column: 2;
+    grid-row: 1;
+    padding-bottom: 0.75rem;
+  }
+
+  .moves {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .stats {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0;
   }
 
   .creatureImage {
     width: 140px;
-    flex-shrink: 0;
+  }
+
+  .moveGrid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 504px) {
   .wrapper {
     margin: 0.5rem;
+  }
+}
+
+@media (max-width: 319px) {
+  .moveGrid {
+    grid-template-columns: 1fr;
   }
 }
