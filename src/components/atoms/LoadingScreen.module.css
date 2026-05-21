@@ -1,0 +1,35 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 100vh;
+}
+
+.message {
+  margin: 0;
+  font-size: 1.75rem;
+  color: var(--text-h);
+  text-align: center;
+}
+
+.barTrack {
+  width: 200px;
+  height: 18px;
+  border: 3px solid var(--text-h);
+  image-rendering: pixelated;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  width: 40%;
+  background-color: var(--text-h);
+  animation: bounce 0.7s steps(6, end) infinite alternate;
+}
+
+@keyframes bounce {
+  from { transform: translateX(0); }
+  to   { transform: translateX(180%); }
+}
