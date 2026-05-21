@@ -3,8 +3,13 @@ const itemSprites = import.meta.glob<string>(
     { eager: true, import: 'default' }
 );
 
+const spriteMap: Record<string, string> = {};
+for (const [path, url] of Object.entries(itemSprites)) {
+    const filename = path.split('/').pop();
+    if (filename) spriteMap[filename] = url;
+}
+
 export function resolveItemImage(filename: unknown): string | undefined {
     if (typeof filename !== 'string' || !filename) return undefined;
-    const key = Object.keys(itemSprites).find(k => k.endsWith(`/${filename}`));
-    return key ? itemSprites[key] : undefined;
+    return spriteMap[filename];
 }

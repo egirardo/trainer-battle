@@ -15,7 +15,7 @@ export default function CreatureInfo({ creature, playerCreature, moves }: Props)
         <img src={creature.image} alt={`${creature.name} sprite`} className={styles.creatureImage} />
       </div>
       <div className={styles.info}>
-        <h2 className={styles.name}>{creature.name}</h2>
+        <h3 className={styles.name}>{creature.name}</h3>
         <p className={styles.type}>{creature.type}</p>
         <p className={styles.description}>{creature.description}</p>
       </div>
