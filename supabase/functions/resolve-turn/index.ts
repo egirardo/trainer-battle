@@ -11,9 +11,9 @@ const adminClient = createClient(
 )
 
 const typeChart: Record<string, Record<string, number>> = {
-    fire:  { fire: 1,   water: 0.5, grass: 2   },
-    water: { fire: 2,   water: 1,   grass: 0.5 },
-    grass: { fire: 0.5, water: 2,   grass: 1   },
+    fire:  { fire: 1,    water: 0.75, grass: 1.5  },
+    water: { fire: 1.5,  water: 1,    grass: 0.75 },
+    grass: { fire: 0.75, water: 1.5,  grass: 1    },
 }
 
 function getTypeMultiplier(attackerType: string, defenderType: string): number {
@@ -175,6 +175,7 @@ Deno.serve(async (req) => {
         let oppType: string
         let oppAttack: number
         let oppDefence: number
+        let oppSpeed = 50
         let oppCreatureId: number
 
         if (session.is_cpu) {
@@ -183,7 +184,7 @@ Deno.serve(async (req) => {
             }
             const { data: cpuC, error: cpuCErr } = await adminClient
                 .from('creatures')
-                .select('id, type, base_attack, base_defence')
+                .select('id, type, base_attack, base_defence, base_speed')
                 .eq('id', session.cpu_creature_id)
                 .single()
 
@@ -193,6 +194,7 @@ Deno.serve(async (req) => {
             oppType = cpuC.type ?? 'fire'
             oppAttack = cpuC.base_attack ?? 1
             oppDefence = cpuC.base_defence ?? 1
+            oppSpeed = cpuC.base_speed ?? 50
             oppCreatureId = cpuC.id
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
@@ -283,10 +285,22 @@ Deno.serve(async (req) => {
                     oppType,
                     myCreature.type
                 )
+                const cpuGoesFirst = oppSpeed > (myPC.speed ?? 50)
+                const cpuDesc = buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's ")
                 finalMyHp = Math.max(0, finalMyHp - cpuDamage)
-                isFinished = finalMyHp <= 0
-                descriptions.push(buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's "))
-                if (isFinished) winnerId = null
+
+                if (cpuGoesFirst) {
+                    descriptions.unshift(cpuDesc)
+                    if (finalMyHp <= 0) {
+                        // CPU KOs player before they can attack — reverse player's damage
+                        finalOppHp = currentOppHp
+                        isFinished = true
+                    }
+                } else {
+                    descriptions.push(cpuDesc)
+                    isFinished = finalMyHp <= 0
+                    if (isFinished) winnerId = null
+                }
             }
         }
 
