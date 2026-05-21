@@ -1,4 +1,5 @@
 import { useTrainerCreation } from '@/hooks/useTrainerCreation'
+import { GENDER_LABELS } from '@/models/models'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
@@ -72,7 +73,7 @@ export default function ProfileConfirmation() {
     return (
         <main>
             <p>Name: {trainerName}</p>
-            <p>Gender: {trainerGender}</p>
+            <p>Gender: {trainerGender ? GENDER_LABELS[trainerGender] : ''}</p>
             <p>Starter Creature: {selectedCreature?.name ?? 'None selected'}</p>
             {error && <p role="alert">{error}</p>}
             <button onClick={() => { void handleSubmit() }} disabled={saving}>
