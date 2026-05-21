@@ -1,8 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/routes";
 import { useAuth } from "./useAuth";
+
+const TOKEN_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+const IDENTITY_TOKEN_LOCK_KEY = 'identity_token_lock'
 
 type IdentityTokenResult = {
     access_token: string
@@ -16,6 +19,7 @@ type IdentityTokenResult = {
 
 export function useIdentityToken() {
     const navigate = useNavigate()
+    const location = useLocation()
     const { user } = useAuth()
     const [processing, setProcessing] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -26,6 +30,7 @@ export function useIdentityToken() {
         if (!redirectTo || !user) return
 
         void navigate(redirectTo, { replace: true })
+        sessionStorage.removeItem('identity_token')
         queueMicrotask(() => {
             setRedirectTo(null)
             setFlowActive(false)
@@ -33,14 +38,23 @@ export function useIdentityToken() {
     }, [navigate, redirectTo, user])
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search)
-        const identityToken = params.get('identity_token')
+        const params = new URLSearchParams(location.search)
+        const identityTokenFromUrl = params.get('identity_token')
+        const pathToken = TOKEN_PATTERN.test(location.pathname.slice(1)) ? location.pathname.slice(1) : null
+        const identityToken = identityTokenFromUrl ?? pathToken ?? sessionStorage.getItem('identity_token')
 
         if (!identityToken) return
 
-        // Strip from URL and store for re-use
-        window.history.replaceState({}, '', window.location.pathname)
+        const activeLock = sessionStorage.getItem(IDENTITY_TOKEN_LOCK_KEY)
+        if (activeLock === identityToken) return
+
+        if (identityTokenFromUrl) {
+            // Strip from URL and store for re-use
+            window.history.replaceState({}, '', location.pathname)
+        }
+
         sessionStorage.setItem('identity_token', identityToken)
+        sessionStorage.setItem(IDENTITY_TOKEN_LOCK_KEY, identityToken)
 
         async function processToken() {
             setProcessing(true)
@@ -78,6 +92,7 @@ export function useIdentityToken() {
                 setError('Something went wrong. Please return to Tivoli.')
             } finally {
                 setProcessing(false)
+                sessionStorage.removeItem(IDENTITY_TOKEN_LOCK_KEY)
 
                 if (!shouldRetainFlow) {
                     setFlowActive(false)

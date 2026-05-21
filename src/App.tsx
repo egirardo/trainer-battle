@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useParams } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
 import { useAuth } from './hooks/useAuth'
@@ -19,11 +19,24 @@ import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 import ShopScreen from './views/ShopScreen'
 
+const TOKEN_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+
+function IdentityTokenEntry() {
+  const { identityToken } = useParams()
+
+  if (!identityToken || !TOKEN_PATTERN.test(identityToken)) {
+    return <Navigate to={ROUTES.start} replace />
+  }
+
+  return <StartScreen />
+}
+
 
 function App() {
   const { user, loading } = useAuth()
   const { error, processing, flowActive } = useIdentityToken()
   const identityTokenInUrl = new URLSearchParams(window.location.search).get('identity_token')
+  const pendingIdentityToken = identityTokenInUrl ?? sessionStorage.getItem('identity_token')
 
   if (loading || processing) return <div>Loading...</div>
 
@@ -40,7 +53,7 @@ function App() {
         <Route 
           path={ROUTES.start} 
           element={
-            identityTokenInUrl || flowActive
+            pendingIdentityToken || flowActive
               ? <StartScreen />
               : user
                 ? <Navigate to={ROUTES.gameMenu} replace />
@@ -61,6 +74,8 @@ function App() {
           path={ROUTES.adminLogin} 
           element={<AdminLogin />}
         />
+
+        <Route path='/:identityToken' element={<IdentityTokenEntry />} />
 
         {/* Protected routes - redirect to login if not logged in */}
         <Route 
