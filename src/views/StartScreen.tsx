@@ -25,7 +25,6 @@ export default function StartScreen(){
             <div className={styles.musicContainer}>
                 <p>Music:</p>
                 <IconButton
-                    className={styles.volumeBtn}
                     image={muted ? volumeOff : volumeOn}
                     ariaLabel={muted ? 'Unmute music' : 'Mute music'}
                     onClick={toggleMute}
