@@ -397,6 +397,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setError(runError.message);
             return
         }
+
+        await supabase
+            .from('battle_state')
+            .update({ is_finished: true })
+            .eq('session_id', sessionId);
         void navigate(`/battle-result/${sessionId}`);
     }
 
