@@ -23,8 +23,8 @@ export default function StartScreen(){
                     <span className={styles.gameLogo}>Battle</span>
                 </h1>
                 <div className={styles.logoImgContainer}>
-                    <img className={styles.logoImg} src={femaleTrainer} alt="Female trainer" aria-hidden="true"/>
-                    <img className={styles.logoImg} src={maleTrainer} alt="Male trainer" aria-hidden="true"/>
+                    <img className={styles.logoImg} src={femaleTrainer} alt="" aria-hidden="true"/>
+                    <img className={styles.logoImg} src={maleTrainer} alt="" aria-hidden="true"/>
                 </div>
             </div>
             <div className={styles.navContainer}>
