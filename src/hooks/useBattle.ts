@@ -71,10 +71,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setOpponentUserId(isPlayer1 ? session.player2_id : session.player1_id);
 
                 // 2. Fetch player's creature, battle state, and trainer profile in parallel
-                const [myPCResult, battleStateResult, myProfileResult] = await Promise.all([
+                const [myPCResult, battleStateResult, myProfileResult, configResult] = await Promise.all([
                     supabase.from('player_creatures').select('*, creatures(*)').eq('id', myCreatureId).single(),
                     supabase.from('battle_state').select('player1_hp, player2_hp, last_move_description').eq('session_id', sessionId).single(),
                     supabase.from('profiles').select('username').eq('id', user.id).single(),
+                    supabase.from('game_config').select('stat_boost_hp').single(),
                 ]);
                 if (myPCResult.error || !myPCResult.data) throw new Error('Could not load your creature');
 
@@ -112,12 +113,15 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         .eq('id', session.cpu_creature_id)
                         .single();
                     if (cpuErr || !cpuCreature) throw new Error('Could not load CPU creature');
+                    const playerLevel = myPC.level ?? 1;
+                    const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
+                    const cpuMaxHp = (cpuCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
                         trainerName: 'CPU',
-                        level: 1,
-                        currentHp: oppBattleHp ?? cpuCreature.base_hp ?? 100,
-                        maxHp: cpuCreature.base_hp ?? 100,
+                        level: playerLevel,
+                        currentHp: oppBattleHp ?? cpuMaxHp,
+                        maxHp: cpuMaxHp,
                         creatureImage: getCreatureImage(cpuCreature.image ?? ''),
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
                     });

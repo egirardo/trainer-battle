@@ -58,9 +58,10 @@ export function useGameSession() {
         setLoading(true);
 
         try {
-            const [creaturesResult, myCreatureResult] = await Promise.all([
+            const [creaturesResult, myCreatureResult, configResult] = await Promise.all([
                 supabase.from('creatures').select('id, base_hp'),
-                supabase.from('player_creatures').select('current_hp').eq('id', myCreatureId).single(),
+                supabase.from('player_creatures').select('current_hp, level').eq('id', myCreatureId).single(),
+                supabase.from('game_config').select('stat_boost_hp').single(),
             ]);
 
             if (creaturesResult.error || !creaturesResult.data?.length) {
@@ -70,6 +71,10 @@ export function useGameSession() {
 
             const allCreatures = creaturesResult.data;
             const cpuCreature = allCreatures[Math.floor(Math.random() * allCreatures.length)];
+
+            const playerLevel = myCreatureResult.data?.level ?? 1;
+            const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
+            const cpuMaxHp = (cpuCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
 
             const { data: session, error: sessionErr } = await supabase
                 .from('game_sessions')
@@ -92,7 +97,7 @@ export function useGameSession() {
             const { error: battleStateError } = await supabase.from('battle_state').insert({
                 session_id: session.id,
                 player1_hp: myCreatureResult.data?.current_hp ?? 100,
-                player2_hp: cpuCreature.base_hp ?? 100,
+                player2_hp: cpuMaxHp,
                 player1_status: 'normal',
                 player2_status: 'normal',
                 turn_number: 1,

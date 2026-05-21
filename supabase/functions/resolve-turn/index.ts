@@ -182,19 +182,19 @@ Deno.serve(async (req) => {
             if (!session.cpu_creature_id) {
                 return errorResponse('cpu_creature_id missing from session', 400)
             }
-            const { data: cpuC, error: cpuCErr } = await adminClient
-                .from('creatures')
-                .select('id, type, base_attack, base_defence, base_speed')
-                .eq('id', session.cpu_creature_id)
-                .single()
+            const [{ data: cpuC, error: cpuCErr }, { data: cpuConfig }] = await Promise.all([
+                adminClient.from('creatures').select('id, type, base_attack, base_defence, base_speed').eq('id', session.cpu_creature_id).single(),
+                adminClient.from('game_config').select('stat_boost_attack, stat_boost_defence, stat_boost_speed').single(),
+            ])
 
             if (cpuCErr || !cpuC) {
                 return errorResponse('Could not fetch CPU creature data', 500)
             }
+            const levelsAboveBase = (myPC.level ?? 1) - 1
             oppType = cpuC.type ?? 'fire'
-            oppAttack = cpuC.base_attack ?? 1
-            oppDefence = cpuC.base_defence ?? 1
-            oppSpeed = cpuC.base_speed ?? 50
+            oppAttack = (cpuC.base_attack ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_attack ?? 2)
+            oppDefence = (cpuC.base_defence ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_defence ?? 2)
+            oppSpeed = (cpuC.base_speed ?? 50) + levelsAboveBase * (cpuConfig?.stat_boost_speed ?? 1)
             oppCreatureId = cpuC.id
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
