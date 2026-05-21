@@ -38,6 +38,10 @@ function ResultContent({ sessionId }: { sessionId: number }) {
             <p>Battles: {result.totalBattles}</p>
             <p>Credits: {result.credits}</p>
 
+            <p>+{result.xpGained} XP</p>
+            {result.leveledUp && <p>Level up! Now level {result.newLevel}!</p>}
+            <p>Level: {result.newLevel}</p>
+
             <Link to={ROUTES.lobby} className="link">Play again</Link>
             <Link to={ROUTES.gameMenu} className="link">Main menu</Link>
         </main>

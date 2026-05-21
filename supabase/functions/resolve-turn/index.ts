@@ -314,6 +314,10 @@ Deno.serve(async (req) => {
             return errorResponse('Turn already submitted', 409)
         }
 
+        let xpGained = 0
+        let newLevel: number | null = null
+        let leveledUp = false
+
         if (isFinished) {
             const { error: finishErr } = await adminClient
                 .from('game_sessions')
@@ -351,6 +355,82 @@ Deno.serve(async (req) => {
                     }
                 }
             }
+
+            // Award XP and level up creatures
+            const { data: config } = await adminClient.from('game_config').select('*').single()
+            const XP_PVP_WIN = config?.xp_pvp_win ?? 100
+            const XP_PVP_LOSS = config?.xp_pvp_loss ?? 50
+            const XP_CPU_WIN = config?.xp_cpu_win ?? 50
+            const XP_CPU_LOSS = config?.xp_cpu_loss ?? 25
+            const XP_PER_LEVEL = config?.xp_per_level ?? 100
+
+            xpGained = session.is_cpu
+                ? (winnerId === playerId ? XP_CPU_WIN : XP_CPU_LOSS)
+                : (winnerId === playerId ? XP_PVP_WIN : XP_PVP_LOSS)
+
+            const { data: myPCForXp } = await adminClient
+                .from('player_creatures')
+                .select('id, level, experience, attack, defence, speed, current_hp')
+                .eq('id', myCreatureId as number)
+                .single()
+
+            if (myPCForXp) {
+                const oldLevel = myPCForXp.level ?? 1
+                const newExp = (myPCForXp.experience ?? 0) + xpGained
+                const computedNewLevel = Math.floor(newExp / XP_PER_LEVEL) + 1
+                const levelsGained = computedNewLevel - oldLevel
+
+                newLevel = computedNewLevel
+                leveledUp = levelsGained > 0
+
+                const updateData: Record<string, number> = { experience: newExp, level: computedNewLevel }
+                if (levelsGained > 0) {
+                    updateData.attack = (myPCForXp.attack ?? 0) + levelsGained * (config?.stat_boost_attack ?? 2)
+                    updateData.defence = (myPCForXp.defence ?? 0) + levelsGained * (config?.stat_boost_defence ?? 2)
+                    updateData.speed = (myPCForXp.speed ?? 0) + levelsGained * (config?.stat_boost_speed ?? 1)
+                    updateData.current_hp = (myPCForXp.current_hp ?? 0) + levelsGained * (config?.stat_boost_hp ?? 25)
+
+                }
+
+                const { error: xpErr } = await adminClient
+                    .from('player_creatures')
+                    .update(updateData)
+                    .eq('id', myPCForXp.id)
+                if (xpErr) console.error('Failed to update player XP:', xpErr)
+            }
+
+            if (!session.is_cpu) {
+                const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
+                if (opponentCreatureId) {
+                    const oppXp = winnerId === playerId ? XP_PVP_LOSS : XP_PVP_WIN
+                    const { data: oppPCForXp } = await adminClient
+                        .from('player_creatures')
+                        .select('id, level, experience, attack, defence, speed, current_hp')
+                        .eq('id', opponentCreatureId as number)
+                        .single()
+
+                    if (oppPCForXp) {
+                        const oldOppLevel = oppPCForXp.level ?? 1
+                        const newOppExp = (oppPCForXp.experience ?? 0) + oppXp
+                        const newOppLevel = Math.floor(newOppExp / XP_PER_LEVEL) + 1
+                        const oppLevelsGained = newOppLevel - oldOppLevel
+
+                        const oppUpdateData: Record<string, number> = { experience: newOppExp, level: newOppLevel }
+                        if (oppLevelsGained > 0) {
+                            oppUpdateData.attack = (oppPCForXp.attack ?? 0) + oppLevelsGained * 2
+                            oppUpdateData.defence = (oppPCForXp.defence ?? 0) + oppLevelsGained * 2
+                            oppUpdateData.speed = (oppPCForXp.speed ?? 0) + oppLevelsGained
+                            oppUpdateData.current_hp = (oppPCForXp.current_hp ?? 0) + oppLevelsGained * 25
+                        }
+
+                        const { error: oppXpErr } = await adminClient
+                            .from('player_creatures')
+                            .update(oppUpdateData)
+                            .eq('id', oppPCForXp.id)
+                        if (oppXpErr) console.error('Failed to update opponent XP:', oppXpErr)
+                    }
+                }
+            }
         } else if (!session.is_cpu) {
             const nextTurn = isPlayer1 ? session.player2_id : session.player1_id
             const { error: updateTurnErr } = await adminClient
@@ -365,7 +445,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, newLevel, leveledUp }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 

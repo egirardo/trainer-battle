@@ -5,6 +5,7 @@ export interface CachedProfile {
     id: string;
     username: string | null;
     is_admin: boolean;
+    centralbank_uuid: string | null;
 }
 
 export interface AuthContextType {

@@ -16,6 +16,10 @@ function isCachedProfile(value: unknown): value is CachedProfile {
              (value as Record<string, unknown>).username === null
          ) &&
         'is_admin' in value && typeof (value as Record<string, unknown>).is_admin === 'boolean'
+        && 'centralbank_uuid' in value && (
+            typeof (value as Record<string, unknown>).centralbank_uuid === 'string' ||
+            (value as Record<string, unknown>).centralbank_uuid === null
+        )
     )
 }
 
@@ -25,6 +29,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [loading, setLoading] = useState<boolean>(true)
 
     useEffect(() => {
+        async function syncProfile(sessionUser: User) {
+            const cached = sessionStorage.getItem('profile')
+            if (cached) {
+                try {
+                    const parsed: unknown = JSON.parse(cached)
+                    if (isCachedProfile(parsed) && parsed.id === sessionUser.id) {
+                        setProfile(parsed)
+                        return
+                    }
+                } catch {
+                    sessionStorage.removeItem('profile')
+                }
+            }
+
+            const { data } = await supabase
+                .from('profiles')
+                .select('id, username, is_admin, centralbank_uuid')
+                .eq('id', sessionUser.id)
+                .single()
+
+            if (data) sessionStorage.setItem('profile', JSON.stringify(data))
+            setProfile(data)
+        }
+
+        async function bootstrapAuthState() {
+            const { data: sessionData } = await supabase.auth.getSession()
+            const session = sessionData.session
+
+            setUser(session?.user ?? null)
+
+            if (!session) {
+                sessionStorage.removeItem('profile')
+                setProfile(null)
+                setLoading(false)
+                return
+            }
+
+            setLoading(false)
+            await syncProfile(session.user)
+        }
+
+        void bootstrapAuthState()
+
         const { data: authListener } = supabase.auth.onAuthStateChange(
             async (event, session) => {
                 if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_OUT') {
@@ -44,26 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 setLoading(false)
 
                 if (session.user) {
-                    const cached = sessionStorage.getItem('profile')
-                    if (cached) {
-                        try {
-                            const parsed: unknown = JSON.parse(cached)
-                            if (isCachedProfile(parsed) && parsed.id === session.user.id) {
-                                setProfile(parsed)
-                                return
-                            }
-                        } catch {
-                            sessionStorage.removeItem('profile')
-                        }
-                    }
-
-                    const { data } = await supabase
-                        .from('profiles')
-                        .select('id, username, is_admin')
-                        .eq('id', session.user.id)
-                        .single()
-                    if (data) sessionStorage.setItem('profile', JSON.stringify(data))
-                    setProfile(data)
+                    void syncProfile(session.user)
                 }
             }
         )

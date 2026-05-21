@@ -98,7 +98,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     trainerName: myTrainerName,
                     level: myPC.level ?? 1,
                     currentHp: myHp,
-                    maxHp: myCreature.base_hp,
+                    maxHp: myPC.current_hp ?? myCreature.base_hp,
                     creatureImage: getCreatureImage(myCreature.image),
                     creatureType: myCreature.type as 'fire' | 'water' | 'grass',
                 });
@@ -136,7 +136,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         trainerName: oppProfileResult.data?.username ?? 'Opponent',
                         level: oppPC.level ?? 1,
                         currentHp: oppBattleHp ?? oppCreature.base_hp,
-                        maxHp: oppCreature.base_hp,
+                        maxHp: oppPC.current_hp ?? oppCreature.base_hp,
                         creatureImage: getCreatureImage(oppCreature.image),
                         creatureType: oppCreature.type as 'fire' | 'water' | 'grass',
                     });
@@ -290,7 +290,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 Authorization: `Bearer ${accessToken}`,
             },
             body: { sessionId, playerId: user.id, moveId }
-        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null } | null; error: InvokeError | null };
+        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; newLevel: number; leveledUp: boolean } | null; error: InvokeError | null };
 
         if (error) {
             let message = error.message
@@ -311,9 +311,26 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setIsMyTurn(true)
             return
         }
-        if (data?.isFinished) {
-            void navigate(`/battle-result/${sessionId}`)
-            return
+        if (data) {
+            const myNewHp = isPlayer1Ref.current ? data.newPlayer1Hp : data.newPlayer2Hp
+            const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp
+            setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
+            setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
+            if (data.descriptions?.length) {
+                const tagged: BattleMessage[] = isCpuRef.current
+                    ? data.descriptions.map(text => ({ text, side: text.startsWith("CPU's ") ? 'opponent' as const : 'player' as const }))
+                    : data.descriptions.map(text => ({ text, side: 'player' as const }))
+                setMessages(prev => [...prev, ...tagged])
+            }
+            if (data.isFinished) {
+                sessionStorage.setItem(`battle-result-${sessionId}`, JSON.stringify({
+                    xpGained: data.xpGained,
+                    newLevel: data.newLevel,
+                    leveledUp: data.leveledUp,
+                }))
+                void navigate(`/battle-result/${sessionId}`)
+                return
+            }
         }
 
         if (isCpuRef.current) {
