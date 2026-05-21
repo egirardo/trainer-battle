@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
 import { useAuth } from './hooks/useAuth'
+import { useIdentityToken } from './hooks/useIdentityToken'
 import StartScreen from './views/StartScreen'
 import CharacterSelectScreen from './views/CharacterSelectScreen'
 import GameMenuScreen from './views/GameMenuScreen'
@@ -17,20 +18,34 @@ import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 import ShopScreen from './views/ShopScreen'
-import ProfilePageScreen from './views/ProfilePageScreen'
 
 
 function App() {
   const { user, loading } = useAuth()
+  const { error, processing, flowActive } = useIdentityToken()
+  const identityTokenInUrl = new URLSearchParams(window.location.search).get('identity_token')
 
-  if (loading) return <div>Loading...</div>
+  if (loading || processing) return <div>Loading...</div>
+
+  if (error) return (
+    <main>
+      <p>{error}</p>
+      <a href="https://frontend-main-1ac7.up.railway.app/">Return to Tivoli</a>
+    </main>
+  )
 
   return (
     <Routes>
         {/* Public routes */}
         <Route 
           path={ROUTES.start} 
-          element={user ? <Navigate to={ROUTES.gameMenu} replace /> : <StartScreen />}
+          element={
+            identityTokenInUrl || flowActive
+              ? <StartScreen />
+              : user
+                ? <Navigate to={ROUTES.gameMenu} replace />
+                : <StartScreen />
+          }
         />
 
         {/* Auth routes - redirect away if already logged in */}
@@ -72,13 +87,9 @@ function App() {
           path={ROUTES.adminPanel} 
           element={!user ? <Navigate to={ROUTES.adminLogin} replace /> : <AdminPanel />}
         />
-        <Route
-          path={ROUTES.shop}
+        <Route 
+          path={ROUTES.shop} 
           element={!user ? <Navigate to={ROUTES.login} replace /> : <ShopScreen />}
-        />
-        <Route
-          path={ROUTES.profile}
-          element={!user ? <Navigate to={ROUTES.login} replace /> : <ProfilePageScreen />}
         />
 
         {/* Onboarding flow - protected */}
