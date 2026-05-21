@@ -21,16 +21,16 @@ export default function TrainerInfo({ trainer, playerStats }: Props) {
     <div className={styles.wrapper}>
       <img
         src={trainerImages[trainer.trainer_gender]}
-        alt={`${trainer.username} avatar`}
+        alt={`${trainer.name} avatar`}
         className={styles.trainerImage}
       />
       <div className={styles.info}>
         <div className={styles.nameRow}>
           <div className={styles.nameBlock}>
-            <h2 className={styles.username}>{trainer.username}</h2>
+            <h2 className={styles.name}>{trainer.name}</h2>
             <p className={styles.gender}>
               {GENDER_LABELS[trainer.trainer_gender]}
-              <span className={styles.genderSymbol}>{GENDER_SYMBOLS[trainer.trainer_gender]}</span>
+              <span aria-hidden="true" className={styles.genderSymbol}>{GENDER_SYMBOLS[trainer.trainer_gender]}</span>
             </p>
           </div>
           <div className={styles.levelBlock}>
