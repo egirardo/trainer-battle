@@ -6,7 +6,7 @@ import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableH
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
-import { usePlayerStats } from '@/hooks/usePlayerStats';
+import { useTrainerData } from '@/hooks/useTrainerData';
 import { useAuth } from '@/hooks/useAuth';
 import styles from './ShopScreen.module.css';
 import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
@@ -14,7 +14,7 @@ import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
 export default function ShopScreen() {
     const navigate = useNavigate();
     const { items, loading: itemsLoading, error: itemsError } = useItems();
-    const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
+    const { playerStats, loading: statsLoading, error: statsError } = useTrainerData({ trainer: false, items: false });
     const { user } = useAuth();
 
     async function handleLogout(): Promise<void> {
@@ -33,7 +33,7 @@ export default function ShopScreen() {
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
     const [spent, setSpent] = useState(0);
-    const credits = (stats?.credits ?? 0) - spent;
+    const credits = (playerStats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
     const [buying, setBuying] = useState(false);
     const [isCartExpanded, setIsCartExpanded] = useState(false);
