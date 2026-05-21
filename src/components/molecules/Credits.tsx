@@ -12,10 +12,15 @@ export default function Credits({ onClose }: Props){
                 label="Credits"
                 action={<CloseButton onClick={onClose}/>}
             />
-            <p>Hardwork of:</p>
+            <h2>Developers:</h2>
             <p>John Ahlenhed</p>
             <p>Laura Kotlinska</p>
             <p>Elsa Girardo</p>
+
+            <h2>Music</h2>
+            {/* <p>Best Game Console by Krzysztof Szymanski</p> */}
+            <p>Boogie by Pecan Pie</p>
+            <p>Boss Time by David Renda</p>
         </div>
     )
 }
