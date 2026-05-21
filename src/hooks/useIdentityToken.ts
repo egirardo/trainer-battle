@@ -3,8 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/routes";
 import { useAuth } from "./useAuth";
-
-const TOKEN_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+import { isIdentityToken } from "@/lib/identityToken";
 const IDENTITY_TOKEN_LOCK_KEY = 'identity_token_lock'
 
 type IdentityTokenResult = {
@@ -39,9 +38,30 @@ export function useIdentityToken() {
 
     useEffect(() => {
         const params = new URLSearchParams(location.search)
-        const identityTokenFromUrl = params.get('identity_token')
-        const pathToken = TOKEN_PATTERN.test(location.pathname.slice(1)) ? location.pathname.slice(1) : null
-        const identityToken = identityTokenFromUrl ?? pathToken ?? sessionStorage.getItem('identity_token')
+        const queryTokenRaw = params.get('identity_token')
+        const identityTokenFromUrl = isIdentityToken(queryTokenRaw) ? queryTokenRaw : null
+
+        const pathSegment = location.pathname.slice(1)
+        const pathTokenRaw = pathSegment && !pathSegment.includes('/') ? pathSegment : null
+        const pathToken = isIdentityToken(pathTokenRaw) ? pathTokenRaw : null
+
+        const storedTokenRaw = sessionStorage.getItem('identity_token')
+        const storedToken = isIdentityToken(storedTokenRaw) ? storedTokenRaw : null
+
+        if (storedTokenRaw && !storedToken) {
+            sessionStorage.removeItem('identity_token')
+        }
+
+        if (queryTokenRaw && !identityTokenFromUrl) {
+            window.history.replaceState({}, '', location.pathname)
+            return
+        }
+
+        if (pathToken) {
+            window.history.replaceState({}, '', ROUTES.start)
+        }
+
+        const identityToken = identityTokenFromUrl ?? pathToken ?? storedToken
 
         if (!identityToken) return
 
@@ -101,7 +121,7 @@ export function useIdentityToken() {
         }
 
         void processToken()
-    }, [navigate])
+    }, [location.pathname, location.search])
 
     return { processing, error, flowActive }
 }

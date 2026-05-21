@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes, useParams } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import './App.css'
 import { ROUTES } from './routes'
 import { useAuth } from './hooks/useAuth'
@@ -18,13 +18,12 @@ import ProfileConfirmation from './views/ProfileConfirmation'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 import ShopScreen from './views/ShopScreen'
-
-const TOKEN_PATTERN = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
+import { isIdentityToken } from './lib/identityToken'
 
 function IdentityTokenEntry() {
   const { identityToken } = useParams()
 
-  if (!identityToken || !TOKEN_PATTERN.test(identityToken)) {
+  if (!isIdentityToken(identityToken)) {
     return <Navigate to={ROUTES.start} replace />
   }
 
@@ -34,9 +33,12 @@ function IdentityTokenEntry() {
 
 function App() {
   const { user, loading } = useAuth()
+  const location = useLocation()
   const { error, processing, flowActive } = useIdentityToken()
-  const identityTokenInUrl = new URLSearchParams(window.location.search).get('identity_token')
-  const pendingIdentityToken = identityTokenInUrl ?? sessionStorage.getItem('identity_token')
+  const identityTokenInUrl = new URLSearchParams(location.search).get('identity_token')
+  const validIdentityTokenInUrl = isIdentityToken(identityTokenInUrl) ? identityTokenInUrl : null
+  const storedIdentityToken = sessionStorage.getItem('identity_token')
+  const pendingIdentityToken = validIdentityTokenInUrl ?? (isIdentityToken(storedIdentityToken) ? storedIdentityToken : null)
 
   if (loading || processing) return <div>Loading...</div>
 
