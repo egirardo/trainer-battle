@@ -218,6 +218,7 @@ export type Database = {
           cpu_creature_id: number | null
           created_at: string | null
           current_turn: string | null
+          forfeit_by: string | null
           id: number
           is_cpu: boolean
           player1_creature_id: number | null
@@ -232,6 +233,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -246,6 +248,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null

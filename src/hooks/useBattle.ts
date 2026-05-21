@@ -382,7 +382,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
         const { error: runError } = await supabase
             .from('game_sessions')
-            .update({ status: 'finished', winner_id: winnerId })
+            .update({ status: 'finished', winner_id: winnerId, forfeit_by: user.id })
             .eq('id', sessionId);
 
         if (runError) {
