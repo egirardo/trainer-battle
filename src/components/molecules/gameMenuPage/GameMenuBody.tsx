@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import ButtonGroup from './ButtonGroup';
 import ProfilePreview from './ProfilePreview';
 import ProgressPreview from './ProgressPreview';
@@ -14,7 +13,34 @@ import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
 import GameInstructions from '../gameInstructions/GameInstructions';
 import Overlay from '@/components/atoms/Overlay';
-import { useTrainerData } from '@/hooks/useTrainerData';
+
+
+type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
+
+type PlayerCreatureData = {
+  id: number;
+  level: number | null;
+  creature_id: number;
+  player_id: string;
+  nickname: string | null;
+  experience: number | null;
+  current_hp: number | null;
+  attack: number | null;
+  defence: number | null;
+  speed: number | null;
+  creatures: {
+    id: number;
+    name: string | null;
+    type: string | null;
+    image: string | null;
+    base_hp: number | null;
+    base_attack: number | null;
+    base_defence: number | null;
+    base_speed: number | null;
+    description: string | null;
+  } | null;
+};
+
 
 export default function GameMenuBody() {
   const { user } = useAuth();
@@ -126,25 +152,22 @@ export default function GameMenuBody() {
   const wins = playerStats?.total_wins ?? 0;
   const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
-  const { trainer, playerStats, loading, error } = useTrainerData({ items: false });
-  const [showInstructions, setShowInstructions] = useState(false);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p role="alert">{error}</p>;
 
-  const wins = playerStats?.total_wins ?? 0;
   const hasBoss = wins >= 6;
 
   return (
     <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
       <div className={styles.creditsRow}>
-        <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0} />
+        <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
       </div>
       <div className={styles.actionsCol}>
-        <ButtonGroup horizontal onShowInstructions={() => setShowInstructions(true)} />
+        <ButtonGroup horizontal />
       </div>
       <div className={styles.profileCol}>
-        <ProfilePreview trainer={trainer} />
+        <ProfilePreview trainer={trainerWithStats} />
       </div>
       <div className={styles.progressRow}>
         <ProgressPreview wins={wins} />

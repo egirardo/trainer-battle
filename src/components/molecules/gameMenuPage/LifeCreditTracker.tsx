@@ -1,3 +1,12 @@
+// TODO: Replace mock data with real player_stats once the DB is wired up.
+// Fetch from player_stats via usePlayerStats() or equivalent hook, e.g.:
+//   const { data: playerStats } = usePlayerStats(playerId);
+//   const lives = playerStats?.lives ?? 0;
+//   const credits = playerStats?.credits ?? 0;
+// Then remove the MOCK_LIVES and MOCK_CREDITS constants below.
+// If the parent should supply player_stats instead, update this component
+// to accept props for lives and credits rather than fetching data here.
+
 import styles from './LifeCreditTracker.module.css';
 import filledHeart from '@/assets/sprites/icons/filled-heart.svg';
 import emptyHeart from '@/assets/sprites/icons/empty-heart.svg';
