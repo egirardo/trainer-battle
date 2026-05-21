@@ -183,6 +183,7 @@ export type Database = {
           stat_boost_speed: number
           xp_cpu_loss: number
           xp_cpu_win: number
+          xp_per_level: number | null
           xp_pvp_loss: number
           xp_pvp_win: number
         }
@@ -194,6 +195,7 @@ export type Database = {
           stat_boost_speed?: number
           xp_cpu_loss?: number
           xp_cpu_win?: number
+          xp_per_level?: number | null
           xp_pvp_loss?: number
           xp_pvp_win?: number
         }
@@ -205,6 +207,7 @@ export type Database = {
           stat_boost_speed?: number
           xp_cpu_loss?: number
           xp_cpu_win?: number
+          xp_per_level?: number | null
           xp_pvp_loss?: number
           xp_pvp_win?: number
         }
@@ -422,6 +425,7 @@ export type Database = {
           id: number
           lives: number
           player_id: string
+          starting_credits: number
           total_battles: number
           total_forfeits: number
           total_losses: number
@@ -433,6 +437,7 @@ export type Database = {
           id?: number
           lives?: number
           player_id: string
+          starting_credits?: number
           total_battles?: number
           total_forfeits?: number
           total_losses?: number
@@ -444,6 +449,7 @@ export type Database = {
           id?: number
           lives?: number
           player_id?: string
+          starting_credits?: number
           total_battles?: number
           total_forfeits?: number
           total_losses?: number

@@ -362,6 +362,7 @@ Deno.serve(async (req) => {
             const XP_PVP_LOSS = config?.xp_pvp_loss ?? 50
             const XP_CPU_WIN = config?.xp_cpu_win ?? 50
             const XP_CPU_LOSS = config?.xp_cpu_loss ?? 25
+            const XP_PER_LEVEL = config?.xp_per_level ?? 100
 
             xpGained = session.is_cpu
                 ? (winnerId === playerId ? XP_CPU_WIN : XP_CPU_LOSS)
@@ -376,7 +377,7 @@ Deno.serve(async (req) => {
             if (myPCForXp) {
                 const oldLevel = myPCForXp.level ?? 1
                 const newExp = (myPCForXp.experience ?? 0) + xpGained
-                const computedNewLevel = Math.floor(newExp / 100) + 1
+                const computedNewLevel = Math.floor(newExp / XP_PER_LEVEL) + 1
                 const levelsGained = computedNewLevel - oldLevel
 
                 newLevel = computedNewLevel
@@ -411,7 +412,7 @@ Deno.serve(async (req) => {
                     if (oppPCForXp) {
                         const oldOppLevel = oppPCForXp.level ?? 1
                         const newOppExp = (oppPCForXp.experience ?? 0) + oppXp
-                        const newOppLevel = Math.floor(newOppExp / 100) + 1
+                        const newOppLevel = Math.floor(newOppExp / XP_PER_LEVEL) + 1
                         const oppLevelsGained = newOppLevel - oldOppLevel
 
                         const oppUpdateData: Record<string, number> = { experience: newOppExp, level: newOppLevel }
