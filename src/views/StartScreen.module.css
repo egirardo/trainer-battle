@@ -61,9 +61,9 @@
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 20em;
-  height: 13em;
-  margin: 0 auto;
+  width: 15em;
+  height: 10em;
+  margin: 2rem auto 0;
 }
 
 .logoImg {
@@ -73,16 +73,16 @@
 }
 
 .logoImg:first-child {
-  width: 255px;
-  right: 50px;
+  width: 110px;
+  right: 25px;
   bottom: 5px;
   z-index: 2;
 }
 
 .logoImg:last-child {
-  width: 235px;
-  left: 80px;
-  bottom: -2.4em;
+  width: 115px;
+  left: 25px;
+  bottom: 5px;
   z-index: 3;
 }
 

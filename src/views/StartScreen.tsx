@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '../routes';
 import { useAuth } from '../hooks/useAuth';
 import styles from './StartScreen.module.css'
-import testcreature1 from '@/assets/sprites/creatures/fire-creature.png';
-import testcreature2 from '@/assets/sprites/creatures/water-creature.png';
+import femaleTrainer from '@/assets/sprites/trainers/avatar-f.png';
+import maleTrainer from '@/assets/sprites/trainers/avatar-m.png';
 import Button from "@/components/atoms/button";
 import GameInstructions from "@/components/molecules/gameInstructions/GameInstructions";
 import Credits from '@/components/molecules/Credits';
@@ -23,8 +23,8 @@ export default function StartScreen(){
                     <span className={styles.gameLogo}>Battle</span>
                 </h1>
                 <div className={styles.logoImgContainer}>
-                    <img className={styles.logoImg} src={testcreature1} alt="Creature image" aria-hidden="true"/>
-                    <img className={styles.logoImg} src={testcreature2} alt="Creature image" aria-hidden="true"/>
+                    <img className={styles.logoImg} src={femaleTrainer} alt="Female trainer" aria-hidden="true"/>
+                    <img className={styles.logoImg} src={maleTrainer} alt="Male trainer" aria-hidden="true"/>
                 </div>
             </div>
             <div className={styles.navContainer}>
