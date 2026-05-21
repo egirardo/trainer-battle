@@ -66,13 +66,15 @@ export function useResult(sessionId: number) {
                         .single(),
                 ]);
 
-                const xpGained = outcome === 'win'
-                    ? (session.is_cpu ? 50 : 100)
-                    : (session.is_cpu ? 25 : 50);
+                const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
+                sessionStorage.removeItem(`battle-result-${sessionId}`);
+                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number; leveledUp: boolean } : null;
 
-                const newLevel = creatureResult.data?.level ?? 1;
-                const currentExp = creatureResult.data?.experience ?? 0;
-                const oldLevel = Math.floor(Math.max(0, currentExp - xpGained) / 100) + 1;
+                const newLevel = serverResult?.newLevel ?? creatureResult.data?.level ?? 1;
+                const leveledUp = serverResult?.leveledUp ?? false;
+                const xpGained = serverResult?.xpGained ?? (outcome === 'win'
+                    ? (session.is_cpu ? 50 : 100)
+                    : (session.is_cpu ? 25 : 50));
 
                 setResult({
                     outcome,
@@ -84,7 +86,7 @@ export function useResult(sessionId: number) {
                     credits: statsResult.data?.credits ?? 0,
                     xpGained,
                     newLevel,
-                    leveledUp: newLevel > oldLevel,
+                    leveledUp,
                 })
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Unknown error');
