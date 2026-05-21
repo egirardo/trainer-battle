@@ -15,6 +15,7 @@ type TotalDisplayProps = {
     cartItems: CartItem[];
     isExpanded: boolean;
     onToggleExpanded: () => void;
+    buyDisabled?: boolean;
 };
 
 // TODO: connect onBuy to Supabase once player_stats db is ready.
@@ -23,7 +24,7 @@ type TotalDisplayProps = {
 //   2. Insert a row into player_items for each item in the cart (item_id, quantity, player_id).
 //   3. Only call setCredits / setCart({}) after both writes succeed — roll back on error.
 
-export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onToggleExpanded }: TotalDisplayProps) {
+export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onToggleExpanded, buyDisabled = false }: TotalDisplayProps) {
     const hasItems = cartItems.length > 0;
     const showCart = isExpanded && hasItems;
 
@@ -57,7 +58,7 @@ export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onTo
                     >
                         {isExpanded ? 'Hide cart' : 'View cart'}
                     </button>
-                    <Button onClick={onBuy} disabled={total === 0} className={styles.buyButton}>Buy</Button>
+                    <Button onClick={onBuy} disabled={total === 0 || buyDisabled} className={styles.buyButton}>Buy</Button>
                 </div>
             </div>
         </div>

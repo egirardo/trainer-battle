@@ -33,6 +33,17 @@
 }
 
 .danger {
-  border-image: url("../../assets/sprites/components/red-button.png") 4 fill / 8px /
-    0 stretch;
+  border-image: url("../../assets/sprites/components/red-button.png") 4 fill /
+    8px / 0 stretch;
+}
+
+.button:disabled {
+  border-image: url("../../assets/sprites/components/disabled-button.png") 4
+    fill / 8px / 0 stretch;
+  cursor: not-allowed;
+  color: var(--text);
+}
+
+.button[disabled]:hover {
+  filter: none;
 }

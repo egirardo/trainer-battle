@@ -1,37 +1,51 @@
 .gameMenuBody {
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-    padding: 1rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
 }
 
 @media (min-width: 768px) {
-    .gameMenuBody {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas:
-            "credits  credits"
-            "profile  actions"
-            "progress progress";
-        gap: 1rem;
-    }
+  .gameMenuBody {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "credits  credits"
+      "actions actions"
+      "profile  progress"
+      "progress progress";
+    gap: 1rem;
+  }
 
-    .creditsRow  { grid-area: credits; }
-    .profileCol  { grid-area: profile; display: flex; flex-direction: column; }
-    .actionsCol  {
-        grid-area: actions;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .bossCol     { grid-area: boss; }
-    .progressRow { grid-area: progress; display: flex; flex-direction: column; }
+  .creditsRow {
+    grid-area: credits;
+  }
+  .profileCol {
+    grid-area: profile;
+    display: flex;
+    flex-direction: column;
+  }
+  .actionsCol {
+    grid-area: actions;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .bossCol {
+    grid-area: boss;
+  }
+  .progressRow {
+    grid-area: progress;
+    display: flex;
+    flex-direction: column;
+  }
 
-    .bossActive {
-        grid-template-areas:
-            "credits  credits"
-            "actions  actions"
-            "profile  progress"
-            "boss     boss";
-    }
+  .bossActive {
+    grid-template-areas:
+      "credits  credits"
+      "actions  actions"
+      "profile  progress"
+      "boss     boss";
+  }
 }

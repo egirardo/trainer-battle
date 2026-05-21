@@ -26,6 +26,12 @@
   margin: 0;
 }
 
+@media (max-width: 365px) {
+  .label {
+    font-size: 1.4em;
+  }
+}
+
 /* ── Desktop: dropdown below header ─────────────────── */
 
 

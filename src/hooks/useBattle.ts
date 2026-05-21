@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
 import { ROUTES } from '@/routes';
-import type { BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
+import type { BattleMessage, BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
 import { getCreatureImage } from '@/lib/creatureImages';
 
 interface UseBattleReturn {
     player: BattleParticipantInfo | null;
     opponent: BattleParticipantInfo | null;
-    messages: string[];
+    messages: BattleMessage[];
     isMyTurn: boolean;
     loading: boolean;
     error: string | null;
@@ -28,7 +28,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const isCpuRef = useRef<boolean>(false)
     const [player, setPlayer] = useState<BattleParticipantInfo | null>(null);
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
-    const [messages, setMessages] = useState<string[]>([]);
+    const [messages, setMessages] = useState<BattleMessage[]>([]);
+    const wasMyMoveRef = useRef(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [opponentUserId, setOpponentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -68,26 +69,33 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setIsMyTurn(session.is_cpu ? true : session.current_turn === user.id);
                 setOpponentUserId(isPlayer1 ? session.player2_id : session.player1_id);
 
-                // 2. Fetch player's creature and battle state in parallel
-                const [myPCResult, battleStateResult] = await Promise.all([
+                // 2. Fetch player's creature, battle state, and trainer profile in parallel
+                const [myPCResult, battleStateResult, myProfileResult] = await Promise.all([
                     supabase.from('player_creatures').select('*, creatures(*)').eq('id', myCreatureId).single(),
                     supabase.from('battle_state').select('player1_hp, player2_hp, last_move_description').eq('session_id', sessionId).single(),
+                    supabase.from('profiles').select('username').eq('id', user.id).single(),
                 ]);
                 if (myPCResult.error || !myPCResult.data) throw new Error('Could not load your creature');
 
                 const myPC = myPCResult.data;
                 const myCreature = myPC.creatures as { name: string; type: string; image: string; base_hp: number };
                 const battleState = battleStateResult.data;
+                const myTrainerName = myProfileResult.data?.username ?? 'You';
 
                 const myHp = (isPlayer1 ? battleState?.player1_hp : battleState?.player2_hp) ?? myCreature.base_hp;
                 const oppBattleHp = (isPlayer1 ? battleState?.player2_hp : battleState?.player1_hp);
 
                 if (battleState?.last_move_description) {
-                    setMessages([battleState.last_move_description]);
+                    const lines = battleState.last_move_description.split('\n');
+                    const tagged: BattleMessage[] = session.is_cpu
+                        ? lines.map(text => ({ text, side: text.startsWith("CPU's ") ? 'opponent' as const : 'player' as const }))
+                        : lines.map(text => ({ text, side: session.current_turn !== user.id ? 'player' as const : 'opponent' as const }));
+                    setMessages(tagged);
                 }
 
                 setPlayer({
                     name: myPC.nickname ?? myCreature.name,
+                    trainerName: myTrainerName,
                     level: myPC.level ?? 1,
                     currentHp: myHp,
                     maxHp: myPC.current_hp ?? myCreature.base_hp,
@@ -100,11 +108,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     const { data: cpuCreature, error: cpuErr } = await supabase
                         .from('creatures')
                         .select('name, type, image, base_hp')
-                        .eq('id', session.cpu_creature_id as number)
+                        .eq('id', session.cpu_creature_id)
                         .single();
                     if (cpuErr || !cpuCreature) throw new Error('Could not load CPU creature');
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
+                        trainerName: 'CPU',
                         level: 1,
                         currentHp: oppBattleHp ?? cpuCreature.base_hp ?? 100,
                         maxHp: cpuCreature.base_hp ?? 100,
@@ -112,17 +121,19 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
                     });
                 } else {
+                    const opponentId = isPlayer1 ? session.player2_id : session.player1_id;
                     const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id;
                     if (!opponentCreatureId) throw new Error('Opponent creature ID missing');
-                    const { data: oppPC, error: oppErr } = await supabase
-                        .from('player_creatures')
-                        .select('*, creatures(*)')
-                        .eq('id', opponentCreatureId)
-                        .single();
-                    if (oppErr || !oppPC) throw new Error('Could not load opponent creature');
+                    const [oppPCResult, oppProfileResult] = await Promise.all([
+                        supabase.from('player_creatures').select('*, creatures(*)').eq('id', opponentCreatureId).single(),
+                        opponentId ? supabase.from('profiles').select('username').eq('id', opponentId).single() : Promise.resolve({ data: null }),
+                    ]);
+                    if (oppPCResult.error || !oppPCResult.data) throw new Error('Could not load opponent creature');
+                    const oppPC = oppPCResult.data;
                     const oppCreature = oppPC.creatures as { name: string; type: string; image: string; base_hp: number };
                     setOpponent({
                         name: oppCreature.name,
+                        trainerName: oppProfileResult.data?.username ?? 'Opponent',
                         level: oppPC.level ?? 1,
                         currentHp: oppBattleHp ?? oppCreature.base_hp,
                         maxHp: oppPC.current_hp ?? oppCreature.base_hp,
@@ -197,13 +208,18 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     last_move_description: string | null;
                     is_finished: boolean;
                 }
-
-                const myNewHp = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
-                const oppNewHp = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
+                
+                const myNewHp: number = isPlayer1Ref.current ? state.player1_hp : state.player2_hp;
+                const oppNewHp: number = isPlayer1Ref.current ? state.player2_hp : state.player1_hp;
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
                 setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
                 if (state.last_move_description) {
-                    setMessages(prev => [...prev, ...state.last_move_description!.split('\n')]);
+                    const lines = state.last_move_description.split('\n')
+                    const tagged: BattleMessage[] = isCpuRef.current
+                        ? lines.map((text, i) => ({ text, side: i === 0 ? 'player' as const : 'opponent' as const }))
+                        : lines.map(text => ({ text, side: wasMyMoveRef.current ? 'player' as const : 'opponent' as const }))
+                    wasMyMoveRef.current = false
+                    setMessages(prev => [...prev, ...tagged])
                 }
                 if (state.is_finished) {
                     void navigateRef.current(`/battle-result/${sessionId}`);
@@ -268,7 +284,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             return
         }
 
-        // Explicitly pass Authorization header
+        wasMyMoveRef.current = true
         const { data, error } = await supabase.functions.invoke('resolve-turn', {
             headers: {
                 Authorization: `Bearer ${accessToken}`,
@@ -327,6 +343,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
         type UseItemResponse = { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean };
         type InvokeResponse = { data: UseItemResponse | null; error: { message: string } | null };
+        wasMyMoveRef.current = true
         const { data, error } = await supabase.functions.invoke('use-item', {
             body: { sessionId, playerId: user.id, itemId }
         }) as InvokeResponse;
