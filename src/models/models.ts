@@ -157,9 +157,10 @@ export interface ResultData {
     opponentUsername: string | null;
     totalWins: number;
     totalLosses: number;
-    totalBattles: number;
-    credits: number;
+    totalForfeits: number;
     xpGained: number;
     newLevel: number;
+    currentXp: number;
+    xpPerLevel: number;
     leveledUp: boolean;
 }

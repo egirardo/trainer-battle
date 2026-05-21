@@ -1,0 +1,169 @@
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 3rem;
+  gap: 1.5rem;
+}
+
+.xpWrapper {
+  width: 100%;
+  background-color: #fff;
+  box-sizing: border-box;
+  border: 8px solid transparent;
+  border-image: url("../assets/sprites/components/white-fill.png") 4 / 8px / 0
+    stretch;
+  image-rendering: pixelated;
+  background-clip: padding-box;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--light-shadow);
+  max-width: 380px;
+  padding: 0.25em 1.5em;
+}
+
+/* ── Outcome heading ─────────────────────────────────── */
+
+.outcomeSection {
+  text-align: center;
+}
+
+.victory,
+.levelUpBanner {
+  color: var(--battle-green);
+  text-shadow:
+    3px 3px 0 #aacca7,
+    -1px -1px 0 #aacca7;
+  margin: 0 0 0.25rem;
+  font-size: 3em;
+  text-transform: uppercase;
+}
+
+.defeat {
+  color: var(--accent);
+  text-shadow:
+    3px 3px 0 #c49ba2,
+    -1px -1px 0 #c49ba2;
+  margin: 0 0 0.55rem;
+}
+
+.opponent {
+  color: var(--text);
+  font-size: 1.5em;
+  margin: 0.55em 0 0;
+}
+
+/* ── Stats card ──────────────────────────────────────── */
+
+.card {
+  background: var(--ui-bg);
+  box-shadow: var(--light-shadow);
+  padding: 0.25rem 1.5rem;
+  width: 100%;
+  max-width: 380px;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.statRow:last-child {
+  border-bottom: none;
+}
+
+.statLabel {
+  color: var(--text);
+}
+
+.statValue {
+  font-family: var(--heading);
+  color: var(--text-h);
+  font-size: 1.1rem;
+}
+
+/* ── Level-up banner ─────────────────────────────────── */
+
+.levelUpBanner {
+  animation: pulse 1s ease-in-out infinite alternate;
+  font-size: 2em;
+  color: var(--accent);
+  text-shadow:
+    3px 3px 0 #c49ba2,
+    -1px -1px 0 #c49ba2;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+/* ── XP card ─────────────────────────────────────────── */
+
+.xpCard {
+  box-shadow: var(--light-shadow);
+  padding: 1rem 1.5rem;
+  width: 100%;
+  max-width: 380px;
+  box-sizing: border-box;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.xpGained {
+  font-family: var(--heading);
+  font-size: 1.6rem;
+  color: var(--primary);
+  margin: 0;
+}
+
+.levelUp {
+  font-family: var(--heading);
+  color: var(--battle-green);
+  margin: 0;
+}
+
+.levelCurrent {
+  color: var(--text-h);
+  margin: 0;
+}
+
+/* ── Action buttons ──────────────────────────────────── */
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 380px;
+  margin-top: auto;
+  margin-bottom: 1.5em;
+}
+
+.xpCard,
+.card {
+  box-sizing: border-box;
+  border: 8px solid transparent;
+  border-image: url("../assets/sprites/components/white-fill.png") 4 / 8px / 0
+    stretch;
+  image-rendering: pixelated;
+  background-color: #fff;
+  background-clip: padding-box;
+  border-radius: 10px;
+}
+
+.asLink {
+  text-decoration: none;
+}
