@@ -52,21 +52,41 @@ export function useResult(sessionId: number) {
                     }
                 }
 
-                // Fetch player stats
-                const { data: stats } = await supabase
-                    .from('player_stats')
-                    .select('total_wins, total_losses, total_battles, credits')
-                    .eq('player_id', currentUser.id)
-                    .single();
+                // Fetch player stats and creature level in parallel
+                const [statsResult, creatureResult] = await Promise.all([
+                    supabase
+                        .from('player_stats')
+                        .select('total_wins, total_losses, total_battles, credits')
+                        .eq('player_id', currentUser.id)
+                        .single(),
+                    supabase
+                        .from('player_creatures')
+                        .select('level, experience')
+                        .eq('player_id', currentUser.id)
+                        .single(),
+                ]);
+
+                const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
+                sessionStorage.removeItem(`battle-result-${sessionId}`);
+                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number; leveledUp: boolean } : null;
+
+                const newLevel = serverResult?.newLevel ?? creatureResult.data?.level ?? 1;
+                const leveledUp = serverResult?.leveledUp ?? false;
+                const xpGained = serverResult?.xpGained ?? (outcome === 'win'
+                    ? (session.is_cpu ? 50 : 100)
+                    : (session.is_cpu ? 25 : 50));
 
                 setResult({
                     outcome,
                     isCpu: session.is_cpu,
                     opponentUsername,
-                    totalWins: stats?.total_wins ?? 0,
-                    totalLosses: stats?.total_losses ?? 0,
-                    totalBattles: stats?.total_battles ?? 0,
-                    credits: stats?.credits ?? 0,
+                    totalWins: statsResult.data?.total_wins ?? 0,
+                    totalLosses: statsResult.data?.total_losses ?? 0,
+                    totalBattles: statsResult.data?.total_battles ?? 0,
+                    credits: statsResult.data?.credits ?? 0,
+                    xpGained,
+                    newLevel,
+                    leveledUp,
                 })
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Unknown error');
