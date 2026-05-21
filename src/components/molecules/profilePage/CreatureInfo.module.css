@@ -13,6 +13,15 @@
   gap: 0.75rem;
 }
 
+.title {
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--text-h);
+  color: var(--text-h);
+  line-height: 1;
+  width: 100%;
+}
+
 .imageColumn {
   display: flex;
   justify-content: center;
@@ -137,25 +146,32 @@
     align-items: start;
   }
 
+  .title {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    margin-bottom: 0.25rem;
+  }
+
   .imageColumn {
     grid-column: 1;
-    grid-row: 1;
+    grid-row: 2;
   }
 
   .info {
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 2;
     padding-bottom: 0.75rem;
+    align-self: center;
   }
 
   .moves {
     grid-column: 1;
-    grid-row: 2;
+    grid-row: 3;
   }
 
   .stats {
     grid-column: 2;
-    grid-row: 2;
+    grid-row: 3;
     margin-top: 0;
   }
 

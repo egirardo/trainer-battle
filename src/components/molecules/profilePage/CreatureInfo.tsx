@@ -10,6 +10,7 @@ interface Props {
 export default function CreatureInfo({ creature, playerCreature, moves }: Props) {
   return (
     <div className={styles.wrapper}>
+      <h2 className={styles.title}>Creature</h2>
       <div className={styles.imageColumn}>
         <img src={creature.image} alt={`${creature.name} sprite`} className={styles.creatureImage} />
       </div>

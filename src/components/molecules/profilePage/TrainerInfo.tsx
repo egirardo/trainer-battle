@@ -19,6 +19,8 @@ interface Props {
 export default function TrainerInfo({ trainer, playerStats }: Props) {
   return (
     <div className={styles.wrapper}>
+      <h2 className={styles.title}>Trainer</h2>
+      <div className={styles.content}>
       <img
         src={trainerImages[trainer.trainer_gender]}
         alt={`${trainer.name} avatar`}
@@ -58,6 +60,7 @@ export default function TrainerInfo({ trainer, playerStats }: Props) {
           <dd className={styles.statValue}>{Math.min(trainer.wins, 6)} / 6</dd>
         </div>
       </dl>
+      </div>
       </div>
     </div>
   );
