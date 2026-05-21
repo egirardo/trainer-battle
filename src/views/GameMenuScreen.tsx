@@ -20,11 +20,15 @@ export default function GameMenuScreen(){
                 .from('player_stats')
                 .select('credits, transaction_id, starting_credits')
                 .eq('player_id', user!.id)
-                .single()
+                .maybeSingle()
             if (data) {
                 setCredits(data.credits)
                 setTransactionId(data.transaction_id)
                 setStartingCredits(data.starting_credits)
+            } else {
+                setCredits(0)
+                setTransactionId(null)
+                setStartingCredits(0)
             }
         }
         void fetchStats()
@@ -34,7 +38,7 @@ export default function GameMenuScreen(){
     const canCashOut = isCentralbankUser && !!transactionId && credits > startingCredits
 
     async function handleCashOut(): Promise<void> {
-        const { data, error } = await supabase.functions.invoke('cashout')
+        const { error } = await supabase.functions.invoke('cashout')
 
         if (error) {
             console.error('Cash out failed:', error)
@@ -43,12 +47,6 @@ export default function GameMenuScreen(){
 
         // Sign out after cashout
         await supabase.auth.signOut()
-        void navigate(ROUTES.start)
-    }
-
-    async function handleLeaveGame(): Promise<void> {
-        await supabase.auth.signOut()
-        sessionStorage.removeItem('identity_token')
         void navigate(ROUTES.start)
     }
 
@@ -68,7 +66,7 @@ export default function GameMenuScreen(){
         return Math.floor(raw / 0.5) * 0.5
     }
 
-    console.log('credits:', credits, 'canCashOut:', canCashOut, 'payout:', calculatePayout(credits))
+    const payout = calculatePayout(Math.max(0, credits - startingCredits))
     const navItems: NavItem[] = [
         { label: 'Dashboard', to: ROUTES.gameMenu },
         { label: 'Lobby', to: ROUTES.lobby },
@@ -81,7 +79,7 @@ export default function GameMenuScreen(){
             onClick: () => void handleCashOut(), 
             variant: 'success' as const, 
             disabled: !canCashOut,
-            subtitle: !canCashOut ? 'Win more credits to cash out' : `€${calculatePayout(credits)}`
+            subtitle: !canCashOut ? 'Win more credits to cash out' : `€${payout}`
         }] : []),
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]

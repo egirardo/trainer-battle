@@ -20,12 +20,16 @@ export function useIdentityToken() {
     const [processing, setProcessing] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [redirectTo, setRedirectTo] = useState<string | null>(null)
+    const [flowActive, setFlowActive] = useState(false)
 
     useEffect(() => {
         if (!redirectTo || !user) return
 
         void navigate(redirectTo, { replace: true })
-        setRedirectTo(null)
+        queueMicrotask(() => {
+            setRedirectTo(null)
+            setFlowActive(false)
+        })
     }, [navigate, redirectTo, user])
 
     useEffect(() => {
@@ -40,6 +44,9 @@ export function useIdentityToken() {
 
         async function processToken() {
             setProcessing(true)
+            setFlowActive(true)
+            let shouldRetainFlow = false
+
             try {
                 const { data, error } = await supabase.functions.invoke<IdentityTokenResult>('handle-identity-token', {
                     body: { identity_token: identityToken },
@@ -64,17 +71,22 @@ export function useIdentityToken() {
                     setError('Failed to create session. Please return to Tivoli.')
                     return
                 }
-                setProcessing(false)
+                shouldRetainFlow = true
                 setRedirectTo(data.has_starter_creature ? ROUTES.gameMenu : ROUTES.characterSelect)
 
             } catch {
                 setError('Something went wrong. Please return to Tivoli.')
+            } finally {
                 setProcessing(false)
+
+                if (!shouldRetainFlow) {
+                    setFlowActive(false)
+                }
             }
         }
 
         void processToken()
     }, [navigate])
 
-    return { processing, error }
+    return { processing, error, flowActive }
 }

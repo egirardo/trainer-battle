@@ -22,7 +22,8 @@ import ShopScreen from './views/ShopScreen'
 
 function App() {
   const { user, loading } = useAuth()
-  const { error, processing } = useIdentityToken()
+  const { error, processing, flowActive } = useIdentityToken()
+  const identityTokenInUrl = new URLSearchParams(window.location.search).get('identity_token')
 
   if (loading || processing) return <div>Loading...</div>
 
@@ -39,7 +40,7 @@ function App() {
         <Route 
           path={ROUTES.start} 
           element={
-            new URLSearchParams(window.location.search).get('identity_token')
+            identityTokenInUrl || flowActive
               ? <StartScreen />
               : user
                 ? <Navigate to={ROUTES.gameMenu} replace />

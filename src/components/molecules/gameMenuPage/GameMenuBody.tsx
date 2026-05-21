@@ -83,7 +83,19 @@ export default function GameMenuBody() {
         return;
       }
 
-      const defaultStats: PlayerStats = {
+      const fallbackStatsInsert = {
+        player_id: userId!,
+        credits: 0,
+        starting_credits: 0,
+        total_battles: 0,
+        total_wins: 0,
+        total_losses: 0,
+        total_forfeits: 0,
+        lives: 3,
+        transaction_id: null,
+      }
+
+      const fallbackStats: PlayerStats = {
         id: 0,
         player_id: userId!,
         total_battles: 0,
@@ -97,8 +109,8 @@ export default function GameMenuBody() {
       if (statsResult.data) {
         setPlayerStats(statsResult.data)
       } else {
-        setPlayerStats(defaultStats)
-        void supabase.from('player_stats').upsert(defaultStats, { onConflict: 'player_id' })
+        setPlayerStats(fallbackStats)
+        void supabase.from('player_stats').upsert(fallbackStatsInsert, { onConflict: 'player_id' })
       }
 
       setTrainer({

@@ -42,11 +42,25 @@ Deno.serve(async (req) => {
       return errorResponse('Invalid or expired token', 401)
     }
 
+    const { data: profile, error: profileErr } = await adminClient
+      .from('profiles')
+      .select('centralbank_uuid')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (profileErr && profileErr.code !== 'PGRST116') {
+      return errorResponse('Failed to load player profile', 500)
+    }
+
+    if (!profile?.centralbank_uuid) {
+      return errorResponse('Centralbank account not linked', 403)
+    }
+
     const { data: stats, error: statsErr } = await adminClient
       .from('player_stats')
-      .select('credits, transaction_id')
+      .select('credits, transaction_id, starting_credits')
       .eq('player_id', user.id)
-      .single()
+      .maybeSingle()
 
     if (statsErr || !stats) {
       return errorResponse('Player stats not found', 404)
@@ -56,7 +70,13 @@ Deno.serve(async (req) => {
       return errorResponse('No active transaction found', 400)
     }
 
-    const payout = calculatePayout(stats.credits)
+    const winnings = stats.credits - stats.starting_credits
+
+    if (winnings <= 0) {
+      return errorResponse('No payout available', 400)
+    }
+
+    const payout = calculatePayout(winnings)
 
     if (payout <= 0) {
       return errorResponse('No payout available', 400)

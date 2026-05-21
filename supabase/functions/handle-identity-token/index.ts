@@ -21,7 +21,7 @@ function errorResponse(message: string, status: number): Response {
 }
 
 type CentralbankUser = {
-  id: number
+  id: string | number
   name: string
 }
 
@@ -31,8 +31,14 @@ type IdentityTokenResponse = {
 }
 
 type TransactionResponse = {
-  id: number
+  id: string | number
   stamp: object
+}
+
+async function cleanupCreatedAccount(userId: string): Promise<void> {
+  await adminClient.from('player_stats').delete().eq('player_id', userId)
+  await adminClient.from('profiles').delete().eq('id', userId)
+  await adminClient.auth.admin.deleteUser(userId)
 }
 
 Deno.serve(async (req) => {
@@ -67,15 +73,19 @@ Deno.serve(async (req) => {
     }
 
     const identityData = await identityRes.json() as IdentityTokenResponse
-    const centralbankUuid = identityData.user.id
+    const centralbankUuid = String(identityData.user.id)
     const playerName = identityData.user.name
 
     // Check if returning player
-    const { data: existingProfile } = await adminClient
-    .from('profiles')
-    .select('id, username, centralbank_uuid')
-    .eq('centralbank_uuid', centralbankUuid)
-    .single()
+    const { data: existingProfile, error: existingProfileError } = await adminClient
+      .from('profiles')
+      .select('id, username, centralbank_uuid')
+      .eq('centralbank_uuid', centralbankUuid)
+      .maybeSingle()
+
+    if (existingProfileError && existingProfileError.code !== 'PGRST116') {
+      return errorResponse('Failed to look up player profile', 500)
+    }
 
     const isReturning = existingProfile !== null
 
@@ -94,61 +104,30 @@ Deno.serve(async (req) => {
         return errorResponse('Failed to update user credentials', 500)
       }
       
-    } else {
-      const { data: newUser, error: createUserError } = await adminClient.auth.admin.createUser({
+    }
+
+    const entryFee = isReturning ? 1.50 : 3.00
+    const startingCredits = isReturning ? 50 : 100
+
+    let newUser: { user: { id: string } } | null = null
+
+    if (!isReturning) {
+      const { data: createdUser, error: createUserError } = await adminClient.auth.admin.createUser({
         email: `${centralbankUuid}@centralbank.tivoli`,
         password: userPassword,
         email_confirm: true,
       })
 
-      if (createUserError || !newUser.user) {
+      if (createUserError || !createdUser.user) {
         return errorResponse('Failed to create user account', 500)
       }
 
-      supabaseUserId = newUser.user.id
-
-      // Create profile
-      const { error: profileError } = await adminClient
-        .from('profiles')
-        .upsert({
-          id: supabaseUserId,
-          username: playerName,
-          centralbank_uuid: centralbankUuid,
-        }, { onConflict: 'id' })
-
-      if (profileError) {
-        // Clean up auth user
-        await adminClient.auth.admin.deleteUser(supabaseUserId)
-        return errorResponse('Failed to create user profile', 500)
-      }
-      
-
-      // Create player stats
-      const { error: statsError } = await adminClient
-        .from('player_stats')
-        .insert({
-          player_id: supabaseUserId,
-          credits: 0,
-          transaction_id: null,
-        })
-
-        if (statsError) {
-          await adminClient.auth.admin.deleteUser(supabaseUserId)
-          return errorResponse('Failed to create player stats', 500)
-        }
+      supabaseUserId = createdUser.user.id
+      newUser = createdUser
+    } else {
+      supabaseUserId = existingProfile.id
     }
 
-      const { data: existingCreature } = await adminClient
-        .from('player_creatures')
-        .select('id')
-        .eq('player_id', supabaseUserId)
-        .maybeSingle()
-
-      hasStarterCreature = existingCreature !== null
-
-    const entryFee = isReturning ? 1.50 : 3.00
-    const startingCredits = isReturning ? 50 : 100
-    
     // POST /transactions to Centralbank - consumes the token
     const transactionRes = await fetch(`${CENTRALBANK_URL}/transactions`, {
         method: 'POST',
@@ -161,8 +140,8 @@ Deno.serve(async (req) => {
     })
 
     if (!transactionRes.ok) {
-      if (!isReturning) {
-        await adminClient.auth.admin.deleteUser(supabaseUserId)
+      if (!isReturning && newUser?.user) {
+        await adminClient.auth.admin.deleteUser(newUser.user.id)
       }
 
       if (transactionRes.status === 401) {
@@ -176,20 +155,34 @@ Deno.serve(async (req) => {
     }
 
     const transactionData = await transactionRes.json() as TransactionResponse
-    const transactionId = transactionData.id
+    const transactionId = String(transactionData.id)
     const stamp = transactionData.stamp
 
-    // Update credits and transaction ID
-    const { error: updatedStatsError } = await adminClient
+    const { data: existingCreature, error: existingCreatureError } = await adminClient
+      .from('player_creatures')
+      .select('id')
+      .eq('player_id', supabaseUserId)
+      .maybeSingle()
+
+    if (existingCreatureError && existingCreatureError.code !== 'PGRST116') {
+      return errorResponse('Failed to load creature state', 500)
+    }
+
+    hasStarterCreature = existingCreature !== null
+
+    const { error: statsError } = await adminClient
       .from('player_stats')
-      .update({
+      .upsert({
+        player_id: supabaseUserId,
         credits: startingCredits,
         transaction_id: transactionId,
         starting_credits: startingCredits,
-      })
-      .eq('player_id', supabaseUserId)
+      }, { onConflict: 'player_id' })
 
-    if (updatedStatsError) {
+    if (statsError) {
+      if (!isReturning) {
+        await cleanupCreatedAccount(supabaseUserId)
+      }
       return errorResponse('Failed to update player stats', 500)
     }
 
@@ -202,6 +195,9 @@ Deno.serve(async (req) => {
     })
 
     if (sessionErr || !sessionData) {
+      if (!isReturning) {
+        await cleanupCreatedAccount(supabaseUserId)
+      }
       return errorResponse('Failed to create session', 500)
     }
 
