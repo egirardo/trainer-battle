@@ -215,12 +215,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
                 setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
                 if (state.last_move_description) {
-                    const lines = state.last_move_description.split('\n')
-                    const tagged: BattleMessage[] = isCpuRef.current
-                        ? lines.map((text, i) => ({ text, side: i === 0 ? 'player' as const : 'opponent' as const }))
-                        : lines.map(text => ({ text, side: wasMyMoveRef.current ? 'player' as const : 'opponent' as const }))
+                    if (!wasMyMoveRef.current) {
+                        const lines = state.last_move_description.split('\n')
+                        const tagged: BattleMessage[] = lines.map(text => ({ text, side: 'opponent' as const }))
+                        setMessages(prev => [...prev, ...tagged])
+                    }
                     wasMyMoveRef.current = false
-                    setMessages(prev => [...prev, ...tagged])
                 }
                 if (state.is_finished) {
                     void navigateRef.current(`/battle-result/${sessionId}`);
