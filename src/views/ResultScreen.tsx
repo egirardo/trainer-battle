@@ -2,7 +2,7 @@ import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import { useResult } from "@/hooks/useResult";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
-import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader'
+import StickyHeader, { type NavItem } from '@/components/atoms/StickyHeader'
 import { supabase } from '@/lib/supabase'
 import Button from '@/components/atoms/button'
 import XpBar from '@/components/atoms/XpBar'
@@ -49,9 +49,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
 
     return (
         <>
-            <header>
-                <NavigableHeader label="Result" navItems={navItems} />
-            </header>
+            <StickyHeader label="Result" navItems={navItems} />
             <main className={styles.main}>
                 <div className={styles.outcomeSection}>
                     <h1 className={isWin ? styles.victory : styles.defeat}>
