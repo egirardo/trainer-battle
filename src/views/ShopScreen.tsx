@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { ROUTES } from '@/routes';
-import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
+import StickyHeader from '@/components/atoms/StickyHeader';
+import { useNavItems } from '@/hooks/useNavItems';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
@@ -13,26 +12,10 @@ import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 export default function ShopScreen() {
-    const navigate = useNavigate();
     const { items, loading: itemsLoading, error: itemsError } = useItems();
     const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
     const { user } = useAuth();
-
-    async function handleLogout(): Promise<void> {
-        const { error } = await supabase.auth.signOut();
-        if (error) { console.error("Failed to sign out:", error); return; }
-        void navigate(ROUTES.start);
-    }
-
-    const navItems: NavItem[] = [
-        { label: 'Dashboard', to: ROUTES.gameMenu },
-        { label: 'Lobby', to: ROUTES.lobby },
-        { label: 'Shop', to: ROUTES.shop },
-        { label: 'Help', to: ROUTES.help },
-        { label: 'Credits', to: ROUTES.credits },
-        { label: 'View Profile', to: ROUTES.profile },
-        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
-    ]
+    const navItems = useNavItems();
     const [spent, setSpent] = useState(0);
     const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
@@ -110,7 +93,7 @@ export default function ShopScreen() {
     return (
         <>
             <header>
-                <NavigableHeader label="Shop" navItems={navItems} />
+                <StickyHeader label="Shop" navItems={navItems} />
             </header>
             <main className={styles.shopMain}>
                 <CreditsDisplay credits={credits} />

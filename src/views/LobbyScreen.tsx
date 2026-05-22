@@ -1,37 +1,16 @@
-import { ROUTES } from "@/routes";
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useLobby } from "@/hooks/useLobby";
-import { supabase } from "@/lib/supabase";
 import type { RealtimeChannel } from "@supabase/supabase-js";
-import NavigableHeader, { type NavItem } from "@/components/molecules/NavigableHeader";
+import StickyHeader from "@/components/atoms/StickyHeader";
+import { useNavItems } from "@/hooks/useNavItems";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 
 export default function LobbyScreen() {
-    const navigate = useNavigate();
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
-
-    async function handleLogout(): Promise<void> {
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-            console.error("Failed to sign out:", error);
-            return;
-        }
-        void navigate(ROUTES.start);
-    }
-
-    const navItems: NavItem[] = [
-        { label: 'Dashboard', to: ROUTES.gameMenu },
-        { label: 'Lobby', to: ROUTES.lobby },
-        { label: 'Shop', to: ROUTES.shop },
-        { label: 'Help', to: ROUTES.help },
-        { label: 'Credits', to: ROUTES.credits },
-        { label: 'View Profile', to: ROUTES.profile },
-        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
-    ]
+    const navItems = useNavItems();
     const [inviteState, setInviteState] = useState<{ playerId: string; status: 'waiting' | 'declined' } | null>(null);
 
     const {
@@ -91,7 +70,7 @@ export default function LobbyScreen() {
     return (
         <>
             <header>
-                <NavigableHeader label="Lobby" navItems={navItems} />
+                <StickyHeader label="Lobby" navItems={navItems} />
             </header>
             <main>
             {incomingInvitation && (
