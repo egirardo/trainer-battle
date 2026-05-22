@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
-import { ROUTES } from '@/routes';
 import type { BattleMessage, BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
 import { getCreatureImage } from '@/lib/creatureImages';
 
@@ -374,6 +373,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
             const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp;
             setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null);
             setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null);
+            if (data.descriptions?.length) {
+                const tagged: BattleMessage[] = isCpuRef.current
+                    ? data.descriptions.map(text => ({ text, side: text.startsWith("CPU's ") ? 'opponent' as const : 'player' as const }))
+                    : data.descriptions.map(text => ({ text, side: 'player' as const }))
+                setMessages(prev => [...prev, ...tagged])
+            }
         }
 
         setPlayerItems(prev =>
@@ -402,10 +407,23 @@ export function useBattle(sessionId: number): UseBattleReturn {
             return
         }
 
-        await supabase
+        const { error: stateError } = await supabase
             .from('battle_state')
             .update({ is_finished: true })
             .eq('session_id', sessionId);
+
+        if (stateError) {
+            const { error: rollbackError } = await supabase
+                .from('game_sessions')
+                .update({ status: 'active', winner_id: null, forfeit_by: null })
+                .eq('id', sessionId);
+            if (rollbackError) {
+                console.error('Partial state: session marked finished but battle_state not updated', rollbackError);
+            }
+            setError(stateError.message);
+            return;
+        }
+
         void navigate(`/battle-result/${sessionId}`);
     }
 
