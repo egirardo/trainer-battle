@@ -176,12 +176,12 @@ export type Database = {
       }
       game_config: {
         Row: {
-          id: number
           credits_cpu_loss: number
           credits_cpu_win: number
           credits_forfeit: number
           credits_pvp_loss: number
           credits_pvp_win: number
+          id: number
           stat_boost_attack: number
           stat_boost_defence: number
           stat_boost_hp: number
@@ -193,12 +193,12 @@ export type Database = {
           xp_pvp_win: number
         }
         Insert: {
-          id?: number
           credits_cpu_loss?: number
           credits_cpu_win?: number
           credits_forfeit?: number
           credits_pvp_loss?: number
           credits_pvp_win?: number
+          id?: number
           stat_boost_attack?: number
           stat_boost_defence?: number
           stat_boost_hp?: number
@@ -210,12 +210,12 @@ export type Database = {
           xp_pvp_win?: number
         }
         Update: {
-          id?: number
           credits_cpu_loss?: number
           credits_cpu_win?: number
           credits_forfeit?: number
           credits_pvp_loss?: number
           credits_pvp_win?: number
+          id?: number
           stat_boost_attack?: number
           stat_boost_defence?: number
           stat_boost_hp?: number
@@ -233,6 +233,7 @@ export type Database = {
           cpu_creature_id: number | null
           created_at: string | null
           current_turn: string | null
+          forfeit_by: string | null
           id: number
           is_cpu: boolean
           player1_creature_id: number | null
@@ -247,6 +248,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -261,6 +263,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -505,10 +508,30 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      increment_player_stats: {
-        Args: { p_battles: number; p_credits?: number; p_forfeits?: number; p_player_id: string; p_wins: number }
-        Returns: undefined
-      }
+      increment_player_stats:
+        | {
+            Args: {
+              p_battles: number
+              p_losses?: number
+              p_player_id: string
+              p_wins: number
+            }
+            Returns: undefined
+          }
+        | {
+            Args: { p_battles: number; p_player_id: string; p_wins: number }
+            Returns: undefined
+          }
+        | {
+            Args: {
+              p_battles: number
+              p_credits?: number
+              p_forfeits?: number
+              p_player_id: string
+              p_wins: number
+            }
+            Returns: undefined
+          }
       purchase_items: { Args: { p_items: Json }; Returns: undefined }
     }
     Enums: {
