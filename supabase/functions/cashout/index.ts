@@ -65,13 +65,22 @@ Deno.serve(async (req) => {
       return errorResponse('No active transaction found', 400)
     }
 
-    const { data: config } = await adminClient
+    const { data: config, error: configErr } = await adminClient
       .from('game_config')
       .select('credit_exchange_rate, payout_rounding')
       .single()
 
-    const exchangeRate = config?.credit_exchange_rate ?? 0.03
-    const rounding = config?.payout_rounding ?? 0.50
+    if (configErr || !config) {
+      return errorResponse('Failed to load game config', 500)
+    }
+
+    const exchangeRate = config.credit_exchange_rate
+    const rounding = config.payout_rounding
+
+    if (!Number.isFinite(exchangeRate) || exchangeRate <= 0 ||
+      !Number.isFinite(rounding) || rounding <= 0) {
+      return errorResponse('Invalid game config values', 500)
+    }
 
     const winnings = stats.credits - stats.starting_credits
 

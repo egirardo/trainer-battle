@@ -188,10 +188,20 @@ export default function AdminPanel() {
     }
 
     async function handleUpdateConfig(): Promise<void> {
+        if (!gameConfig) return;
+
+        // Validate — filter out NaN values
+        const validForm = Object.entries(configForm).reduce<Partial<GameConfig>>((acc, [k, v]) => {
+            if (v !== undefined && !Number.isNaN(v)) {
+                (acc as Record<string, unknown>)[k] = v
+            }
+            return acc
+        }, {})
+
         const { data, error } = await supabase
             .from('game_config')
-            .update(configForm)
-            .eq('id', 1)
+            .update(validForm)
+            .eq('id', gameConfig.id)
             .select()
             .single()
         if (error) { setError(error.message); return }
@@ -334,17 +344,72 @@ export default function AdminPanel() {
                 {gameConfig && (
                     editingConfig ? (
                         <div>
-                            <label>Entry fee (new): <input type="number" step="0.50" value={configForm.entry_fee_new ?? gameConfig.entry_fee_new} onChange={e => setConfigForm(p => ({ ...p, entry_fee_new: Number(e.target.value) }))} /></label>
-                            <label>Entry fee (returning): <input type="number" step="0.50" value={configForm.entry_fee_returning ?? gameConfig.entry_fee_returning} onChange={e => setConfigForm(p => ({ ...p, entry_fee_returning: Number(e.target.value) }))} /></label>
-                            <label>Starting credits (new): <input type="number" value={configForm.credits_new ?? gameConfig.credits_new} onChange={e => setConfigForm(p => ({ ...p, credits_new: Number(e.target.value) }))} /></label>
-                            <label>Starting credits (returning): <input type="number" value={configForm.credits_returning ?? gameConfig.credits_returning} onChange={e => setConfigForm(p => ({ ...p, credits_returning: Number(e.target.value) }))} /></label>
-                            <label>Credits CPU win: <input type="number" value={configForm.credits_cpu_win ?? gameConfig.credits_cpu_win} onChange={e => setConfigForm(p => ({ ...p, credits_cpu_win: Number(e.target.value) }))} /></label>
-                            <label>Credits CPU loss: <input type="number" value={configForm.credits_cpu_loss ?? gameConfig.credits_cpu_loss} onChange={e => setConfigForm(p => ({ ...p, credits_cpu_loss: Number(e.target.value) }))} /></label>
-                            <label>Credits PVP win: <input type="number" value={configForm.credits_pvp_win ?? gameConfig.credits_pvp_win} onChange={e => setConfigForm(p => ({ ...p, credits_pvp_win: Number(e.target.value) }))} /></label>
-                            <label>Credits PVP loss: <input type="number" value={configForm.credits_pvp_loss ?? gameConfig.credits_pvp_loss} onChange={e => setConfigForm(p => ({ ...p, credits_pvp_loss: Number(e.target.value) }))} /></label>
-                            <label>Credits forfeit: <input type="number" value={configForm.credits_forfeit ?? gameConfig.credits_forfeit} onChange={e => setConfigForm(p => ({ ...p, credits_forfeit: Number(e.target.value) }))} /></label>
-                            <label>Credit exchange rate: <input type="number" step="0.01" value={configForm.credit_exchange_rate ?? gameConfig.credit_exchange_rate} onChange={e => setConfigForm(p => ({ ...p, credit_exchange_rate: Number(e.target.value) }))} /></label>
-                            <label>Payout rounding: <input type="number" step="0.50" value={configForm.payout_rounding ?? gameConfig.payout_rounding} onChange={e => setConfigForm(p => ({ ...p, payout_rounding: Number(e.target.value) }))} /></label>
+                            <label>Entry fee (new): <input type="number" step="0.50" value={configForm.entry_fee_new ?? gameConfig.entry_fee_new} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, entry_fee_new: val }))
+                                }
+                            }} /></label>
+                            <label>Entry fee (returning): <input type="number" step="0.50" value={configForm.entry_fee_returning ?? gameConfig.entry_fee_returning} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, entry_fee_returning: val }))
+                                }
+                            }} /></label>
+                            <label>Starting credits (new): <input type="number" value={configForm.credits_new ?? gameConfig.credits_new} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_new: val }))
+                                }
+                            }} /></label>
+                            <label>Starting credits (returning): <input type="number" value={configForm.credits_returning ?? gameConfig.credits_returning} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_returning: val }))
+                                }
+                            }} /></label>
+                            <label>Credits CPU win: <input type="number" value={configForm.credits_cpu_win ?? gameConfig.credits_cpu_win} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_cpu_win: val }))
+                                }
+                            }} /></label>
+                            <label>Credits CPU loss: <input type="number" value={configForm.credits_cpu_loss ?? gameConfig.credits_cpu_loss} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_cpu_loss: val }))
+                                }
+                            }} /></label>
+                            <label>Credits PVP win: <input type="number" value={configForm.credits_pvp_win ?? gameConfig.credits_pvp_win} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_pvp_win: val }))
+                                }
+                            }} /></label>
+                            <label>Credits PVP loss: <input type="number" value={configForm.credits_pvp_loss ?? gameConfig.credits_pvp_loss} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_pvp_loss: val }))
+                                }
+                            }} /></label>
+                            <label>Credits forfeit: <input type="number" value={configForm.credits_forfeit ?? gameConfig.credits_forfeit} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credits_forfeit: val }))
+                                }
+                            }} /></label>
+                            <label>Credit exchange rate: <input type="number" step="0.01" value={configForm.credit_exchange_rate ?? gameConfig.credit_exchange_rate} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, credit_exchange_rate: val }))
+                                }
+                            }} /></label>
+                            <label>Payout rounding: <input type="number" step="0.50" value={configForm.payout_rounding ?? gameConfig.payout_rounding} onChange={e => {
+                                const val = e.currentTarget.valueAsNumber
+                                if (!Number.isNaN(val)) {
+                                    setConfigForm(p => ({ ...p, payout_rounding: val }))
+                                }
+                            }} /></label>
                             <button onClick={() => void handleUpdateConfig()}>Save</button>
                             <button onClick={() => setEditingConfig(false)}>Cancel</button>
                         </div>
