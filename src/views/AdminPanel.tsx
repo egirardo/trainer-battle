@@ -13,6 +13,7 @@ import LoadingScreen from '@/components/atoms/LoadingScreen';
 type Creature = Tables<'creatures'>;
 type Move = Tables<'moves'>;
 type Item = Tables<'items'>;
+type GameConfig = Tables<'game_config'>;
 
 export default function AdminPanel() {
     const maxVerificationRetries = 3;
@@ -35,6 +36,9 @@ export default function AdminPanel() {
     const [editingMoveId, setEditingMoveId] = useState<number | null>(null);
     const [editingItemId, setEditingItemId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [gameConfig, setGameConfig] = useState<GameConfig | null>(null)
+    const [editingConfig, setEditingConfig] = useState(false)
+    const [configForm, setConfigForm] = useState<Partial<GameConfig>>({})
 
     // Gate data fetching behind auth check
     useEffect(() => {
@@ -71,15 +75,16 @@ export default function AdminPanel() {
         let ignore = false;
 
         async function fetchData() {
-            const [cRes, mRes, iRes] = await Promise.all([
+            const [cRes, mRes, iRes, gcRes] = await Promise.all([
                 supabase.from('creatures').select(),
                 supabase.from('moves').select(),
                 supabase.from('items').select(),
+                supabase.from('game_config').select().single(),
             ]);
 
             if (ignore) return;
 
-            const err = cRes.error ?? mRes.error ?? iRes.error;
+            const err = cRes.error ?? mRes.error ?? iRes.error ?? gcRes.error;
             if (err) {
                 setError(err.message);
                 return;
@@ -88,6 +93,7 @@ export default function AdminPanel() {
             setCreatures(cRes.data ?? []);
             setMoves(mRes.data ?? []);
             setItems(iRes.data ?? []);
+            setGameConfig(gcRes.data ?? null);
         }
 
         void fetchData();
@@ -179,6 +185,18 @@ export default function AdminPanel() {
     async function handleDeleteItem(id: number): Promise<void> {
         const success = await deleteItem(id);
         if (success) setItems(prev => prev.filter(i => i.id !== id));
+    }
+
+    async function handleUpdateConfig(): Promise<void> {
+        const { data, error } = await supabase
+            .from('game_config')
+            .update(configForm)
+            .eq('id', 1)
+            .select()
+            .single()
+        if (error) { setError(error.message); return }
+        setGameConfig(data);
+        setEditingConfig(false);
     }
 
     return (
@@ -309,6 +327,51 @@ export default function AdminPanel() {
                         <ItemFormRow onSubmit={handleAddItem} />
                     </tbody>
                 </table>
+            </section>
+
+            <section>
+                <h2>Game Config</h2>
+                {gameConfig && (
+                    editingConfig ? (
+                        <div>
+                            <label>Entry fee (new): <input type="number" step="0.50" value={configForm.entry_fee_new ?? gameConfig.entry_fee_new} onChange={e => setConfigForm(p => ({ ...p, entry_fee_new: Number(e.target.value) }))} /></label>
+                            <label>Entry fee (returning): <input type="number" step="0.50" value={configForm.entry_fee_returning ?? gameConfig.entry_fee_returning} onChange={e => setConfigForm(p => ({ ...p, entry_fee_returning: Number(e.target.value) }))} /></label>
+                            <label>Starting credits (new): <input type="number" value={configForm.credits_new ?? gameConfig.credits_new} onChange={e => setConfigForm(p => ({ ...p, credits_new: Number(e.target.value) }))} /></label>
+                            <label>Starting credits (returning): <input type="number" value={configForm.credits_returning ?? gameConfig.credits_returning} onChange={e => setConfigForm(p => ({ ...p, credits_returning: Number(e.target.value) }))} /></label>
+                            <label>Credits CPU win: <input type="number" value={configForm.credits_cpu_win ?? gameConfig.credits_cpu_win} onChange={e => setConfigForm(p => ({ ...p, credits_cpu_win: Number(e.target.value) }))} /></label>
+                            <label>Credits CPU loss: <input type="number" value={configForm.credits_cpu_loss ?? gameConfig.credits_cpu_loss} onChange={e => setConfigForm(p => ({ ...p, credits_cpu_loss: Number(e.target.value) }))} /></label>
+                            <label>Credits PVP win: <input type="number" value={configForm.credits_pvp_win ?? gameConfig.credits_pvp_win} onChange={e => setConfigForm(p => ({ ...p, credits_pvp_win: Number(e.target.value) }))} /></label>
+                            <label>Credits PVP loss: <input type="number" value={configForm.credits_pvp_loss ?? gameConfig.credits_pvp_loss} onChange={e => setConfigForm(p => ({ ...p, credits_pvp_loss: Number(e.target.value) }))} /></label>
+                            <label>Credits forfeit: <input type="number" value={configForm.credits_forfeit ?? gameConfig.credits_forfeit} onChange={e => setConfigForm(p => ({ ...p, credits_forfeit: Number(e.target.value) }))} /></label>
+                            <label>Credit exchange rate: <input type="number" step="0.01" value={configForm.credit_exchange_rate ?? gameConfig.credit_exchange_rate} onChange={e => setConfigForm(p => ({ ...p, credit_exchange_rate: Number(e.target.value) }))} /></label>
+                            <label>Payout rounding: <input type="number" step="0.50" value={configForm.payout_rounding ?? gameConfig.payout_rounding} onChange={e => setConfigForm(p => ({ ...p, payout_rounding: Number(e.target.value) }))} /></label>
+                            <button onClick={() => void handleUpdateConfig()}>Save</button>
+                            <button onClick={() => setEditingConfig(false)}>Cancel</button>
+                        </div>
+                    ) : (
+                        <table>
+                            <tbody>
+                                <tr><td>Entry fee (new)</td><td>€{gameConfig.entry_fee_new}</td></tr>
+                                <tr><td>Entry fee (returning)</td><td>€{gameConfig.entry_fee_returning}</td></tr>
+                                <tr><td>Starting credits (new)</td><td>{gameConfig.credits_new}</td></tr>
+                                <tr><td>Starting credits (returning)</td><td>{gameConfig.credits_returning}</td></tr>
+                                <tr><td>Credits CPU win</td><td>{gameConfig.credits_cpu_win}</td></tr>
+                                <tr><td>Credits CPU loss</td><td>{gameConfig.credits_cpu_loss}</td></tr>
+                                <tr><td>Credits PVP win</td><td>{gameConfig.credits_pvp_win}</td></tr>
+                                <tr><td>Credits PVP loss</td><td>{gameConfig.credits_pvp_loss}</td></tr>
+                                <tr><td>Credits forfeit</td><td>{gameConfig.credits_forfeit}</td></tr>
+                                <tr><td>Credit exchange rate</td><td>{gameConfig.credit_exchange_rate}</td></tr>
+                                <tr><td>Payout rounding</td><td>{gameConfig.payout_rounding}</td></tr>
+                            </tbody>
+                        </table>
+                    )
+                )}
+                {!editingConfig && (
+                    <button onClick={() => {
+                        setConfigForm({})
+                        setEditingConfig(true)
+                    }}>Edit config</button>
+                )}
             </section>
         </main>
     );

@@ -113,8 +113,17 @@ Deno.serve(async (req) => {
       
     }
 
-    const entryFee = isReturning ? 1.50 : 3.00
-    const startingCredits = isReturning ? 50 : 100
+    const { data: config } = await adminClient
+      .from('game_config')
+      .select('entry_fee_new, entry_fee_returning, credits_new, credits_returning')
+      .single()
+
+    const entryFee = isReturning 
+      ? (config?.entry_fee_returning ?? 1.50) 
+      : (config?.entry_fee_new ?? 3.00)
+    const startingCredits = isReturning 
+      ? (config?.credits_returning ?? 50) 
+      : (config?.credits_new ?? 100)
 
     let newUser: { user: { id: string } } | null = null
 

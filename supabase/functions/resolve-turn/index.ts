@@ -372,19 +372,32 @@ Deno.serve(async (req) => {
                 return errorResponse('Failed to update winner stats', 500)
             }
 
+            const playerCredits = session.is_cpu
+                ? (winnerId === playerId ? config?.credits_cpu_win ?? 50 : -(config?.credits_cpu_loss ?? 10))
+                : (winnerId === playerId ? config?.credits_pvp_win ?? 100 : -(config?.credits_pvp_loss ?? 25))
+
+            const { error: creditErr } = await adminClient.rpc('increment_credits', {
+                p_player_id: playerId,
+                p_amount: playerCredits,
+            })
+
+            if (creditErr) {
+                console.error('Failed to update player credits:', creditErr)
+            }
+
             if (!session.is_cpu) {
                 const loserId = isPlayer1 ? session.player2_id : session.player1_id
                 if (loserId) {
-                    const { error: loserStatsErr } = await adminClient.rpc('increment_player_stats', {
-                        p_player_id: loserId,
-                        p_wins: 0,
-                        p_losses: 1,
-                        p_battles: 1,
-                    })
+                    const opponentCredits = winnerId === playerId 
+                        ? -(config?.credits_pvp_loss ?? 25)
+                        : config?.credits_pvp_win ?? 100
 
-                    if (loserStatsErr) {
-                        console.error('Partial state: winner stats updated but loser stats not updated', loserStatsErr)
-                        return errorResponse('Failed to update loser stats', 500)
+                    const { error: oppCreditsErr } = await adminClient.rpc('increment_credits', {
+                        p_player_id: loserId,
+                        p_amount: opponentCredits,
+                    })
+                    if (oppCreditsErr) {
+                        console.error('Failed to update opponent credits:', oppCreditsErr)
                     }
                 }
             }
