@@ -18,9 +18,10 @@ interface Props {
 export default function StickyHeader({ label, action, navItems }: Props) {
     const [isOpen, setIsOpen] = useState(false)
     const wrapperRef = useRef<HTMLDivElement>(null)
+    const hasNav = !!navItems?.length
 
     useEffect(() => {
-        if (!isOpen || !navItems?.length) return
+        if (!isOpen || !hasNav) return
 
         function handleKey(e: KeyboardEvent) {
             if (e.key === 'Escape') setIsOpen(false)
@@ -38,7 +39,7 @@ export default function StickyHeader({ label, action, navItems }: Props) {
             document.removeEventListener('keydown', handleKey)
             document.removeEventListener('mousedown', handleClickOutside)
         }
-    }, [isOpen, navItems])
+    }, [isOpen, hasNav])
 
     const containerClass = navItems?.length
         ? `${styles.stickyContainer} ${styles.navMode}`
@@ -53,36 +54,36 @@ export default function StickyHeader({ label, action, navItems }: Props) {
                         ? <CloseButton onClick={() => setIsOpen(false)} aria-expanded={isOpen} aria-controls="nav-drawer" />
                         : <MenuButton onClick={() => setIsOpen(true)} aria-expanded={isOpen} aria-controls="nav-drawer" />
                 ) : action}
+                {navItems?.length && isOpen && (
+                    <nav id="nav-drawer" className={styles.drawer} aria-label="Navigation menu">
+                        <ul className={styles.navList}>
+                            {navItems.map((item) => (
+                                <li key={item.label}>
+                                    {'to' in item ? (
+                                        <Link
+                                            to={item.to}
+                                            className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : item.variant === 'success' ? ` ${styles.navLinkSuccess}` : ''}`}
+                                            onClick={() => setIsOpen(false)}
+                                        >
+                                            {item.label}
+                                        </Link>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            disabled={item.disabled}
+                                            className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : item.variant === 'success' ? ` ${styles.navLinkSuccess}` : ''}`}
+                                            onClick={() => { item.onClick(); setIsOpen(false) }}
+                                        >
+                                            {item.label}
+                                            {item.subtitle && <span className={styles.navItemSubtitle}>{item.subtitle}</span>}
+                                        </button>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    </nav>
+                )}
             </div>
-            {navItems?.length && isOpen && (
-                <nav id="nav-drawer" className={styles.drawer} aria-label="Navigation menu">
-                    <ul className={styles.navList}>
-                        {navItems.map((item) => (
-                            <li key={item.label}>
-                                {'to' in item ? (
-                                    <Link
-                                        to={item.to}
-                                        className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : item.variant === 'success' ? ` ${styles.navLinkSuccess}` : ''}`}
-                                        onClick={() => setIsOpen(false)}
-                                    >
-                                        {item.label}
-                                    </Link>
-                                ) : (
-                                    <button
-                                        type="button"
-                                        disabled={item.disabled}
-                                        className={`${styles.navLink}${item.variant === 'danger' ? ` ${styles.navLinkDanger}` : item.variant === 'success' ? ` ${styles.navLinkSuccess}` : ''}`}
-                                        onClick={() => { item.onClick(); setIsOpen(false) }}
-                                    >
-                                        {item.label}
-                                        {item.subtitle && <span className={styles.navItemSubtitle}>{item.subtitle}</span>}
-                                    </button>
-                                )}
-                            </li>
-                        ))}
-                    </ul>
-                </nav>
-            )}
         </div>
     )
 }
