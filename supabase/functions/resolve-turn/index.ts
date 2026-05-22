@@ -317,6 +317,7 @@ Deno.serve(async (req) => {
         let xpGained = 0
         let newLevel: number | null = null
         let leveledUp = false
+        let creditsGained = 0
 
         if (isFinished) {
             const { error: finishErr } = await adminClient
@@ -337,7 +338,7 @@ Deno.serve(async (req) => {
             const XP_PER_LEVEL = config?.xp_per_level ?? 100
 
             const isWinner = winnerId === playerId
-            const playerCredits = session.is_cpu
+            creditsGained = session.is_cpu
                 ? (isWinner ? (config?.credits_cpu_win ?? 50) : -(config?.credits_cpu_loss ?? 10))
                 : (isWinner ? (config?.credits_pvp_win ?? 100) : -(config?.credits_pvp_loss ?? 25))
 
@@ -345,7 +346,7 @@ Deno.serve(async (req) => {
                 p_player_id: playerId,
                 p_wins: isWinner ? 1 : 0,
                 p_battles: 1,
-                p_credits: playerCredits,
+                p_credits: creditsGained,
             })
 
             if (winnerStatsErr) {
@@ -453,7 +454,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, newLevel, leveledUp }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, newLevel, leveledUp, creditsGained }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 

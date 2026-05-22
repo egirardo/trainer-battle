@@ -290,7 +290,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 Authorization: `Bearer ${accessToken}`,
             },
             body: { sessionId, playerId: user.id, moveId }
-        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; newLevel: number; leveledUp: boolean } | null; error: InvokeError | null };
+        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; newLevel: number; leveledUp: boolean; creditsGained: number } | null; error: InvokeError | null };
 
         if (error) {
             let message = error.message
@@ -327,6 +327,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     xpGained: data.xpGained,
                     newLevel: data.newLevel,
                     leveledUp: data.leveledUp,
+                    creditsGained: data.creditsGained,
                 }))
                 void navigate(`/battle-result/${sessionId}`)
                 return
