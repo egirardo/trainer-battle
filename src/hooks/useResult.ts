@@ -67,7 +67,7 @@ export function useResult(sessionId: number) {
                     supabase
                         .from('game_config')
                         .select('xp_per_level, xp_cpu_win, xp_pvp_win, xp_cpu_loss, xp_pvp_loss')
-                        .single(),
+                        .maybeSingle(),
                 ]);
 
                 const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
