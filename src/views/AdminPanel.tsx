@@ -8,6 +8,7 @@ import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ROUTES } from "@/routes";
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 type Creature = Tables<'creatures'>;
 type Move = Tables<'moves'>;
@@ -94,8 +95,8 @@ export default function AdminPanel() {
         return () => { ignore = true; };
     }, [adminVerified]);
 
-    if (authLoading) return <p>Loading...</p>;
-    if (profile === undefined) return <p>Loading...</p>;
+    if (authLoading) return <LoadingScreen />;
+    if (profile === undefined) return <LoadingScreen />;
     if (!profile?.is_admin) return <Navigate to={ROUTES.start} replace />;
     if (verificationError) {
         const canRetryVerification = verificationRetries < maxVerificationRetries;
@@ -120,7 +121,7 @@ export default function AdminPanel() {
             </main>
         );
     }
-    if (adminVerified === null) return <p>Verifying admin access...</p>;
+    if (adminVerified === null) return <LoadingScreen message="Verifying admin access..." />;
     if (!adminVerified) return <Navigate to={ROUTES.start} replace />;
 
     // Creature handlers — use real DB id

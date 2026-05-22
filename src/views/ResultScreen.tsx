@@ -1,6 +1,7 @@
 import { Link, useParams, Navigate } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import { useResult } from "@/hooks/useResult";
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 export default function ResultScreen(){
     const { sessionId } = useParams<{ sessionId: string }>();
@@ -17,7 +18,7 @@ export default function ResultScreen(){
 function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId);
 
-    if (loading) return <main><p>Loading result...</p></main>;
+    if (loading) return <LoadingScreen message="Loading result..." />;
     if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
     const heading = result.outcome === 'win' ? 'Victory!' : 'Defeat';

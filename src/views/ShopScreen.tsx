@@ -10,6 +10,7 @@ import { usePlayerStats } from '@/hooks/usePlayerStats';
 import { useAuth } from '@/hooks/useAuth';
 import styles from './ShopScreen.module.css';
 import TotalDisplay from '@/components/molecules/shopPage/TotalDisplay';
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 export default function ShopScreen() {
     const navigate = useNavigate();
@@ -103,7 +104,7 @@ export default function ShopScreen() {
     }
 
 
-    if (itemsLoading || statsLoading) return <p>Loading...</p>;
+    if (itemsLoading || statsLoading) return <LoadingScreen />;
     if (itemsError || statsError) return <p>Failed to load shop.</p>;
 
     return (

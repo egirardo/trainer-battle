@@ -7,6 +7,7 @@ import type { RealtimeChannel } from "@supabase/supabase-js";
 import NavigableHeader, { type NavItem } from "@/components/molecules/NavigableHeader";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 
 export default function LobbyScreen() {
@@ -84,7 +85,7 @@ export default function LobbyScreen() {
         await createCpuSession(myCreatureId);
     }
 
-    if (loading) return <p>Joining lobby...</p>;
+    if (loading) return <LoadingScreen message="Joining lobby..." />;
     if (error) return <p role="alert">{error}</p>;
 
     return (

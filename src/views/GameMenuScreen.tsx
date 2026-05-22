@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { ROUTES } from '../routes';
 import NavigableHeader, { type NavItem } from '@/components/molecules/NavigableHeader';
 import GameMenuBody from '@/components/molecules/gameMenuPage/GameMenuBody';
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 import { useEffect, useState } from 'react';
 
 export default function GameMenuScreen(){
@@ -85,7 +86,7 @@ export default function GameMenuScreen(){
     ]
 
     if (loading) {
-        return <p>Loading...</p>;
+        return <LoadingScreen />;
     }
 
     return(
