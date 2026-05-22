@@ -109,7 +109,7 @@ Deno.serve(async (req) => {
             })
         }
 
-        return new Response(JSON.stringify({ ok: true }), {
+        return new Response(JSON.stringify({ creditsGained: -(config?.credits_forfeit ?? 50) }), {
             status: 200,
             headers: { 'Content-Type': 'application/json', ...corsHeaders },
         })

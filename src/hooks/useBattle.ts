@@ -396,7 +396,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
     async function onRun(): Promise<void> {
         if (!user) return;
 
-        const { error: forfeitError } = await supabase.functions.invoke('forfeit', {
+        const { data: forfeitData, error: forfeitError } = await supabase.functions.invoke<{ creditsGained: number }>('forfeit', {
             body: { sessionId },
         });
 
@@ -404,6 +404,13 @@ export function useBattle(sessionId: number): UseBattleReturn {
             setError(forfeitError.message);
             return;
         }
+
+        sessionStorage.setItem(`battle-result-${sessionId}`, JSON.stringify({
+            xpGained: 0,
+            newLevel: null,
+            leveledUp: false,
+            creditsGained: forfeitData?.creditsGained ?? 0,
+        }));
 
         void navigate(`/battle-result/${sessionId}`);
     }
