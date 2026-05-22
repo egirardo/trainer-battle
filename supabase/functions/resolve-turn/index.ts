@@ -348,6 +348,7 @@ Deno.serve(async (req) => {
         let xpGained = 0
         let newLevel: number | null = null
         let leveledUp = false
+        let creditsGained = 0
 
         if (isFinished) {
             const { error: finishErr } = await adminClient
@@ -360,11 +361,24 @@ Deno.serve(async (req) => {
                 return errorResponse('Failed to finish session', 500)
             }
 
+            const { data: config } = await adminClient.from('game_config').select('*').single()
+            const XP_PVP_WIN = config?.xp_pvp_win ?? 100
+            const XP_PVP_LOSS = config?.xp_pvp_loss ?? 50
+            const XP_CPU_WIN = config?.xp_cpu_win ?? 50
+            const XP_CPU_LOSS = config?.xp_cpu_loss ?? 25
+            const XP_PER_LEVEL = config?.xp_per_level ?? 100
+
+            const isWinner = winnerId === playerId
+            creditsGained = session.is_cpu
+                ? (isWinner ? (config?.credits_cpu_win ?? 50) : -(config?.credits_cpu_loss ?? 10))
+                : (isWinner ? (config?.credits_pvp_win ?? 100) : -(config?.credits_pvp_loss ?? 25))
+
             const { error: winnerStatsErr } = await adminClient.rpc('increment_player_stats', {
                 p_player_id: playerId,
-                p_wins: winnerId === playerId ? 1 : 0,
-                p_losses: winnerId === playerId ? 0 : 1,
+                p_wins: isWinner ? 1 : 0,
+                p_losses: isWinner ? 0 : 1,
                 p_battles: 1,
+                p_credits: creditsGained,
             })
 
             if (winnerStatsErr) {
@@ -380,6 +394,7 @@ Deno.serve(async (req) => {
                         p_wins: 0,
                         p_losses: 1,
                         p_battles: 1,
+                        p_credits: -(config?.credits_pvp_loss ?? 25),
                     })
 
                     if (loserStatsErr) {
@@ -390,12 +405,6 @@ Deno.serve(async (req) => {
             }
 
             // Award XP and level up creatures
-            const { data: config } = await adminClient.from('game_config').select('*').single()
-            const XP_PVP_WIN = config?.xp_pvp_win ?? 100
-            const XP_PVP_LOSS = config?.xp_pvp_loss ?? 50
-            const XP_CPU_WIN = config?.xp_cpu_win ?? 50
-            const XP_CPU_LOSS = config?.xp_cpu_loss ?? 25
-            const XP_PER_LEVEL = config?.xp_per_level ?? 100
 
             xpGained = session.is_cpu
                 ? (winnerId === playerId ? XP_CPU_WIN : XP_CPU_LOSS)
@@ -478,7 +487,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, newLevel, leveledUp }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, newLevel, leveledUp, creditsGained }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 
