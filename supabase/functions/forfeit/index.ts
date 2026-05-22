@@ -62,12 +62,26 @@ Deno.serve(async (req) => {
         const opponentId = isPlayer1 ? session.player2_id : session.player1_id
         const winnerId = session.is_cpu ? null : opponentId
 
-        const { error: finishErr } = await adminClient
-            .from('game_sessions')
-            .update({ status: 'finished', winner_id: winnerId })
-            .eq('id', sessionId)
+        const { data: profile } = await adminClient
+            .from('profiles')
+            .select('username')
+            .eq('id', user.id)
+            .single()
 
-        if (finishErr) {
+        const username = profile?.username ?? 'Player'
+
+        const [{ error: finishErr }, { error: battleStateErr }] = await Promise.all([
+            adminClient
+                .from('game_sessions')
+                .update({ status: 'finished', winner_id: winnerId })
+                .eq('id', sessionId),
+            adminClient
+                .from('battle_state')
+                .update({ is_finished: true, last_move_description: `${username} ran away!` })
+                .eq('session_id', sessionId),
+        ])
+
+        if (finishErr || battleStateErr) {
             return errorResponse('Failed to finish session', 500)
         }
 
