@@ -6,11 +6,11 @@ interface Props {
 
 export default function LoadingScreen({ message = 'Loading...' }: Props) {
   return (
-    <div className={styles.wrapper}>
-      <p className={styles.message}>{message}</p>
-      <div className={styles.barTrack}>
+    <main className={styles.wrapper}>
+      <p className={styles.message} role="status" aria-live="polite">{message}</p>
+      <div className={styles.barTrack} aria-hidden="true">
         <div className={styles.barFill} />
       </div>
-    </div>
+    </main>
   );
 }
