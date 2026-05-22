@@ -66,7 +66,7 @@ export function useResult(sessionId: number) {
                         .single(),
                     supabase
                         .from('game_config')
-                        .select('xp_per_level, xp_cpu_win, xp_pvp_win, xp_cpu_loss, xp_pvp_loss, credits_cpu_win, credits_cpu_loss, credits_pvp_win, credits_pvp_loss')
+                        .select('xp_per_level, xp_cpu_win, xp_pvp_win, xp_cpu_loss, xp_pvp_loss, credits_cpu_win, credits_cpu_loss, credits_pvp_win, credits_pvp_loss, credits_forfeit')
                         .maybeSingle(),
                 ]);
 
@@ -78,9 +78,12 @@ export function useResult(sessionId: number) {
                     ? (session.is_cpu ? (configResult.data?.xp_cpu_win ?? 50) : (configResult.data?.xp_pvp_win ?? 100))
                     : (session.is_cpu ? (configResult.data?.xp_cpu_loss ?? 25) : (configResult.data?.xp_pvp_loss ?? 50)));
 
-                const creditsGained = serverResult?.creditsGained ?? (outcome === 'win'
-                    ? (session.is_cpu ? (configResult.data?.credits_cpu_win ?? 50) : (configResult.data?.credits_pvp_win ?? 100))
-                    : (session.is_cpu ? -(configResult.data?.credits_cpu_loss ?? 10) : -(configResult.data?.credits_pvp_loss ?? 25)));
+                const creditsGained = serverResult?.creditsGained
+                    ?? (session.forfeit_by === currentUser.id
+                        ? -(configResult.data?.credits_forfeit ?? 50)
+                        : outcome === 'win'
+                            ? (session.is_cpu ? (configResult.data?.credits_cpu_win ?? 50) : (configResult.data?.credits_pvp_win ?? 100))
+                            : (session.is_cpu ? -(configResult.data?.credits_cpu_loss ?? 10) : -(configResult.data?.credits_pvp_loss ?? 25)));
 
                 const newLevel = serverResult?.newLevel ?? creatureResult.data?.level ?? 1;
                 const currentExp = creatureResult.data?.experience ?? 0;

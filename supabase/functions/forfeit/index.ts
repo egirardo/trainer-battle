@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
         const [{ error: finishErr }, { error: battleStateErr }] = await Promise.all([
             adminClient
                 .from('game_sessions')
-                .update({ status: 'finished', winner_id: winnerId })
+                .update({ status: 'finished', winner_id: winnerId, forfeit_by: user.id })
                 .eq('id', sessionId),
             adminClient
                 .from('battle_state')
