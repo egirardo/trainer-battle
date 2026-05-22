@@ -233,30 +233,12 @@ Deno.serve(async (req) => {
         const myDefenceMod: number = (isPlayer1 ? battleState.player1_defence_modifier : battleState.player2_defence_modifier) ?? 0
         const oppDefenceMod: number = (isPlayer1 ? battleState.player2_defence_modifier : battleState.player1_defence_modifier) ?? 0
 
-        // Player's attack
-        const playerDamage = calculateDamage(
-            move.power ?? 0,
-            (myPC.attack ?? 1) + myAttackMod,
-            oppDefence + oppDefenceMod,
-            myCreature.type,
-            oppType
-        )
+        // Fetch CPU move up front so turn order is determined before any damage is applied
+        let cpuDamage = 0
+        let cpuDesc = ''
+        let cpuGoesFirst = false
 
-        const currentMyHp = isPlayer1 ? battleState.player1_hp ?? 0 : battleState.player2_hp ?? 0
-        const currentOppHp = isPlayer1 ? battleState.player2_hp ?? 0 : battleState.player1_hp ?? 0
-        const newOppHp = Math.max(0, currentOppHp - playerDamage)
-
-        const descriptions: string[] = [
-            buildDescription(move.name, playerDamage, myCreature.type, oppType, playerPrefix)
-        ]
-
-        let finalMyHp = currentMyHp
-        let finalOppHp = newOppHp
-        let isFinished = newOppHp <= 0
-        let winnerId: string | null = isFinished ? playerId : null
-
-        // CPU counter-attack
-        if (session.is_cpu && !isFinished) {
+        if (session.is_cpu) {
             const { data: cpuMoves, error: cpuMovesErr } = await adminClient
                 .from('creature_moves')
                 .select('move_id')
@@ -278,28 +260,63 @@ Deno.serve(async (req) => {
                     return errorResponse('Could not fetch CPU move', 500)
                 }
 
-                const cpuDamage = calculateDamage(
+                cpuDamage = calculateDamage(
                     cpuMove.power ?? 0,
                     oppAttack,
                     (myPC.defence ?? 1) + myDefenceMod,
                     oppType,
                     myCreature.type
                 )
-                const cpuGoesFirst = oppSpeed > (myPC.speed ?? 50)
-                const cpuDesc = buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's ")
-                finalMyHp = Math.max(0, finalMyHp - cpuDamage)
+                cpuGoesFirst = oppSpeed > (myPC.speed ?? 50)
+                cpuDesc = buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's ")
+            }
+        }
 
-                if (cpuGoesFirst) {
-                    descriptions.unshift(cpuDesc)
-                    if (finalMyHp <= 0) {
-                        // CPU KOs player before they can attack — reverse player's damage
-                        finalOppHp = currentOppHp
-                        isFinished = true
-                    }
-                } else {
-                    descriptions.push(cpuDesc)
-                    isFinished = finalMyHp <= 0
-                    if (isFinished) winnerId = null
+        // Player's attack
+        const playerDamage = calculateDamage(
+            move.power ?? 0,
+            (myPC.attack ?? 1) + myAttackMod,
+            oppDefence + oppDefenceMod,
+            myCreature.type,
+            oppType
+        )
+        const playerDesc = buildDescription(move.name, playerDamage, myCreature.type, oppType, playerPrefix)
+
+        const currentMyHp = isPlayer1 ? battleState.player1_hp ?? 0 : battleState.player2_hp ?? 0
+        const currentOppHp = isPlayer1 ? battleState.player2_hp ?? 0 : battleState.player1_hp ?? 0
+
+        const descriptions: string[] = []
+        let finalMyHp = currentMyHp
+        let finalOppHp = currentOppHp
+        let isFinished = false
+        let winnerId: string | null = null
+
+        if (session.is_cpu && cpuGoesFirst && cpuDamage > 0) {
+            // CPU acts first — player damage is only applied if they survive
+            finalMyHp = Math.max(0, currentMyHp - cpuDamage)
+            descriptions.push(cpuDesc)
+            if (finalMyHp <= 0) {
+                isFinished = true
+            } else {
+                finalOppHp = Math.max(0, currentOppHp - playerDamage)
+                descriptions.push(playerDesc)
+                if (finalOppHp <= 0) {
+                    isFinished = true
+                    winnerId = playerId
+                }
+            }
+        } else {
+            // Player acts first
+            finalOppHp = Math.max(0, currentOppHp - playerDamage)
+            descriptions.push(playerDesc)
+            if (finalOppHp <= 0) {
+                isFinished = true
+                winnerId = playerId
+            } else if (session.is_cpu && cpuDamage > 0) {
+                finalMyHp = Math.max(0, currentMyHp - cpuDamage)
+                descriptions.push(cpuDesc)
+                if (finalMyHp <= 0) {
+                    isFinished = true
                 }
             }
         }
