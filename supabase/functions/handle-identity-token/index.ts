@@ -31,8 +31,13 @@ type IdentityTokenResponse = {
 }
 
 type TransactionResponse = {
-  id: string | number
-  stamp: object
+  transaction_id: number
+  amount: number
+  stamp: {
+    animal: string
+    metal: string | null
+    image_url: string
+  } | null
 }
 
 async function cleanupCreatedAccount(userId: string): Promise<void> {
@@ -155,7 +160,7 @@ Deno.serve(async (req) => {
     }
 
     const transactionData = await transactionRes.json() as TransactionResponse
-    const transactionId = String(transactionData.id)
+    const transactionId = String(transactionData.transaction_id)
     const stamp = transactionData.stamp
 
     if (!isReturning) {
