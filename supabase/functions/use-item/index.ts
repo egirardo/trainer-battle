@@ -249,6 +249,7 @@ Deno.serve(async (req) => {
             await supabase.rpc('increment_player_stats', {
                 p_player_id: playerId,
                 p_wins: 0,
+                p_losses: 1,
                 p_battles: 1,
                 p_credits: -(config?.credits_cpu_loss ?? 10),
             })

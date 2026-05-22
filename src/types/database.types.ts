@@ -508,30 +508,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      increment_player_stats:
-        | {
-            Args: {
-              p_battles: number
-              p_losses?: number
-              p_player_id: string
-              p_wins: number
-            }
-            Returns: undefined
-          }
-        | {
-            Args: { p_battles: number; p_player_id: string; p_wins: number }
-            Returns: undefined
-          }
-        | {
-            Args: {
-              p_battles: number
-              p_credits?: number
-              p_forfeits?: number
-              p_player_id: string
-              p_wins: number
-            }
-            Returns: undefined
-          }
+      increment_player_stats: {
+        Args: { p_battles: number; p_losses: number; p_player_id: string; p_wins: number }
+        Returns: undefined
+      }
       purchase_items: { Args: { p_items: Json }; Returns: undefined }
     }
     Enums: {
