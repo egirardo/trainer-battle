@@ -153,10 +153,17 @@ export function useLobby() {
             presenceChannelRef.current
                 .on("presence", { event: "sync" }, () => {
                 const state = presenceChannelRef.current!.presenceState<LobbyPlayer>();
+                const seen = new Set<string>();
                 const players = Object.values(state)
                     .flat()
                     .map((p) => p as unknown as LobbyPlayer)
-                    .filter((p) => p.userId !== user!.id);
+                    .filter((p) => {
+                         if (p.userId === user!.id || seen.has(p.userId)) {
+                             return false;
+                         }
+                         seen.add(p.userId);
+                         return true;
+                     });
                 setPlayersInLobby(players);
                 })
                 .on("presence", { event: "join" }, ({ newPresences }) => {

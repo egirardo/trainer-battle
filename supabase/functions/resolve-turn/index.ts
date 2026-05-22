@@ -11,9 +11,9 @@ const adminClient = createClient(
 )
 
 const typeChart: Record<string, Record<string, number>> = {
-    fire:  { fire: 1,   water: 0.5, grass: 2   },
-    water: { fire: 2,   water: 1,   grass: 0.5 },
-    grass: { fire: 0.5, water: 2,   grass: 1   },
+    fire:  { fire: 1,    water: 0.75, grass: 1.5  },
+    water: { fire: 1.5,  water: 1,    grass: 0.75 },
+    grass: { fire: 0.75, water: 1.5,  grass: 1    },
 }
 
 function getTypeMultiplier(attackerType: string, defenderType: string): number {
@@ -175,24 +175,26 @@ Deno.serve(async (req) => {
         let oppType: string
         let oppAttack: number
         let oppDefence: number
+        let oppSpeed = 50
         let oppCreatureId: number
 
         if (session.is_cpu) {
             if (!session.cpu_creature_id) {
                 return errorResponse('cpu_creature_id missing from session', 400)
             }
-            const { data: cpuC, error: cpuCErr } = await adminClient
-                .from('creatures')
-                .select('id, type, base_attack, base_defence')
-                .eq('id', session.cpu_creature_id)
-                .single()
+            const [{ data: cpuC, error: cpuCErr }, { data: cpuConfig }] = await Promise.all([
+                adminClient.from('creatures').select('id, type, base_attack, base_defence, base_speed').eq('id', session.cpu_creature_id).single(),
+                adminClient.from('game_config').select('stat_boost_attack, stat_boost_defence, stat_boost_speed').single(),
+            ])
 
             if (cpuCErr || !cpuC) {
                 return errorResponse('Could not fetch CPU creature data', 500)
             }
+            const levelsAboveBase = (myPC.level ?? 1) - 1
             oppType = cpuC.type ?? 'fire'
-            oppAttack = cpuC.base_attack ?? 1
-            oppDefence = cpuC.base_defence ?? 1
+            oppAttack = (cpuC.base_attack ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_attack ?? 2)
+            oppDefence = (cpuC.base_defence ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_defence ?? 2)
+            oppSpeed = (cpuC.base_speed ?? 50) + levelsAboveBase * (cpuConfig?.stat_boost_speed ?? 1)
             oppCreatureId = cpuC.id
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
@@ -231,30 +233,12 @@ Deno.serve(async (req) => {
         const myDefenceMod: number = (isPlayer1 ? battleState.player1_defence_modifier : battleState.player2_defence_modifier) ?? 0
         const oppDefenceMod: number = (isPlayer1 ? battleState.player2_defence_modifier : battleState.player1_defence_modifier) ?? 0
 
-        // Player's attack
-        const playerDamage = calculateDamage(
-            move.power ?? 0,
-            (myPC.attack ?? 1) + myAttackMod,
-            oppDefence + oppDefenceMod,
-            myCreature.type,
-            oppType
-        )
+        // Fetch CPU move up front so turn order is determined before any damage is applied
+        let cpuDamage = 0
+        let cpuDesc = ''
+        let cpuGoesFirst = false
 
-        const currentMyHp = isPlayer1 ? battleState.player1_hp ?? 0 : battleState.player2_hp ?? 0
-        const currentOppHp = isPlayer1 ? battleState.player2_hp ?? 0 : battleState.player1_hp ?? 0
-        const newOppHp = Math.max(0, currentOppHp - playerDamage)
-
-        const descriptions: string[] = [
-            buildDescription(move.name, playerDamage, myCreature.type, oppType, playerPrefix)
-        ]
-
-        let finalMyHp = currentMyHp
-        let finalOppHp = newOppHp
-        let isFinished = newOppHp <= 0
-        let winnerId: string | null = isFinished ? playerId : null
-
-        // CPU counter-attack
-        if (session.is_cpu && !isFinished) {
+        if (session.is_cpu) {
             const { data: cpuMoves, error: cpuMovesErr } = await adminClient
                 .from('creature_moves')
                 .select('move_id')
@@ -276,17 +260,64 @@ Deno.serve(async (req) => {
                     return errorResponse('Could not fetch CPU move', 500)
                 }
 
-                const cpuDamage = calculateDamage(
+                cpuDamage = calculateDamage(
                     cpuMove.power ?? 0,
                     oppAttack,
                     (myPC.defence ?? 1) + myDefenceMod,
                     oppType,
                     myCreature.type
                 )
-                finalMyHp = Math.max(0, finalMyHp - cpuDamage)
-                isFinished = finalMyHp <= 0
-                descriptions.push(buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's "))
-                if (isFinished) winnerId = null
+                cpuGoesFirst = oppSpeed > (myPC.speed ?? 50)
+                cpuDesc = buildDescription(cpuMove.name, cpuDamage, oppType, myCreature.type, "CPU's ")
+            }
+        }
+
+        // Player's attack
+        const playerDamage = calculateDamage(
+            move.power ?? 0,
+            (myPC.attack ?? 1) + myAttackMod,
+            oppDefence + oppDefenceMod,
+            myCreature.type,
+            oppType
+        )
+        const playerDesc = buildDescription(move.name, playerDamage, myCreature.type, oppType, playerPrefix)
+
+        const currentMyHp = isPlayer1 ? battleState.player1_hp ?? 0 : battleState.player2_hp ?? 0
+        const currentOppHp = isPlayer1 ? battleState.player2_hp ?? 0 : battleState.player1_hp ?? 0
+
+        const descriptions: string[] = []
+        let finalMyHp = currentMyHp
+        let finalOppHp = currentOppHp
+        let isFinished = false
+        let winnerId: string | null = null
+
+        if (session.is_cpu && cpuGoesFirst && cpuDamage > 0) {
+            // CPU acts first — player damage is only applied if they survive
+            finalMyHp = Math.max(0, currentMyHp - cpuDamage)
+            descriptions.push(cpuDesc)
+            if (finalMyHp <= 0) {
+                isFinished = true
+            } else {
+                finalOppHp = Math.max(0, currentOppHp - playerDamage)
+                descriptions.push(playerDesc)
+                if (finalOppHp <= 0) {
+                    isFinished = true
+                    winnerId = playerId
+                }
+            }
+        } else {
+            // Player acts first
+            finalOppHp = Math.max(0, currentOppHp - playerDamage)
+            descriptions.push(playerDesc)
+            if (finalOppHp <= 0) {
+                isFinished = true
+                winnerId = playerId
+            } else if (session.is_cpu && cpuDamage > 0) {
+                finalMyHp = Math.max(0, currentMyHp - cpuDamage)
+                descriptions.push(cpuDesc)
+                if (finalMyHp <= 0) {
+                    isFinished = true
+                }
             }
         }
 
@@ -332,6 +363,7 @@ Deno.serve(async (req) => {
             const { error: winnerStatsErr } = await adminClient.rpc('increment_player_stats', {
                 p_player_id: playerId,
                 p_wins: winnerId === playerId ? 1 : 0,
+                p_losses: winnerId === playerId ? 0 : 1,
                 p_battles: 1,
             })
 
@@ -346,6 +378,7 @@ Deno.serve(async (req) => {
                     const { error: loserStatsErr } = await adminClient.rpc('increment_player_stats', {
                         p_player_id: loserId,
                         p_wins: 0,
+                        p_losses: 1,
                         p_battles: 1,
                     })
 

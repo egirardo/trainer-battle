@@ -218,6 +218,7 @@ export type Database = {
           cpu_creature_id: number | null
           created_at: string | null
           current_turn: string | null
+          forfeit_by: string | null
           id: number
           is_cpu: boolean
           player1_creature_id: number | null
@@ -232,6 +233,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -246,6 +248,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -491,7 +494,7 @@ export type Database = {
     }
     Functions: {
       increment_player_stats: {
-        Args: { p_battles: number; p_player_id: string; p_wins: number }
+        Args: { p_battles: number; p_losses: number; p_player_id: string; p_wins: number }
         Returns: undefined
       }
       purchase_items: { Args: { p_items: Json }; Returns: undefined }
