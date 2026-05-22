@@ -66,23 +66,23 @@ export function useResult(sessionId: number) {
                         .single(),
                     supabase
                         .from('game_config')
-                        .select('xp_per_level')
+                        .select('xp_per_level, xp_cpu_win, xp_pvp_win, xp_cpu_loss, xp_pvp_loss')
                         .single(),
                 ]);
 
                 const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
                 sessionStorage.removeItem(`battle-result-${sessionId}`);
-                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number } : null;
+                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number; leveledUp: boolean } : null;
 
                 const xpGained = serverResult?.xpGained ?? (outcome === 'win'
-                    ? (session.is_cpu ? 50 : 100)
-                    : (session.is_cpu ? 25 : 50));
+                    ? (session.is_cpu ? (configResult.data?.xp_cpu_win ?? 50) : (configResult.data?.xp_pvp_win ?? 100))
+                    : (session.is_cpu ? (configResult.data?.xp_cpu_loss ?? 25) : (configResult.data?.xp_pvp_loss ?? 50)));
 
-                const newLevel = creatureResult.data?.level ?? 1;
+                const newLevel = serverResult?.newLevel ?? creatureResult.data?.level ?? 1;
                 const currentExp = creatureResult.data?.experience ?? 0;
                 const xpPerLevel = configResult.data?.xp_per_level ?? 100;
                 const prevLevel = Math.floor((currentExp - xpGained) / xpPerLevel) + 1;
-                const leveledUp = newLevel > prevLevel;
+                const leveledUp = serverResult?.leveledUp ?? newLevel > prevLevel;
 
                 setResult({
                     outcome,

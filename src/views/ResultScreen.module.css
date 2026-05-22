@@ -108,38 +108,6 @@
   }
 }
 
-/* ── XP card ─────────────────────────────────────────── */
-
-.xpCard {
-  box-shadow: var(--light-shadow);
-  padding: 1rem 1.5rem;
-  width: 100%;
-  max-width: 380px;
-  box-sizing: border-box;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.xpGained {
-  font-family: var(--heading);
-  font-size: 1.6rem;
-  color: var(--primary);
-  margin: 0;
-}
-
-.levelUp {
-  font-family: var(--heading);
-  color: var(--battle-green);
-  margin: 0;
-}
-
-.levelCurrent {
-  color: var(--text-h);
-  margin: 0;
-}
-
 /* ── Action buttons ──────────────────────────────────── */
 
 .actions {
@@ -152,7 +120,6 @@
   margin-bottom: 1.5em;
 }
 
-.xpCard,
 .card {
   box-sizing: border-box;
   border: 8px solid transparent;
