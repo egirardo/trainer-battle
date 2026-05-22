@@ -185,11 +185,11 @@ Deno.serve(async (req) => {
     if (!isReturning) {
       const { error: profileError } = await adminClient
         .from('profiles')
-        .insert({
+        .upsert({
           id: supabaseUserId,
           username: playerName,
           centralbank_uuid: centralbankUuid,
-        })
+        }, { onConflict: 'id' })
 
       if (profileError) {
         await cleanupCreatedAccount(supabaseUserId)
