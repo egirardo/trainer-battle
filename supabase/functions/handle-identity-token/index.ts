@@ -53,7 +53,10 @@ Deno.serve(async (req) => {
   }
 
   try {
+    console.log('Parsing body...')
     const rawBody = await req.text()
+    console.log('Body parsed:', rawBody)
+
     let body: { identity_token?: string }
 
     try {
@@ -63,13 +66,16 @@ Deno.serve(async (req) => {
     }
 
     const { identity_token } = body
+    console.log('identity_token:', identity_token ? 'present' : 'missing')
 
     if (!identity_token) {
       return errorResponse('Missing identity_token', 400)
     }
 
     // Fetch player info from Centralbank
+    console.log('Fetching from Centralbank...')
     const identityRes = await fetch(`${CENTRALBANK_URL}/identity-tokens/${identity_token}`)
+    console.log('Centralbank response:', identityRes.status)
 
     if (!identityRes.ok) {
       if (identityRes.status === 401) {

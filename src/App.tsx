@@ -54,7 +54,7 @@ function App() {
   if (error) return (
     <main>
       <p>{error}</p>
-      <a href="https://frontend-main-1ac7.up.railway.app/">Return to Tivoli</a>
+      <a href="https://loopland.se/">Return to Tivoli</a>
     </main>
   )
 
