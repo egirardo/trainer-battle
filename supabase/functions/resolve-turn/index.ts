@@ -376,6 +376,7 @@ Deno.serve(async (req) => {
             const { error: winnerStatsErr } = await adminClient.rpc('increment_player_stats', {
                 p_player_id: playerId,
                 p_wins: isWinner ? 1 : 0,
+                p_losses: isWinner ? 0 : 1,
                 p_battles: 1,
                 p_credits: creditsGained,
             })

@@ -79,6 +79,7 @@ Deno.serve(async (req) => {
         await adminClient.rpc('increment_player_stats', {
             p_player_id: user.id,
             p_wins: 0,
+            p_losses: 0,
             p_battles: 1,
             p_forfeits: 1,
             p_credits: -(config?.credits_forfeit ?? 50),
@@ -88,6 +89,7 @@ Deno.serve(async (req) => {
             await adminClient.rpc('increment_player_stats', {
                 p_player_id: opponentId,
                 p_wins: 1,
+                p_losses: 0,
                 p_battles: 1,
                 p_credits: config?.credits_pvp_win ?? 100,
             })
