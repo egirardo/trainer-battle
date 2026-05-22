@@ -10,6 +10,8 @@ interface UseBattleReturn {
     opponent: BattleParticipantInfo | null;
     messages: BattleMessage[];
     isMyTurn: boolean;
+    isCpu: boolean;
+    timeRemaining: number;
     loading: boolean;
     error: string | null;
     moves: Move[];
@@ -25,12 +27,15 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const navigate = useNavigate();
     const isPlayer1Ref = useRef<boolean>(false)
     const isCpuRef = useRef<boolean>(false)
+    const [isCpu, setIsCpu] = useState(false);
     const [player, setPlayer] = useState<BattleParticipantInfo | null>(null);
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
     const [messages, setMessages] = useState<BattleMessage[]>([]);
     const wasMyMoveRef = useRef(false);
     const submittingRef = useRef(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
+    const [timeRemaining, setTimeRemaining] = useState(45);
+    const skipTurnRef = useRef<() => Promise<void>>(() => Promise.resolve());
     const [opponentUserId, setOpponentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -62,6 +67,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
                 isPlayer1Ref.current = isPlayer1
                 isCpuRef.current = session.is_cpu
+                setIsCpu(session.is_cpu)
 
                 const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
                 if (!myCreatureId) throw new Error('Creature IDs missing from session');
@@ -251,6 +257,55 @@ export function useBattle(sessionId: number): UseBattleReturn {
         }
     }, [sessionId]);
 
+    async function onSkipTurn(): Promise<void> {
+        if (submittingRef.current) return;
+        submittingRef.current = true;
+        setIsMyTurn(false);
+        wasMyMoveRef.current = true;
+
+        const { data, error } = await supabase.functions.invoke('skip-turn', {
+            body: { sessionId: sessionIdRef.current },
+        }) as { data: { message: string } | null; error: { message: string } | null };
+
+        if (error) {
+            setError(error.message);
+            submittingRef.current = false;
+            setIsMyTurn(true);
+            return;
+        }
+
+        if (data?.message) {
+            setMessages(prev => [...prev, { text: data.message, side: 'neutral' as const }]);
+        }
+        submittingRef.current = false;
+    }
+
+    skipTurnRef.current = onSkipTurn;
+
+    useEffect(() => {
+        if (!isMyTurn || isCpuRef.current) {
+            setTimeRemaining(45);
+            return;
+        }
+
+        setTimeRemaining(45);
+        const start = Date.now();
+        let fired = false;
+
+        const interval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - start) / 1000);
+            const remaining = Math.max(0, 45 - elapsed);
+            setTimeRemaining(remaining);
+            if (remaining === 0 && !fired) {
+                fired = true;
+                clearInterval(interval);
+                void skipTurnRef.current();
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [isMyTurn]);
+
     async function onFight(moveId: number): Promise<void> {
         if (!user || !isMyTurn || submittingRef.current) return;
         submittingRef.current = true
@@ -427,5 +482,5 @@ export function useBattle(sessionId: number): UseBattleReturn {
         void navigate(`/battle-result/${sessionId}`);
     }
 
-    return { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem };
+    return { player, opponent, messages, isMyTurn, isCpu, timeRemaining, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem };
 }
