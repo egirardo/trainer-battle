@@ -244,10 +244,13 @@ Deno.serve(async (req) => {
                 .update({ status: 'finished', winner_id: null })
                 .eq('id', sessionId)
 
+            const { data: config } = await supabase.from('game_config').select('credits_cpu_loss').single()
+
             await supabase.rpc('increment_player_stats', {
                 p_player_id: playerId,
                 p_wins: 0,
                 p_battles: 1,
+                p_credits: -(config?.credits_cpu_loss ?? 10),
             })
         } else {
             const nextTurn = session.is_cpu

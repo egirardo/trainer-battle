@@ -177,6 +177,11 @@ export type Database = {
       game_config: {
         Row: {
           id: number
+          credits_cpu_loss: number
+          credits_cpu_win: number
+          credits_forfeit: number
+          credits_pvp_loss: number
+          credits_pvp_win: number
           stat_boost_attack: number
           stat_boost_defence: number
           stat_boost_hp: number
@@ -189,6 +194,11 @@ export type Database = {
         }
         Insert: {
           id?: number
+          credits_cpu_loss?: number
+          credits_cpu_win?: number
+          credits_forfeit?: number
+          credits_pvp_loss?: number
+          credits_pvp_win?: number
           stat_boost_attack?: number
           stat_boost_defence?: number
           stat_boost_hp?: number
@@ -201,6 +211,11 @@ export type Database = {
         }
         Update: {
           id?: number
+          credits_cpu_loss?: number
+          credits_cpu_win?: number
+          credits_forfeit?: number
+          credits_pvp_loss?: number
+          credits_pvp_win?: number
           stat_boost_attack?: number
           stat_boost_defence?: number
           stat_boost_hp?: number
@@ -491,7 +506,7 @@ export type Database = {
     }
     Functions: {
       increment_player_stats: {
-        Args: { p_battles: number; p_player_id: string; p_wins: number }
+        Args: { p_battles: number; p_credits?: number; p_forfeits?: number; p_player_id: string; p_wins: number }
         Returns: undefined
       }
       purchase_items: { Args: { p_items: Json }; Returns: undefined }

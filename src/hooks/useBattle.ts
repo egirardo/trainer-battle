@@ -378,17 +378,15 @@ export function useBattle(sessionId: number): UseBattleReturn {
     async function onRun(): Promise<void> {
         if (!user) return;
 
-        const winnerId = isCpuRef.current ? null : opponentUserId;
+        const { error: forfeitError } = await supabase.functions.invoke('forfeit', {
+            body: { sessionId },
+        });
 
-        const { error: runError } = await supabase
-            .from('game_sessions')
-            .update({ status: 'finished', winner_id: winnerId })
-            .eq('id', sessionId);
-
-        if (runError) {
-            setError(runError.message);
-            return
+        if (forfeitError) {
+            setError(forfeitError.message);
+            return;
         }
+
         void navigate(`/battle-result/${sessionId}`);
     }
 
