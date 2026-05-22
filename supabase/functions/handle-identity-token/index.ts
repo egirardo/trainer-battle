@@ -61,13 +61,13 @@ Deno.serve(async (req) => {
 
     try {
       body = JSON.parse(rawBody) as { identity_token?: string }
-      console.log('Transaction data:', JSON.stringify(transactionData))
     } catch {
       return errorResponse('Invalid request body', 400)
     }
 
     const { identity_token } = body
-    console.log('identity_token:', identity_token ? 'present' : 'missing')
+    console.log('identity_token value:', identity_token, 'type:', typeof identity_token)
+    console.log('body keys:', Object.keys(body))
 
     if (!identity_token) {
       return errorResponse('Missing identity_token', 400)
@@ -195,8 +195,10 @@ Deno.serve(async (req) => {
         await cleanupCreatedAccount(supabaseUserId)
         return errorResponse('Failed to create user profile', 500)
       }
+
+      console.log('Profile insert:', profileError?.message ?? 'success')
     }
-    console.log('Profile insert:', profileError?.message ?? 'success')
+    
 
     const { data: existingCreature, error: existingCreatureError } = await adminClient
       .from('player_creatures')
