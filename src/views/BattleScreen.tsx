@@ -10,6 +10,7 @@ import StickyHeader from '@/components/atoms/StickyHeader';
 import HelpButton from '@/components/atoms/headerButtons/HelpButton';
 import { useState } from 'react';
 import Overlay from '@/components/atoms/Overlay';
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 import CloseButton from '@/components/atoms/headerButtons/CloseButton';
 import BattleInstructions from '@/components/molecules/gameInstructions/BattleInstructions';
 
@@ -29,13 +30,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
     const { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
 
-    if (loading) {
-        return (
-            <main className={styles.screen}>
-                <div className={styles.centered}>Loading battle…</div>
-            </main>
-        );
-    }
+    if (loading) return <LoadingScreen message="Loading battle…" />;
 
     if (error || !player || !opponent) {
         return (

@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0'
+import { createClient } from 'jsr:@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,8 +31,13 @@ type IdentityTokenResponse = {
 }
 
 type TransactionResponse = {
-  id: string | number
-  stamp: object
+  transaction_id: number
+  amount: number
+  stamp: {
+    animal: string
+    metal: string | null
+    image_url: string
+  } | null
 }
 
 async function cleanupCreatedAccount(userId: string): Promise<void> {
@@ -42,12 +47,16 @@ async function cleanupCreatedAccount(userId: string): Promise<void> {
 }
 
 Deno.serve(async (req) => {
+  console.log('Function started')
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
+    console.log('Parsing body...')
     const rawBody = await req.text()
+    console.log('Body parsed:', rawBody)
+
     let body: { identity_token?: string }
 
     try {
@@ -57,13 +66,17 @@ Deno.serve(async (req) => {
     }
 
     const { identity_token } = body
+    console.log('identity_token value:', identity_token, 'type:', typeof identity_token)
+    console.log('body keys:', Object.keys(body))
 
     if (!identity_token) {
       return errorResponse('Missing identity_token', 400)
     }
 
     // Fetch player info from Centralbank
+    console.log('Fetching from Centralbank...')
     const identityRes = await fetch(`${CENTRALBANK_URL}/identity-tokens/${identity_token}`)
+    console.log('Centralbank response:', identityRes.status)
 
     if (!identityRes.ok) {
       if (identityRes.status === 401) {
@@ -73,20 +86,26 @@ Deno.serve(async (req) => {
     }
 
     const identityData = await identityRes.json() as IdentityTokenResponse
+    console.log('Identity data:', JSON.stringify(identityData))
+    
     const centralbankUuid = String(identityData.user.id)
     const playerName = identityData.user.name
+    console.log('centralbankUuid:', centralbankUuid, 'playerName:', playerName)
 
     // Check if returning player
+    console.log('Checking for existing profile...')
     const { data: existingProfile, error: existingProfileError } = await adminClient
       .from('profiles')
       .select('id, username, centralbank_uuid')
       .eq('centralbank_uuid', centralbankUuid)
       .maybeSingle()
+    console.log('existingProfile:', existingProfile ? existingProfile.id : 'null', 'error:', existingProfileError?.message ?? 'none')
 
     if (existingProfileError && existingProfileError.code !== 'PGRST116') {
       return errorResponse('Failed to look up player profile', 500)
     }
 
+    console.log('isReturning:', existingProfile !== null)
     const isReturning = existingProfile !== null
 
     let supabaseUserId: string
@@ -96,9 +115,11 @@ Deno.serve(async (req) => {
 
     if (isReturning && existingProfile) {
       supabaseUserId = existingProfile.id
+      console.log('Updating password for returning user...')
       const { error: updateErr } = await adminClient.auth.admin.updateUserById(supabaseUserId, {
         password: userPassword,
       })
+      console.log('Password update:', updateErr?.message ?? 'success')
       
       if (updateErr) {
         return errorResponse('Failed to update user credentials', 500)
@@ -129,6 +150,7 @@ Deno.serve(async (req) => {
     }
 
     // POST /transactions to Centralbank - consumes the token
+    console.log('Posting transaction to Centralbank...')
     const transactionRes = await fetch(`${CENTRALBANK_URL}/transactions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -138,6 +160,7 @@ Deno.serve(async (req) => {
             api_key: CENTRALBANK_API_KEY,
         })
     })
+    console.log('Transaction response:', transactionRes.status)
 
     if (!transactionRes.ok) {
       if (!isReturning && newUser?.user) {
@@ -155,23 +178,27 @@ Deno.serve(async (req) => {
     }
 
     const transactionData = await transactionRes.json() as TransactionResponse
-    const transactionId = String(transactionData.id)
+    const transactionId = String(transactionData.transaction_id)
     const stamp = transactionData.stamp
 
+    console.log('Inserting profile...')
     if (!isReturning) {
       const { error: profileError } = await adminClient
         .from('profiles')
-        .insert({
+        .upsert({
           id: supabaseUserId,
           username: playerName,
           centralbank_uuid: centralbankUuid,
-        })
+        }, { onConflict: 'id' })
 
       if (profileError) {
         await cleanupCreatedAccount(supabaseUserId)
         return errorResponse('Failed to create user profile', 500)
       }
+
+      console.log('Profile insert:', profileError?.message ?? 'success')
     }
+    
 
     const { data: existingCreature, error: existingCreatureError } = await adminClient
       .from('player_creatures')
@@ -188,6 +215,7 @@ Deno.serve(async (req) => {
 
     hasStarterCreature = existingCreature !== null
 
+    console.log('Upserting stats...')
     const { error: statsError } = await adminClient
       .from('player_stats')
       .upsert({
@@ -201,14 +229,17 @@ Deno.serve(async (req) => {
       if (!isReturning) await cleanupCreatedAccount(supabaseUserId)
       return errorResponse('Failed to update player stats', 500)
     }
+    console.log('Stats upsert:', statsError?.message ?? 'success')
 
     const email = `${centralbankUuid}@centralbank.tivoli`
 
+    console.log('Creating session...')
     // Create a supabase session for the user
     const { data: sessionData, error: sessionErr } = await adminClient.auth.signInWithPassword({
       email,
       password: userPassword,
     })
+    console.log('Session result:', sessionErr?.message ?? 'success')
 
     if (sessionErr || !sessionData) {
       if (!isReturning) await cleanupCreatedAccount(supabaseUserId)

@@ -176,6 +176,11 @@ export type Database = {
       }
       game_config: {
         Row: {
+          credits_cpu_loss: number
+          credits_cpu_win: number
+          credits_forfeit: number
+          credits_pvp_loss: number
+          credits_pvp_win: number
           id: number
           stat_boost_attack: number
           stat_boost_defence: number
@@ -188,6 +193,11 @@ export type Database = {
           xp_pvp_win: number
         }
         Insert: {
+          credits_cpu_loss?: number
+          credits_cpu_win?: number
+          credits_forfeit?: number
+          credits_pvp_loss?: number
+          credits_pvp_win?: number
           id?: number
           stat_boost_attack?: number
           stat_boost_defence?: number
@@ -200,6 +210,11 @@ export type Database = {
           xp_pvp_win?: number
         }
         Update: {
+          credits_cpu_loss?: number
+          credits_cpu_win?: number
+          credits_forfeit?: number
+          credits_pvp_loss?: number
+          credits_pvp_win?: number
           id?: number
           stat_boost_attack?: number
           stat_boost_defence?: number
@@ -218,6 +233,7 @@ export type Database = {
           cpu_creature_id: number | null
           created_at: string | null
           current_turn: string | null
+          forfeit_by: string | null
           id: number
           is_cpu: boolean
           player1_creature_id: number | null
@@ -232,6 +248,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -246,6 +263,7 @@ export type Database = {
           cpu_creature_id?: number | null
           created_at?: string | null
           current_turn?: string | null
+          forfeit_by?: string | null
           id?: number
           is_cpu?: boolean
           player1_creature_id?: number | null
@@ -491,7 +509,7 @@ export type Database = {
     }
     Functions: {
       increment_player_stats: {
-        Args: { p_battles: number; p_player_id: string; p_wins: number }
+        Args: { p_battles: number; p_credits?: number; p_forfeits?: number; p_losses: number; p_player_id: string; p_wins: number }
         Returns: undefined
       }
       purchase_items: { Args: { p_items: Json }; Returns: undefined }

@@ -52,11 +52,11 @@ export function useResult(sessionId: number) {
                     }
                 }
 
-                // Fetch player stats and creature level in parallel
-                const [statsResult, creatureResult] = await Promise.all([
+                // Fetch player stats, creature data, and xp config in parallel
+                const [statsResult, creatureResult, configResult] = await Promise.all([
                     supabase
                         .from('player_stats')
-                        .select('total_wins, total_losses, total_battles, credits')
+                        .select('total_wins, total_losses, total_forfeits')
                         .eq('player_id', currentUser.id)
                         .single(),
                     supabase
@@ -64,17 +64,29 @@ export function useResult(sessionId: number) {
                         .select('level, experience')
                         .eq('player_id', currentUser.id)
                         .single(),
+                    supabase
+                        .from('game_config')
+                        .select('xp_per_level, xp_cpu_win, xp_pvp_win, xp_cpu_loss, xp_pvp_loss, credits_cpu_win, credits_cpu_loss, credits_pvp_win, credits_pvp_loss')
+                        .maybeSingle(),
                 ]);
 
                 const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
                 sessionStorage.removeItem(`battle-result-${sessionId}`);
-                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number; leveledUp: boolean } : null;
+                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number; leveledUp: boolean; creditsGained: number } : null;
+
+                const xpGained = serverResult?.xpGained ?? (outcome === 'win'
+                    ? (session.is_cpu ? (configResult.data?.xp_cpu_win ?? 50) : (configResult.data?.xp_pvp_win ?? 100))
+                    : (session.is_cpu ? (configResult.data?.xp_cpu_loss ?? 25) : (configResult.data?.xp_pvp_loss ?? 50)));
+
+                const creditsGained = serverResult?.creditsGained ?? (outcome === 'win'
+                    ? (session.is_cpu ? (configResult.data?.credits_cpu_win ?? 50) : (configResult.data?.credits_pvp_win ?? 100))
+                    : (session.is_cpu ? -(configResult.data?.credits_cpu_loss ?? 10) : -(configResult.data?.credits_pvp_loss ?? 25)));
 
                 const newLevel = serverResult?.newLevel ?? creatureResult.data?.level ?? 1;
-                const leveledUp = serverResult?.leveledUp ?? false;
-                const xpGained = serverResult?.xpGained ?? (outcome === 'win'
-                    ? (session.is_cpu ? 50 : 100)
-                    : (session.is_cpu ? 25 : 50));
+                const currentExp = creatureResult.data?.experience ?? 0;
+                const xpPerLevel = configResult.data?.xp_per_level ?? 100;
+                const prevLevel = Math.floor((currentExp - xpGained) / xpPerLevel) + 1;
+                const leveledUp = serverResult?.leveledUp ?? newLevel > prevLevel;
 
                 setResult({
                     outcome,
@@ -82,10 +94,12 @@ export function useResult(sessionId: number) {
                     opponentUsername,
                     totalWins: statsResult.data?.total_wins ?? 0,
                     totalLosses: statsResult.data?.total_losses ?? 0,
-                    totalBattles: statsResult.data?.total_battles ?? 0,
-                    credits: statsResult.data?.credits ?? 0,
+                    totalForfeits: statsResult.data?.total_forfeits ?? 0,
                     xpGained,
+                    creditsGained,
                     newLevel,
+                    currentXp: currentExp % xpPerLevel,
+                    xpPerLevel,
                     leveledUp,
                 })
             } catch (err) {

@@ -1,0 +1,28 @@
+.bar,
+.header {
+  width: 15em;
+}
+
+.bar {
+  height: 1em;
+  border-radius: 0;
+  margin: 0.5em auto;
+  background-color: var(--primary);
+}
+
+.bar::-moz-progress-bar {
+  background: var(--primary);
+}
+
+.bar::-webkit-progress-value {
+  background: var(--primary);
+}
+
+.bar::-webkit-progress-bar {
+  background: rgb(207, 205, 205);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+}

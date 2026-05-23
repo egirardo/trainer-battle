@@ -13,6 +13,7 @@ import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
 import GameInstructions from '../gameInstructions/GameInstructions';
 import Overlay from '@/components/atoms/Overlay';
+import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -153,7 +154,7 @@ export default function GameMenuBody() {
   const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <LoadingScreen />;
   if (error) return <p role="alert">{error}</p>;
 
   const hasBoss = wins >= 6;

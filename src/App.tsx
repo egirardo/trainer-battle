@@ -20,6 +20,7 @@ import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 import ShopScreen from './views/ShopScreen'
 import { isIdentityToken } from './lib/identityToken'
+import LoadingScreen from './components/atoms/LoadingScreen'
 
 function IdentityTokenEntry() {
   const { identityToken } = useParams()
@@ -48,12 +49,12 @@ function App() {
   const storedIdentityToken = sessionStorage.getItem('identity_token')
   const pendingIdentityToken = validIdentityTokenInUrl ?? (isIdentityToken(storedIdentityToken) ? storedIdentityToken : null)
 
-  if (loading || processing) return <div>Loading...</div>
+  if (loading || processing) return <LoadingScreen />
 
   if (error) return (
     <main>
       <p>{error}</p>
-      <a href="https://frontend-main-1ac7.up.railway.app/">Return to Tivoli</a>
+      <a href="https://loopland.se/">Return to Tivoli</a>
     </main>
   )
 

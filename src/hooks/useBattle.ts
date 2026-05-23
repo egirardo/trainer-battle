@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from './useAuth';
-import { ROUTES } from '@/routes';
 import type { BattleMessage, BattleParticipantInfo, ItemEffectType, Move, PlayerItem } from '@/models/models';
 import { getCreatureImage } from '@/lib/creatureImages';
 
@@ -30,6 +29,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const [opponent, setOpponent] = useState<BattleParticipantInfo | null>(null);
     const [messages, setMessages] = useState<BattleMessage[]>([]);
     const wasMyMoveRef = useRef(false);
+    const submittingRef = useRef(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
     const [opponentUserId, setOpponentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -70,10 +70,11 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setOpponentUserId(isPlayer1 ? session.player2_id : session.player1_id);
 
                 // 2. Fetch player's creature, battle state, and trainer profile in parallel
-                const [myPCResult, battleStateResult, myProfileResult] = await Promise.all([
+                const [myPCResult, battleStateResult, myProfileResult, configResult] = await Promise.all([
                     supabase.from('player_creatures').select('*, creatures(*)').eq('id', myCreatureId).single(),
                     supabase.from('battle_state').select('player1_hp, player2_hp, last_move_description').eq('session_id', sessionId).single(),
                     supabase.from('profiles').select('username').eq('id', user.id).single(),
+                    supabase.from('game_config').select('stat_boost_hp').single(),
                 ]);
                 if (myPCResult.error || !myPCResult.data) throw new Error('Could not load your creature');
 
@@ -111,12 +112,15 @@ export function useBattle(sessionId: number): UseBattleReturn {
                         .eq('id', session.cpu_creature_id)
                         .single();
                     if (cpuErr || !cpuCreature) throw new Error('Could not load CPU creature');
+                    const playerLevel = myPC.level ?? 1;
+                    const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
+                    const cpuMaxHp = (cpuCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
                         trainerName: 'CPU',
-                        level: 1,
-                        currentHp: oppBattleHp ?? cpuCreature.base_hp ?? 100,
-                        maxHp: cpuCreature.base_hp ?? 100,
+                        level: playerLevel,
+                        currentHp: oppBattleHp ?? cpuMaxHp,
+                        maxHp: cpuMaxHp,
                         creatureImage: getCreatureImage(cpuCreature.image ?? ''),
                         creatureType: cpuCreature.type as 'fire' | 'water' | 'grass',
                     });
@@ -214,12 +218,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null)
                 setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null)
                 if (state.last_move_description) {
-                    const lines = state.last_move_description.split('\n')
-                    const tagged: BattleMessage[] = isCpuRef.current
-                        ? lines.map((text, i) => ({ text, side: i === 0 ? 'player' as const : 'opponent' as const }))
-                        : lines.map(text => ({ text, side: wasMyMoveRef.current ? 'player' as const : 'opponent' as const }))
+                    if (!wasMyMoveRef.current) {
+                        const lines = state.last_move_description.split('\n')
+                        const tagged: BattleMessage[] = lines.map(text => ({ text, side: 'opponent' as const }))
+                        setMessages(prev => [...prev, ...tagged])
+                    }
                     wasMyMoveRef.current = false
-                    setMessages(prev => [...prev, ...tagged])
                 }
                 if (state.is_finished) {
                     void navigateRef.current(`/battle-result/${sessionId}`);
@@ -233,6 +237,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             }, (payload) => {
                 const session = payload.new as { current_turn: string };
                 if (userIdRef.current) {
+                    submittingRef.current = false
                     setIsMyTurn(session.current_turn === userIdRef.current);
                 }
             })
@@ -247,7 +252,8 @@ export function useBattle(sessionId: number): UseBattleReturn {
     }, [sessionId]);
 
     async function onFight(moveId: number): Promise<void> {
-        if (!user || !isMyTurn) return;
+        if (!user || !isMyTurn || submittingRef.current) return;
+        submittingRef.current = true
         setIsMyTurn(false)
 
         type InvokeError = { message: string; context?: Response };
@@ -256,6 +262,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession()
         if (sessionError) {
             setError(sessionError.message)
+            submittingRef.current = false
             setIsMyTurn(true)
             return
         }
@@ -271,6 +278,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             const { data: refreshedData, error: refreshError } = await supabase.auth.refreshSession()
             if (refreshError) {
                 setError(`Session refresh failed: ${refreshError.message}`)
+                submittingRef.current = false
                 setIsMyTurn(true)
                 return
             }
@@ -280,6 +288,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         const accessToken = session?.access_token
         if (!accessToken) {
             setError('No active session')
+            submittingRef.current = false
             setIsMyTurn(true)
             return
         }
@@ -290,7 +299,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 Authorization: `Bearer ${accessToken}`,
             },
             body: { sessionId, playerId: user.id, moveId }
-        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; newLevel: number; leveledUp: boolean } | null; error: InvokeError | null };
+        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; newLevel: number; leveledUp: boolean; creditsGained: number } | null; error: InvokeError | null };
 
         if (error) {
             let message = error.message
@@ -308,6 +317,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             }
 
             setError(message)
+            submittingRef.current = false
             setIsMyTurn(true)
             return
         }
@@ -327,6 +337,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     xpGained: data.xpGained,
                     newLevel: data.newLevel,
                     leveledUp: data.leveledUp,
+                    creditsGained: data.creditsGained,
                 }))
                 void navigate(`/battle-result/${sessionId}`)
                 return
@@ -334,6 +345,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         }
 
         if (isCpuRef.current) {
+            submittingRef.current = false
             setIsMyTurn(true)
         }
     }
@@ -362,6 +374,12 @@ export function useBattle(sessionId: number): UseBattleReturn {
             const oppNewHp = isPlayer1Ref.current ? data.newPlayer2Hp : data.newPlayer1Hp;
             setPlayer(prev => prev ? { ...prev, currentHp: myNewHp } : null);
             setOpponent(prev => prev ? { ...prev, currentHp: oppNewHp } : null);
+            if (data.descriptions?.length) {
+                const tagged: BattleMessage[] = isCpuRef.current
+                    ? data.descriptions.map(text => ({ text, side: text.startsWith("CPU's ") ? 'opponent' as const : 'player' as const }))
+                    : data.descriptions.map(text => ({ text, side: 'player' as const }))
+                setMessages(prev => [...prev, ...tagged])
+            }
         }
 
         setPlayerItems(prev =>
@@ -378,17 +396,22 @@ export function useBattle(sessionId: number): UseBattleReturn {
     async function onRun(): Promise<void> {
         if (!user) return;
 
-        const winnerId = isCpuRef.current ? null : opponentUserId;
+        const { data: forfeitData, error: forfeitError } = await supabase.functions.invoke<{ creditsGained: number }>('forfeit', {
+            body: { sessionId },
+        });
 
-        const { error: runError } = await supabase
-            .from('game_sessions')
-            .update({ status: 'finished', winner_id: winnerId })
-            .eq('id', sessionId);
-
-        if (runError) {
-            setError(runError.message);
-            return
+        if (forfeitError) {
+            setError(forfeitError.message);
+            return;
         }
+
+        sessionStorage.setItem(`battle-result-${sessionId}`, JSON.stringify({
+            xpGained: 0,
+            newLevel: null,
+            leveledUp: false,
+            creditsGained: forfeitData?.creditsGained ?? 0,
+        }));
+
         void navigate(`/battle-result/${sessionId}`);
     }
 
