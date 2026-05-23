@@ -19,6 +19,8 @@ interface Props {
 export default function TrainerInfo({ trainer, playerStats }: Props) {
   return (
     <div className={styles.wrapper}>
+      <h2 className={styles.title}>Trainer</h2>
+      <div className={styles.content}>
       <img
         src={trainerImages[trainer.trainer_gender]}
         alt={`${trainer.name} avatar`}
@@ -27,7 +29,7 @@ export default function TrainerInfo({ trainer, playerStats }: Props) {
       <div className={styles.info}>
         <div className={styles.nameRow}>
           <div className={styles.nameBlock}>
-            <h2 className={styles.name}>{trainer.name}</h2>
+            <h3 className={styles.name}>{trainer.name}</h3>
             <p className={styles.gender}>
               {GENDER_LABELS[trainer.trainer_gender]}
               <span aria-hidden="true" className={styles.genderSymbol}>{GENDER_SYMBOLS[trainer.trainer_gender]}</span>
@@ -58,6 +60,7 @@ export default function TrainerInfo({ trainer, playerStats }: Props) {
           <dd className={styles.statValue}>{Math.min(trainer.wins, 6)} / 6</dd>
         </div>
       </dl>
+      </div>
       </div>
     </div>
   );

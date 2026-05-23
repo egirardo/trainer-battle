@@ -131,6 +131,12 @@ export interface PlayerStats {
 
 export type ItemEffectType = 'heal' | 'attack_boost' | 'defence_boost';
 
+export const ITEM_EFFECT_LABELS: Record<ItemEffectType, string> = {
+    heal: 'HP',
+    attack_boost: 'ATK',
+    defence_boost: 'DEF',
+};
+
 export interface Item {
     id: number;
     name: string;

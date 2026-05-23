@@ -1,19 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import type { Item } from "@/models/models";
-
-// Eagerly imports all item sprites so Vite includes them in the build and
-// resolves their hashed URLs. The DB stores just the filename (e.g. "health-potion.png").
-const itemSprites = import.meta.glob<string>(
-    "../assets/sprites/items/*.png",
-    { eager: true, import: "default" }
-);
-
-function resolveItemImage(filename: unknown): string | undefined {
-    if (typeof filename !== "string" || !filename) return undefined;
-    const key = Object.keys(itemSprites).find(k => k.endsWith(`/${filename}`));
-    return key ? itemSprites[key] : undefined;
-}
+import { resolveItemImage } from "@/lib/itemImages";
 
 export function useItems() {
     const [items, setItems] = useState<Item[]>([]);

@@ -16,6 +16,7 @@ import AdminPanel from './views/AdminPanel'
 import Login from './views/Login'
 import Register from './views/Register'
 import ProfileConfirmation from './views/ProfileConfirmation'
+import ProfilePageScreen from './views/ProfilePageScreen'
 import { TrainerCreationProvider } from './context/TrainerCreationContext'
 import CreationFlowLayout from './layouts/CreationFlowLayout'
 import ShopScreen from './views/ShopScreen'
@@ -113,9 +114,13 @@ function App() {
           path={ROUTES.adminPanel} 
           element={!user ? <Navigate to={ROUTES.adminLogin} replace /> : <AdminPanel />}
         />
-        <Route 
-          path={ROUTES.shop} 
+        <Route
+          path={ROUTES.shop}
           element={!user ? <Navigate to={ROUTES.login} replace /> : <ShopScreen />}
+        />
+        <Route
+          path={ROUTES.profile}
+          element={!user ? <Navigate to={ROUTES.login} replace /> : <ProfilePageScreen />}
         />
 
         {/* Onboarding flow - protected */}
