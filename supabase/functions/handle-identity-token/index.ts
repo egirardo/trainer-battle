@@ -185,6 +185,8 @@ Deno.serve(async (req) => {
     }
 
     const transactionData = rawTransaction as TransactionResponse
+    const transactionId = String(transactionData.transaction_id)
+    const stamp = transactionData.stamp
 
     if (!isReturning) {
       const { error: profileError } = await adminClient
