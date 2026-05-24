@@ -7,6 +7,7 @@
   background-clip: border-box;
   image-rendering: pixelated;
   margin: 1rem 1rem;
+  scroll-margin-top: 4.5rem;
 }
 
 .title {

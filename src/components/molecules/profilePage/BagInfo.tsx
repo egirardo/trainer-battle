@@ -34,7 +34,7 @@ export default function BagInfo({ items }: Props) {
         </div>
       )}
       <div className={styles.footer}>
-        <Button className={styles.shopButton}as={Link} to={ROUTES.shop}>Go to Shop</Button>
+        <Button className={styles.shopButton} as={Link} to={ROUTES.shop}>Go to Shop</Button>
       </div>
     </div>
   );
