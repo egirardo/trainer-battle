@@ -174,7 +174,7 @@ Deno.serve(async (req) => {
 
     if (
       typeof rawTransaction !== 'object' ||
-      rawTransactioon === null ||
+      rawTransaction === null ||
       !('transaction_id' in rawTransaction) ||
       typeof (rawTransaction as Record<string, unknown>).transaction_id !== 'number'
     ) {
