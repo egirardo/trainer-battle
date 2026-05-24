@@ -170,9 +170,21 @@ Deno.serve(async (req) => {
       return errorResponse('Failed to process transaction', 502)
     }
 
-    const transactionData = await transactionRes.json() as TransactionResponse
-    const transactionId = String(transactionData.transaction_id)
-    const stamp = transactionData.stamp
+    const rawTransaction = await transactionRes.json() as unknown
+
+    if (
+      typeof rawTransaction !== 'object' ||
+      rawTransactioon === null ||
+      !('transaction_id' in rawTransaction) ||
+      typeof (rawTransaction as Record<string, unknown>).transaction_id !== 'number'
+    ) {
+      if (!isReturning && newUser?.user) {
+        await adminClient.auth.admin.deleteUser(newUser.user.id)
+      }
+      return errorResponse('Unexpected response from Centralbank', 502)
+    }
+
+    const transactionData = rawTransaction as TransactionResponse
 
     if (!isReturning) {
       const { error: profileError } = await adminClient
