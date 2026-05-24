@@ -396,7 +396,6 @@ Deno.serve(async (req) => {
                         p_battles: 1,
                         p_credits: -(config?.credits_pvp_loss ?? 25),
                     })
-
                     if (loserStatsErr) {
                         console.error('Partial state: winner stats updated but loser stats not updated', loserStatsErr)
                         return errorResponse('Failed to update loser stats', 500)
