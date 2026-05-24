@@ -6,7 +6,7 @@
   background-color: var(--purp-card-bg);
   background-clip: border-box;
   image-rendering: pixelated;
-  margin: 0.5rem 1rem;
+  margin: 1rem 1rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -139,7 +139,9 @@
 
 @media (min-width: 505px) {
   .wrapper {
-    max-width: 480px;
+    box-sizing: border-box;
+    max-width: min(554px, calc(100% - 2rem));
+    margin-inline: auto;
   }
 
   .content {
@@ -164,8 +166,16 @@
   
 }
 
+@media (min-width: 768px) {
+  .wrapper {
+    max-width: none;
+    margin: 0;
+    flex: 1; /* stretch to match the taller sibling card */
+  }
+}
+
 @media (max-width: 504px) {
   .wrapper {
-    margin: 0.5rem;
+    margin: 1rem;
   }
 }

@@ -15,10 +15,10 @@ export default function ButtonGroup({ horizontal = false, onShowInstructions }: 
                 Find a Match
             </Button>
             <div className={styles.lowerGroup}>
-                <Button as={Link} to="/shop"> {/* Placeholder links for shop and bag, replace with actual shop route when implemented. */}
+                <Button as={Link} to={ROUTES.shop}> {/* Placeholder links for shop and bag, replace with actual shop route when implemented. */}
                     Shop
                 </Button>
-                <Button as={Link} to="/bag">
+                <Button as={Link} to={ROUTES.bag}>
                     Bag
                 </Button>
                 <Button onClick={onShowInstructions}>

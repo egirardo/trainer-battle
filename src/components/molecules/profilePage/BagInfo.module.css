@@ -6,7 +6,7 @@
   background-color: var(--purp-card-bg);
   background-clip: border-box;
   image-rendering: pixelated;
-  margin: 0.5rem 1rem;
+  margin: 1rem 1rem;
 }
 
 .title {
@@ -71,15 +71,39 @@
   margin-left: auto;
 }
 
+.footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.shopButton {
+  text-decoration: none;
+
+}
+
 @media (min-width: 505px) {
   .wrapper {
-    max-width: 480px;
+    box-sizing: border-box;
+    max-width: min(554px, calc(100% - 2rem));
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .wrapper {
+    max-width: none;
+    margin: 0;
+  }
+
+  .footer {
+    justify-content: flex-end;
   }
 }
 
 @media (max-width: 504px) {
   .wrapper {
-    margin: 0.5rem;
+    margin: 1rem;
   }
 }
 

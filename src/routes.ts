@@ -16,4 +16,5 @@ export const ROUTES = {
   help: '/help',
   credits: '/credits',
   profile: '/profile',
+  bag: '/profile#bag',
 } as const
