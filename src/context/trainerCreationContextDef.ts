@@ -2,6 +2,12 @@ import { createContext } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import type { Creature, TrainerGender } from '@/models/models'
 
+export const TRAINER_CREATION_SESSION_KEY = 'trainer_creation'
+
+export function clearCreationSession(): void {
+    sessionStorage.removeItem(TRAINER_CREATION_SESSION_KEY)
+}
+
 export type { TrainerGender }
 
 export interface TrainerCreationState {

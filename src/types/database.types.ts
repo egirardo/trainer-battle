@@ -147,6 +147,7 @@ export type Database = {
           description: string | null
           id: number
           image: string | null
+          is_boss: boolean
           name: string | null
           type: string | null
         }
@@ -158,6 +159,7 @@ export type Database = {
           description?: string | null
           id?: number
           image?: string | null
+          is_boss?: boolean
           name?: string | null
           type?: string | null
         }
@@ -169,6 +171,7 @@ export type Database = {
           description?: string | null
           id?: number
           image?: string | null
+          is_boss?: boolean
           name?: string | null
           type?: string | null
         }
@@ -458,6 +461,7 @@ export type Database = {
       player_stats: {
         Row: {
           boss_beaten: boolean
+          cpu_battles_count: number
           credits: number
           id: number
           lives: number
@@ -471,6 +475,7 @@ export type Database = {
         }
         Insert: {
           boss_beaten?: boolean
+          cpu_battles_count?: number
           credits?: number
           id?: number
           lives?: number
@@ -484,6 +489,7 @@ export type Database = {
         }
         Update: {
           boss_beaten?: boolean
+          cpu_battles_count?: number
           credits?: number
           id?: number
           lives?: number

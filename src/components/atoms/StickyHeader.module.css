@@ -3,13 +3,9 @@
   flex-direction: column;
   position: sticky;
   top: 0;
+  z-index: 10;
   background-color: var(--ui-bg);
   box-shadow: var(--light-shadow);
-}
-
-/* Full-viewport-width breakout when nav drawer is present */
-.navMode {
-  z-index: 10;
   width: 100vw;
   margin-left: calc(50% - 50vw);
 }
@@ -20,12 +16,13 @@
   align-items: center;
   padding: 0.8em 1em;
   box-sizing: border-box;
-}
-
-.navMode .headerRow {
   max-width: 1126px;
   margin-inline: auto;
   width: 100%;
+}
+
+/* Nav drawer requires relative positioning on the header row */
+.navMode .headerRow {
   padding: 1em 1.5em;
   position: relative;
 }

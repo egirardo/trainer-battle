@@ -12,7 +12,7 @@ import CloseButton from '@/components/atoms/headerButtons/CloseButton'
 const steps = [
     { path: ROUTES.characterSelect,    label: '- Step 1 of 3 -', headerLabel: 'Your Trainer',     back: null,                     next: ROUTES.creatureSelect },
     { path: ROUTES.creatureSelect,     label: '- Step 2 of 3 -', headerLabel: 'Your Creature',    back: ROUTES.characterSelect,   next: ROUTES.profileConfirmation },
-    { path: ROUTES.profileConfirmation, label: '- Step 3 of 3 -', headerLabel: 'Your Information', back: ROUTES.creatureSelect,   next: null },
+    { path: ROUTES.profileConfirmation, label: '- Step 3 of 3 -', headerLabel: 'Confirm Profile', back: ROUTES.creatureSelect,   next: null },
 ]
 // Need to add a guard later so that users cannot navigate to these routes without going through the flow in order, but for now this is fine since there are no other links to these pages. Copilot feedback: The PR description says the flow enforces step completion before navigation, but this layout only blocks the Next button. A user can still deep-link directly to /creature-select or /profile-confirmation and bypass earlier steps. Add a guard (e.g., useEffect on pathname) to redirect to the first incomplete step when prerequisites aren’t met.
 
