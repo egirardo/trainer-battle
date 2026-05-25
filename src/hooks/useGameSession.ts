@@ -58,6 +58,17 @@ export function useGameSession() {
         setLoading(true);
 
         try {
+            const { data: stats } = await supabase
+                .from('player_stats')
+                .select('cpu_battles_count')
+                .eq('player_id', user.id)
+                .maybeSingle();
+
+            if ((stats?.cpu_battles_count ?? 0) >= 5) {
+                setError('CPU battle limit reached. Win a PVP battle to reset.');
+                return;
+            }
+
             const [creaturesResult, myCreatureResult, configResult] = await Promise.all([
                 supabase.from('creatures').select('id, base_hp').eq('is_boss', false),
                 supabase.from('player_creatures').select('current_hp, level').eq('id', myCreatureId).single(),
