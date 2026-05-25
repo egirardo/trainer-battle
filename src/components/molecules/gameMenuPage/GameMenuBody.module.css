@@ -13,8 +13,7 @@
     grid-template-areas:
       "credits  credits"
       "actions actions"
-      "profile  progress"
-      "progress progress";
+      "profile  progress";
     gap: 1rem;
   }
 

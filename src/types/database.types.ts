@@ -457,6 +457,7 @@ export type Database = {
       }
       player_stats: {
         Row: {
+          boss_beaten: boolean
           credits: number
           id: number
           lives: number
@@ -469,6 +470,7 @@ export type Database = {
           transaction_id: string | null
         }
         Insert: {
+          boss_beaten?: boolean
           credits?: number
           id?: number
           lives?: number
@@ -481,6 +483,7 @@ export type Database = {
           transaction_id?: string | null
         }
         Update: {
+          boss_beaten?: boolean
           credits?: number
           id?: number
           lives?: number
