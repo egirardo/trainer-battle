@@ -157,7 +157,7 @@ export default function GameMenuBody() {
   if (loading) return <LoadingScreen />;
   if (error) return <p role="alert">{error}</p>;
 
-  const hasBoss = wins >= 3; // Example condition for boss availability, adjust as needed
+  const hasBoss = wins >= 3; // Boss unlocks once the player reaches 3 total wins.
 
   return (
     <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
