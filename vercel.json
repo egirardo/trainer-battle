@@ -6,7 +6,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "frame-ancestors 'self' https://loopland.se/"
+          "value": "frame-ancestors 'self' https://loopland.se"
         }
       ]
     }
