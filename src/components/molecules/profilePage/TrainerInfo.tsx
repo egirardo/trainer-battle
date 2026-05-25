@@ -5,6 +5,7 @@ import femaleTrainer from '@/assets/sprites/trainers/avatar-f.png';
 import maleTrainer from '@/assets/sprites/trainers/avatar-m.png';
 import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
 
+
 const trainerImages: Record<TrainerGender, string> = {
   female: femaleTrainer,
   male: maleTrainer,
