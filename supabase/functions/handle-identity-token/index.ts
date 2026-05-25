@@ -231,11 +231,15 @@ Deno.serve(async (req) => {
     let startingCreditsToSet = startingCredits
 
     if (isReturning) {
-      const { data: existingStats } = await adminClient
+      const { data: existingStats, error: existingStatsErr } = await adminClient
         .from('player_stats')
         .select('credits')
         .eq('player_id', supabaseUserId)
         .maybeSingle()
+
+      if (existingStatsErr) {
+        return errorResponse('Failed to load player stats', 500)
+      }
 
       if (existingStats) {
         creditsToSet = existingStats.credits
