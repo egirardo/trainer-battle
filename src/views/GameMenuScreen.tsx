@@ -77,6 +77,16 @@ export default function GameMenuScreen(){
             </header>
             <main>
                 <GameMenuBody />
+
+                {isCentralbankUser && window.parent !== window && (
+                    <button
+                        onClick={() =>
+                            window.parent.postMessage({ type: "AMUSEMENT_CLOSE" }, "https://loopland.se")
+                        }
+                    >
+                        Back to Loopland
+                    </button>
+                )}
             </main>
         </>
     )
