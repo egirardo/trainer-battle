@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { ROUTES } from '@/routes';
-import { useBattle } from '@/hooks/useBattle';
+import { useBattle, TURN_DURATION_SECONDS } from '@/hooks/useBattle';
 import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
 import BattleLog from '@/components/molecules/battle/BattleLog';
@@ -91,7 +91,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                     </span>
                     <div
                         className={`${styles.timerFill} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}
-                        style={{ width: `${(timeRemaining / 45) * 100}%` }}
+                        style={{ width: `${(timeRemaining / TURN_DURATION_SECONDS) * 100}%` }}
                     />
                 </div>
             )}

@@ -22,6 +22,8 @@ interface UseBattleReturn {
     onUseItem: (itemId: number) => Promise<void>;
 }
 
+export const TURN_DURATION_SECONDS = 45;
+
 export function useBattle(sessionId: number): UseBattleReturn {
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -34,7 +36,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
     const wasMyMoveRef = useRef(false);
     const submittingRef = useRef(false);
     const [isMyTurn, setIsMyTurn] = useState(false);
-    const [timeRemaining, setTimeRemaining] = useState(45);
+    const [timeRemaining, setTimeRemaining] = useState(TURN_DURATION_SECONDS);
     const skipTurnRef = useRef<() => Promise<void>>(() => Promise.resolve());
     const [opponentUserId, setOpponentUserId] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
@@ -263,14 +265,29 @@ export function useBattle(sessionId: number): UseBattleReturn {
         setIsMyTurn(false);
         wasMyMoveRef.current = true;
 
+        type InvokeError = { message: string; context?: Response };
         const { data, error } = await supabase.functions.invoke('skip-turn', {
             body: { sessionId: sessionIdRef.current },
-        }) as { data: { message: string } | null; error: { message: string } | null };
+        }) as { data: { message: string } | null; error: InvokeError | null };
 
         if (error) {
-            setError(error.message);
+            let message = error.message;
+            let turnAlreadyResolved = false;
+
+            if (error.context instanceof Response) {
+                turnAlreadyResolved = error.context.status === 409;
+                try {
+                    const payload = await error.context.clone().json() as { error?: string };
+                    message = payload.error ?? message;
+                } catch {
+                    const fallback = await error.context.clone().text();
+                    if (fallback) message = fallback;
+                }
+            }
+
+            setError(message);
             submittingRef.current = false;
-            setIsMyTurn(true);
+            if (!turnAlreadyResolved) setIsMyTurn(true);
             return;
         }
 
@@ -284,17 +301,17 @@ export function useBattle(sessionId: number): UseBattleReturn {
 
     useEffect(() => {
         if (!isMyTurn || isCpuRef.current) {
-            setTimeRemaining(45);
+            setTimeRemaining(TURN_DURATION_SECONDS);
             return;
         }
 
-        setTimeRemaining(45);
+        setTimeRemaining(TURN_DURATION_SECONDS);
         const start = Date.now();
         let fired = false;
 
         const interval = setInterval(() => {
             const elapsed = Math.floor((Date.now() - start) / 1000);
-            const remaining = Math.max(0, 45 - elapsed);
+            const remaining = Math.max(0, TURN_DURATION_SECONDS - elapsed);
             setTimeRemaining(remaining);
             if (remaining === 0 && !fired) {
                 fired = true;
@@ -354,7 +371,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 Authorization: `Bearer ${accessToken}`,
             },
             body: { sessionId, playerId: user.id, moveId }
-        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; newLevel: number; leveledUp: boolean } | null; error: InvokeError | null };
+        }) as { data: { descriptions: string[]; newPlayer1Hp: number; newPlayer2Hp: number; isFinished: boolean; winnerId: string | null; xpGained: number; creditsEarned: number; newLevel: number; leveledUp: boolean } | null; error: InvokeError | null };
 
         if (error) {
             let message = error.message
@@ -390,6 +407,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
             if (data.isFinished) {
                 sessionStorage.setItem(`battle-result-${sessionId}`, JSON.stringify({
                     xpGained: data.xpGained,
+                    creditsEarned: data.creditsEarned,
                     newLevel: data.newLevel,
                     leveledUp: data.leveledUp,
                 }))
