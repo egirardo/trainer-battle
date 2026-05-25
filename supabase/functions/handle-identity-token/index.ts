@@ -227,13 +227,29 @@ Deno.serve(async (req) => {
 
     hasStarterCreature = existingCreature !== null
 
+    let creditsToSet = startingCredits
+    let startingCreditsToSet = startingCredits
+
+    if (isReturning) {
+      const { data: existingStats } = await adminClient
+        .from('player_stats')
+        .select('credits')
+        .eq('player_id', supabaseUserId)
+        .maybeSingle()
+
+      if (existingStats) {
+        creditsToSet = existingStats.credits
+        startingCreditsToSet = existingStats.credits
+      }
+    }
+
     const { error: statsError } = await adminClient
       .from('player_stats')
       .upsert({
         player_id: supabaseUserId,
-        credits: startingCredits,
+        credits: creditsToSet,
         transaction_id: transactionId,
-        starting_credits: startingCredits,
+        starting_credits: startingCreditsToSet,
       }, { onConflict: 'player_id' })
 
     if (statsError) {
@@ -261,7 +277,7 @@ Deno.serve(async (req) => {
         is_returning: isReturning,
         has_starter_creature: hasStarterCreature,
         player_name: playerName,
-        starting_credits: startingCredits,
+        starting_credits: startingCreditsToSet,
         stamp,
       }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
