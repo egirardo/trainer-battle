@@ -72,7 +72,9 @@ export function useResult(sessionId: number) {
 
                 const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
                 sessionStorage.removeItem(`battle-result-${sessionId}`);
-                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; newLevel: number; leveledUp: boolean } : null;
+                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; creditsEarned: number; newLevel: number; leveledUp: boolean } : null;
+
+                const creditsEarned = serverResult?.creditsEarned ?? 0;
 
                 const xpGained = serverResult?.xpGained ?? (outcome === 'win'
                     ? (session.is_cpu ? (configResult.data?.xp_cpu_win ?? 50) : (configResult.data?.xp_pvp_win ?? 100))
@@ -92,6 +94,7 @@ export function useResult(sessionId: number) {
                     totalLosses: statsResult.data?.total_losses ?? 0,
                     totalForfeits: statsResult.data?.total_forfeits ?? 0,
                     xpGained,
+                    creditsEarned,
                     newLevel,
                     currentXp: currentExp % xpPerLevel,
                     xpPerLevel,
