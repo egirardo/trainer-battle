@@ -23,8 +23,6 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId)
     const navigate = useNavigate()
 
-    if (loading) return <LoadingScreen message="Loading result..." />;
-    if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
     async function handleLogout(): Promise<void> {
         const { error } = await supabase.auth.signOut()
         if (error) { console.error('Failed to sign out:', error); return }
@@ -41,8 +39,8 @@ function ResultContent({ sessionId }: { sessionId: number }) {
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
 
-    if (loading) return <main><p>Loading result...</p></main>
-    if (error || !result) return <main><p role="alert">{error ?? 'Result data unavailable'}</p></main>
+    if (loading) return <LoadingScreen message="Loading result..." />;
+    if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
     const isWin = result.outcome === 'win'
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')

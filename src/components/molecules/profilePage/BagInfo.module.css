@@ -1,0 +1,90 @@
+.wrapper {
+  padding: 1rem;
+  border: 21px solid transparent;
+  border-radius: 35px;
+  border-image: url('../../../assets/sprites/components/purple-dialog-box.png') 21 / 21px stretch;
+  background-color: var(--purp-card-bg);
+  background-clip: border-box;
+  image-rendering: pixelated;
+  margin: 0.5rem 1rem;
+}
+
+.title {
+  margin: 0 0 1rem;
+  color: var(--text-h);
+  line-height: 1;
+}
+
+.empty {
+  margin: 0;
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  border-top: 2px solid var(--text-h);
+  padding-top: 0.75rem;
+}
+
+.itemCard {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.itemImage {
+  width: 32px;
+  height: 32px;
+  image-rendering: pixelated;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.itemDetails {
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.itemName {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-h);
+}
+
+.itemEffect {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text);
+  white-space: nowrap;
+}
+
+.quantity {
+  font-size: 0.85rem;
+  color: var(--text-h);
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (min-width: 505px) {
+  .wrapper {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 504px) {
+  .wrapper {
+    margin: 0.5rem;
+  }
+}
+
+@media (max-width: 366px) {
+  .itemDetails {
+    align-items: center;
+  }
+}

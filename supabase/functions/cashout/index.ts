@@ -20,11 +20,6 @@ function errorResponse(message: string, status: number): Response {
   )
 }
 
-function calculatePayout(credits: number): number {
-  const raw = credits * 0.03
-  return Math.floor(raw / 0.5) * 0.5
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
@@ -70,13 +65,31 @@ Deno.serve(async (req) => {
       return errorResponse('No active transaction found', 400)
     }
 
+    const { data: config, error: configErr } = await adminClient
+      .from('game_config')
+      .select('credit_exchange_rate, payout_rounding')
+      .single()
+
+    if (configErr || !config) {
+      return errorResponse('Failed to load game config', 500)
+    }
+
+    const exchangeRate = config.credit_exchange_rate
+    const rounding = config.payout_rounding
+
+    if (!Number.isFinite(exchangeRate) || exchangeRate <= 0 ||
+      !Number.isFinite(rounding) || rounding <= 0) {
+      return errorResponse('Invalid game config values', 500)
+    }
+
     const winnings = stats.credits - stats.starting_credits
 
     if (winnings <= 0) {
       return errorResponse('No payout available', 400)
     }
 
-    const payout = calculatePayout(winnings)
+    const raw = winnings * exchangeRate
+    const payout = Math.floor(raw / rounding) * rounding
 
     if (payout <= 0) {
       return errorResponse('No payout available', 400)

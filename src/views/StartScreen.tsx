@@ -4,8 +4,7 @@ import { ROUTES } from '../routes';
 import { useAuth } from '../hooks/useAuth';
 import { useAudio } from '@/context/AudioContext';
 import styles from './StartScreen.module.css'
-import testcreature1 from '@/assets/sprites/creatures/fire-creature.png';
-import testcreature2 from '@/assets/sprites/creatures/water-creature.png';
+import trainers from '@/assets/sprites/trainers/m-f-trainers.png';
 import volumeOn from '@/assets/sprites/components/volume-on.svg';
 import volumeOff from '@/assets/sprites/components/volume-off.svg';
 import Button from "@/components/atoms/button";
@@ -37,10 +36,9 @@ export default function StartScreen(){
                             <span className={styles.gameLogo}>- Trainer -</span>
                             <span className={styles.gameLogo}>Battle</span>
                         </h1>
-                        <div className={styles.logoImgContainer}>
-                            <img className={styles.logoImg} src={testcreature1} alt="Creature image" aria-hidden="true"/>
-                            <img className={styles.logoImg} src={testcreature2} alt="Creature image" aria-hidden="true"/>
-                        </div>
+                    <div className={styles.logoImgContainer}>
+                        <img className={styles.logoImg} src={trainers} alt="" aria-hidden="true"/>
+                    </div>
                     </div>
                     <div className={styles.navContainer}>
                         <Button className={styles.startButton} onClick={() => user ? void navigate(ROUTES.characterSelect) : void navigate(ROUTES.register)}>

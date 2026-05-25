@@ -410,6 +410,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     creditsEarned: data.creditsEarned,
                     newLevel: data.newLevel,
                     leveledUp: data.leveledUp,
+                    creditsGained: data.creditsGained,
                 }))
                 void navigate(`/battle-result/${sessionId}`)
                 return
@@ -468,34 +469,21 @@ export function useBattle(sessionId: number): UseBattleReturn {
     async function onRun(): Promise<void> {
         if (!user) return;
 
-        const winnerId = isCpuRef.current ? null : opponentUserId;
+        const { data: forfeitData, error: forfeitError } = await supabase.functions.invoke<{ creditsGained: number }>('forfeit', {
+            body: { sessionId },
+        });
 
-        const { error: runError } = await supabase
-            .from('game_sessions')
-            .update({ status: 'finished', winner_id: winnerId, forfeit_by: user.id })
-            .eq('id', sessionId);
-
-        if (runError) {
-            setError(runError.message);
-            return
-        }
-
-        const { error: stateError } = await supabase
-            .from('battle_state')
-            .update({ is_finished: true })
-            .eq('session_id', sessionId);
-
-        if (stateError) {
-            const { error: rollbackError } = await supabase
-                .from('game_sessions')
-                .update({ status: 'active', winner_id: null, forfeit_by: null })
-                .eq('id', sessionId);
-            if (rollbackError) {
-                console.error('Partial state: session marked finished but battle_state not updated', rollbackError);
-            }
-            setError(stateError.message);
+        if (forfeitError) {
+            setError(forfeitError.message);
             return;
         }
+
+        sessionStorage.setItem(`battle-result-${sessionId}`, JSON.stringify({
+            xpGained: 0,
+            newLevel: null,
+            leveledUp: false,
+            creditsGained: forfeitData?.creditsGained ?? 0,
+        }));
 
         void navigate(`/battle-result/${sessionId}`);
     }

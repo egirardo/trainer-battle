@@ -1,6 +1,7 @@
-import type { Trainer, PlayerStats, Creature, PlayerCreature, Move } from "@/models/models";
+import type { Trainer, PlayerStats, Creature, PlayerCreature, Move, PlayerItem } from "@/models/models";
 import TrainerInfo from "./TrainerInfo";
 import CreatureInfo from "./CreatureInfo";
+import BagInfo from "./BagInfo";
 
 interface Props {
   trainer: Trainer;
@@ -8,13 +9,15 @@ interface Props {
   creature: Creature;
   playerCreature: PlayerCreature;
   moves: Move[];
+  playerItems: PlayerItem[];
 }
 
-export default function ProfileBody({ trainer, playerStats, creature, playerCreature, moves }: Props) {
+export default function ProfileBody({ trainer, playerStats, creature, playerCreature, moves, playerItems }: Props) {
   return (
     <div>
       <TrainerInfo trainer={trainer} playerStats={playerStats} />
       <CreatureInfo creature={creature} playerCreature={playerCreature} moves={moves} />
+      <BagInfo items={playerItems} />
     </div>
   );
 }

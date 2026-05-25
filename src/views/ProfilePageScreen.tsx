@@ -3,7 +3,7 @@ import ProfileBody from '@/components/molecules/profilePage/ProfileBody';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 export default function ProfilePageScreen() {
-  const { trainer, playerStats, moves, loading, error } = useTrainerData({ moves: true });
+  const { trainer, playerStats, moves, playerItems, loading, error } = useTrainerData({ moves: true });
 
   if (loading) return <LoadingScreen />;
   if (error) return <p role="alert">{error}</p>;
@@ -11,7 +11,7 @@ export default function ProfilePageScreen() {
 
   return (
     <div>
-      <ProfileBody trainer={trainer} playerStats={playerStats} creature={trainer.creature} playerCreature={trainer.playerCreature} moves={moves} />
+      <ProfileBody trainer={trainer} playerStats={playerStats} creature={trainer.creature} playerCreature={trainer.playerCreature} moves={moves} playerItems={playerItems} />
     </div>
   );
 }
