@@ -56,6 +56,18 @@
   margin: 0.55em 0 0;
 }
 
+.bossBeat {
+  color: var(--battle-green);
+  font-size: 1.1em;
+  margin: 0.5em 0 0;
+}
+
+.lostLife {
+  color: var(--accent);
+  font-size: 1.1em;
+  margin: 0.5em 0 0;
+}
+
 /* ── Stats card ──────────────────────────────────────── */
 
 .card {

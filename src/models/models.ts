@@ -172,4 +172,6 @@ export interface ResultData {
     currentXp: number;
     xpPerLevel: number;
     leveledUp: boolean;
+    livesRemaining: number | null;
+    bossBeat: boolean;
 }

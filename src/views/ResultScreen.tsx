@@ -46,6 +46,8 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
     const isWin = result.outcome === 'win'
+    const lostALife = result.outcome === 'loss' && !result.isForfeit
+    const livesLeft = stats?.lives
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
     return (
@@ -57,7 +59,16 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                     <h1 className={isWin ? styles.victory : styles.defeat}>
                         {isWin ? 'Victory!' : 'Defeat'}
                     </h1>
-                    <p className={styles.opponent}>vs {opponentLabel}</p>
+                    <p className={result.bossBeat ? styles.bossBeat : styles.opponent}>
+                        {result.bossBeat ? 'You defeated the boss!' : `vs ${opponentLabel}`}
+                    </p>
+                    {lostALife && (
+                        <p className={styles.lostLife}>
+                            {livesLeft != null
+                                ? `You lost a life! ${livesLeft} ${livesLeft === 1 ? 'life' : 'lives'} remaining.`
+                                : 'You lost a life!'}
+                        </p>
+                    )}
                 </div>
 
                 <div className={styles.card}>
