@@ -1,7 +1,7 @@
 import React from 'react'
 import { TrainerCreationContext, TRAINER_CREATION_SESSION_KEY } from './trainerCreationContextDef'
 import type { TrainerGender } from './trainerCreationContextDef'
-import type { Creature } from '@/models/models'
+import type { Creature, CreatureType } from '@/models/models'
 
 interface PersistedState {
     trainerName: string
@@ -15,15 +15,54 @@ const DEFAULTS: PersistedState = {
     selectedCreature: null,
 }
 
+// ── Validators ──────────────────────────────────────────────────────────────
+
+const VALID_GENDERS: TrainerGender[] = ['male', 'female', 'nb']
+const VALID_TYPES: CreatureType[] = ['fire', 'water', 'grass']
+
+function isValidCreature(value: unknown): value is Creature {
+    if (typeof value !== 'object' || value === null) return false
+    const c = value as Record<string, unknown>
+    return (
+        typeof c.id === 'number' &&
+        typeof c.name === 'string' &&
+        VALID_TYPES.includes(c.type as CreatureType) &&
+        typeof c.base_hp === 'number' &&
+        typeof c.base_attack === 'number' &&
+        typeof c.base_defence === 'number' &&
+        typeof c.base_speed === 'number' &&
+        typeof c.description === 'string' &&
+        (c.image === undefined || typeof c.image === 'string')
+    )
+}
+
+// ── Session helpers ──────────────────────────────────────────────────────────
+
 function loadFromSession(): PersistedState {
     try {
         const raw = sessionStorage.getItem(TRAINER_CREATION_SESSION_KEY)
         if (!raw) return DEFAULTS
-        return { ...DEFAULTS, ...(JSON.parse(raw) as Partial<PersistedState>) }
+
+        const parsed: unknown = JSON.parse(raw)
+        if (typeof parsed !== 'object' || parsed === null) return DEFAULTS
+
+        const p = parsed as Record<string, unknown>
+
+        const trainerName = typeof p.trainerName === 'string' ? p.trainerName : DEFAULTS.trainerName
+        const trainerGender = VALID_GENDERS.includes(p.trainerGender as TrainerGender)
+            ? (p.trainerGender as TrainerGender)
+            : DEFAULTS.trainerGender
+        const selectedCreature = isValidCreature(p.selectedCreature)
+            ? p.selectedCreature
+            : DEFAULTS.selectedCreature
+
+        return { trainerName, trainerGender, selectedCreature }
     } catch {
         return DEFAULTS
     }
 }
+
+// ── Provider ─────────────────────────────────────────────────────────────────
 
 export function TrainerCreationProvider({ children }: { children: React.ReactNode }) {
     const initial = loadFromSession()
