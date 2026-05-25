@@ -8,10 +8,9 @@ const BASE_NAV_LINKS: NavItem[] = [
     { label: 'View Profile', to: ROUTES.profile },
     { label: 'Lobby',        to: ROUTES.lobby },
     { label: 'Shop',         to: ROUTES.shop },
-    { label: 'Help',         to: ROUTES.help },
 ]
 
-export function useNavItems(): NavItem[] {
+export function useNavItems(onHelp?: () => void): NavItem[] {
     const navigate = useNavigate()
 
     async function handleLogout(): Promise<void> {
@@ -25,6 +24,7 @@ export function useNavItems(): NavItem[] {
 
     return [
         ...BASE_NAV_LINKS,
+        ...(onHelp ? [{ label: 'Help' as const, onClick: onHelp }] : []),
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
 }

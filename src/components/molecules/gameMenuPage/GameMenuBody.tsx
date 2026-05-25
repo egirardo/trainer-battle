@@ -12,8 +12,6 @@ import { useGameSession } from '@/hooks/useGameSession';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
-import GameInstructions from '../gameInstructions/GameInstructions';
-import Overlay from '@/components/atoms/Overlay';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import Button from '@/components/atoms/button';
 
@@ -47,9 +45,10 @@ type PlayerCreatureData = {
 
 interface Props {
   onCashoutClick?: () => void;
+  onShowInstructions?: () => void;
 }
 
-export default function GameMenuBody({ onCashoutClick }: Props) {
+export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { createBossSession, loading: bossLoading } = useGameSession();
@@ -58,7 +57,6 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
-  const [showInstructions, setShowInstructions] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -174,7 +172,7 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
         <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
       </div>
       <div className={styles.actionsCol}>
-        <ButtonGroup horizontal />
+        <ButtonGroup horizontal onShowInstructions={onShowInstructions} />
       </div>
       <div className={styles.profileCol}>
         <ProfilePreview trainer={trainerWithStats} />
@@ -192,11 +190,6 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
         </div>
       )}
 
-      {showInstructions && (
-        <Overlay>
-            <GameInstructions onClose={() => setShowInstructions(false)} />
-        </Overlay>
-      )}
         {isCentralbankUser && window.parent !== window && (
           <div className={styles.btnContainer}>
               <Button
