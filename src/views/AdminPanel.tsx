@@ -2,14 +2,13 @@ import CreatureFormRow from "../components/molecules/CreatureFormRow";
 import MoveFormRow from "../components/molecules/MoveFormRow";
 import ItemFormRow from "../components/molecules/ItemFormRow";
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import type { Tables } from "@/types/database.types";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ROUTES } from "@/routes";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
-import { useNavigate } from "react-router-dom";
 
 type Creature = Tables<'creatures'>;
 type Move = Tables<'moves'>;
