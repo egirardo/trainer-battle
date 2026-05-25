@@ -127,6 +127,7 @@ export interface PlayerStats {
     total_forfeits: number;
     lives: number;
     credits: number;
+    boss_beaten?: boolean;
 }
 
 export type ItemEffectType = 'heal' | 'attack_boost' | 'defence_boost';
