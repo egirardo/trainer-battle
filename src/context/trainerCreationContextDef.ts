@@ -5,7 +5,11 @@ import type { Creature, TrainerGender } from '@/models/models'
 export const TRAINER_CREATION_SESSION_KEY = 'trainer_creation'
 
 export function clearCreationSession(): void {
-    sessionStorage.removeItem(TRAINER_CREATION_SESSION_KEY)
+    try {
+        sessionStorage.removeItem(TRAINER_CREATION_SESSION_KEY)
+    } catch {
+        // Storage unavailable — no-op; the stale key will be ignored on next load
+    }
 }
 
 export type { TrainerGender }

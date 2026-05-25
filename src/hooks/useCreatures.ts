@@ -45,7 +45,7 @@ export function useCreatures(): UseCreaturesResult {
                     base_defence: row.base_defence ?? 0,
                     base_speed: row.base_speed ?? 0,
                     description: row.description ?? '',
-                    image: getCreatureImage(row.image ?? ''),
+                    image: getCreatureImage(row.image ?? '', row.type as CreatureType),
                 }))
 
             setCreatures(mapped)
