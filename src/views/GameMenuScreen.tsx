@@ -22,7 +22,7 @@ export default function GameMenuScreen(){
         return <LoadingScreen />;
     }
 
-    return(
+    return (
         <>
             <header>
                 <StickyHeader label="Dashboard" navItems={navItems} />

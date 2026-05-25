@@ -70,10 +70,8 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                         <span className={styles.statValue}>{result.totalForfeits}</span>
                     </div>
                     <div className={styles.statRow}>
-                        <span className={styles.statLabel}>Credits</span>
-                        <span className={styles.statValue}>
-                            {result.creditsGained > 0 ? '+' : ''}{result.creditsGained}
-                        </span>
+                        <span className={styles.statLabel}>Credits earned</span>
+                        <span className={styles.statValue}>+{result.creditsGained}</span>
                     </div>
                 </div>
 

@@ -164,7 +164,7 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
   if (loading) return <LoadingScreen />;
   if (error) return <p role="alert">{error}</p>;
 
-  const hasBoss = wins >= 6;
+  const hasBoss = wins >= 3; // Boss unlocks once the player reaches 3 total wins.
 
   return (
     <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
@@ -178,7 +178,7 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
         <ProfilePreview trainer={trainerWithStats} />
       </div>
       <div className={styles.progressRow}>
-        <ProgressPreview wins={wins} />
+        <ProgressPreview wins={wins} bossBeaten={playerStats?.boss_beaten ?? false} />
       </div>
       {hasBoss && (
         <div className={styles.bossCol}>

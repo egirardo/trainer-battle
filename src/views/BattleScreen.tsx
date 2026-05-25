@@ -1,6 +1,6 @@
 import { Navigate, useParams } from 'react-router-dom';
 import { ROUTES } from '@/routes';
-import { useBattle } from '@/hooks/useBattle';
+import { useBattle, TURN_DURATION_SECONDS } from '@/hooks/useBattle';
 import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
 import BattleLog from '@/components/molecules/battle/BattleLog';
@@ -27,7 +27,7 @@ export default function BattleScreen() {
 
 function BattleContent({ sessionId }: { sessionId: number }) {
     const [showInstructions, setShowInstructions] = useState(false);
-    const { player, opponent, messages, isMyTurn, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
+    const { player, opponent, messages, isMyTurn, isCpu, timeRemaining, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
 
     if (loading) return <LoadingScreen message="Loading battle…" />;
@@ -83,6 +83,18 @@ function BattleContent({ sessionId }: { sessionId: number }) {
             </section>
 
             <BattleLog messages={messages} isMyTurn={isMyTurn} />
+
+            {!isCpu && isMyTurn && (
+                <div className={styles.timerBar}>
+                    <span className={`${styles.timerLabel} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
+                        {timeRemaining}s
+                    </span>
+                    <div
+                        className={`${styles.timerFill} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}
+                        style={{ width: `${(timeRemaining / TURN_DURATION_SECONDS) * 100}%` }}
+                    />
+                </div>
+            )}
 
             <BattleActions
                 moves={moves}
