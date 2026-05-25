@@ -505,7 +505,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsEarned, newLevel, leveledUp }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsGained, newLevel, leveledUp }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 

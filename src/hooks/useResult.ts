@@ -96,7 +96,7 @@ export function useResult(sessionId: number) {
                     totalLosses: statsResult.data?.total_losses ?? 0,
                     totalForfeits: statsResult.data?.total_forfeits ?? 0,
                     xpGained,
-                    creditsEarned,
+                    creditsGained,
                     newLevel,
                     currentXp: currentExp % xpPerLevel,
                     xpPerLevel,

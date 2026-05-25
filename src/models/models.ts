@@ -165,7 +165,7 @@ export interface ResultData {
     totalLosses: number;
     totalForfeits: number;
     xpGained: number;
-    creditsEarned: number;
+    creditsGained: number;
     newLevel: number;
     currentXp: number;
     xpPerLevel: number;
