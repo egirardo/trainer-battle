@@ -192,7 +192,9 @@ export default function AdminPanel() {
     async function handleLogout(): Promise<void> {
         const { error } = await supabase.auth.signOut()
         if (error) {
-            console.error('Failed to sign out:', error); return }
+            console.error('Failed to sign out:', error)
+            return
+        }
         void navigate(ROUTES.start)
     }
 
