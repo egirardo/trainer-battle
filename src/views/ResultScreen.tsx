@@ -71,7 +71,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                     </div>
                     <div className={styles.statRow}>
                         <span className={styles.statLabel}>Credits earned</span>
-                        <span className={styles.statValue}>+{result.creditsEarned}</span>
+                        <span className={styles.statValue}>+{result.creditsGained}</span>
                     </div>
                 </div>
 
