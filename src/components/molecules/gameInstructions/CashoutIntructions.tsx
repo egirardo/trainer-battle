@@ -72,6 +72,7 @@ export default function CashoutIntructions({ onClose }: Props){
                     </h2>
                     <p>Cashout converts your in-game credits into Tivoli's euros and ends your current session. You can only cash out if you've earned more credits than you started with - the payout is based on your profit, not your total balance.</p>
                     <p>Your credits are converted at a fixed rate. The exact amount is shown on the cash out button before you confirm.</p>
+                    <p>You must <span className={styles.accentText}>defeat the boss</span> to cash out your credits.</p>
                     <p>After cashing out you'll be logged out, but your progress is saved. When you come back, returning players pay a reduced entry fee.</p>
                 </div>
                 <div className={styles.btnContainer}>
