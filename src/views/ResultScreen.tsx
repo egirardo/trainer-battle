@@ -1,11 +1,13 @@
 import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import { useResult } from "@/hooks/useResult";
+import { usePlayerStats } from "@/hooks/usePlayerStats";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import StickyHeader, { type NavItem } from '@/components/atoms/StickyHeader'
 import { supabase } from '@/lib/supabase'
 import Button from '@/components/atoms/button'
 import XpBar from '@/components/atoms/XpBar'
+import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTracker";
 import styles from './ResultScreen.module.css'
 
 export default function ResultScreen() {
@@ -21,6 +23,7 @@ export default function ResultScreen() {
 
 function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId)
+    const { stats } = usePlayerStats()
     const navigate = useNavigate()
 
     async function handleLogout(): Promise<void> {
@@ -49,6 +52,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
         <>
             <StickyHeader label="Result" navItems={navItems} />
             <main className={styles.main}>
+                <LifeCreditTracker lives={stats?.lives ?? 0} credits={stats?.credits ?? 0} />
                 <div className={styles.outcomeSection}>
                     <h1 className={isWin ? styles.victory : styles.defeat}>
                         {isWin ? 'Victory!' : 'Defeat'}
@@ -70,8 +74,8 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                         <span className={styles.statValue}>{result.totalForfeits}</span>
                     </div>
                     <div className={styles.statRow}>
-                        <span className={styles.statLabel}>Credits earned</span>
-                        <span className={styles.statValue}>+{result.creditsGained}</span>
+                        <span className={styles.statLabel}>Credits {result.creditsGained >= 0 ? 'earned' : 'lost'}</span>
+                        <span className={styles.statValue}>{result.creditsGained >= 0 ? `+${result.creditsGained}` : result.creditsGained}</span>
                     </div>
                 </div>
 

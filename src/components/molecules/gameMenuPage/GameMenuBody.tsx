@@ -8,6 +8,7 @@ import { PlayerStats, Trainer } from '@/models/models';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useGameSession } from '@/hooks/useGameSession';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
@@ -51,6 +52,7 @@ interface Props {
 export default function GameMenuBody({ onCashoutClick }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { createBossSession, loading: bossLoading } = useGameSession();
   const userId = user?.id;
   const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
@@ -182,7 +184,11 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
       </div>
       {hasBoss && (
         <div className={styles.bossCol}>
-          <BossDialog />
+          <BossDialog
+            playerCreatureId={trainer?.playerCreature?.id ?? null}
+            onFight={(playerCreatureId) => createBossSession(playerCreatureId)}
+            loading={bossLoading}
+          />
         </div>
       )}
 

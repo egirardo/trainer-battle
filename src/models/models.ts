@@ -161,6 +161,7 @@ export type ResultOutcome = 'win' | 'loss';
 export interface ResultData {
     outcome: ResultOutcome;
     isCpu: boolean;
+    isForfeit: boolean;
     opponentUsername: string | null;
     totalWins: number;
     totalLosses: number;

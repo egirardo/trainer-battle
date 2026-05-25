@@ -59,7 +59,7 @@ export function useGameSession() {
 
         try {
             const [creaturesResult, myCreatureResult, configResult] = await Promise.all([
-                supabase.from('creatures').select('id, base_hp'),
+                supabase.from('creatures').select('id, base_hp').eq('is_boss', false),
                 supabase.from('player_creatures').select('current_hp, level').eq('id', myCreatureId).single(),
                 supabase.from('game_config').select('stat_boost_hp').single(),
             ]);
@@ -98,6 +98,69 @@ export function useGameSession() {
                 session_id: session.id,
                 player1_hp: myCreatureResult.data?.current_hp ?? 100,
                 player2_hp: cpuMaxHp,
+                player1_status: 'normal',
+                player2_status: 'normal',
+                turn_number: 1,
+                is_finished: false,
+            });
+
+            if (battleStateError) {
+                setError(battleStateError.message);
+                return;
+            }
+
+            setSession(session as GameSession);
+            void navigate(`${ROUTES.battle}/${session.id}`);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // Create a boss session
+    async function createBossSession(myCreatureId: number): Promise<void> {
+        if (!user) return;
+        setError(null);
+        setLoading(true);
+
+        try {
+            const [bossResult, myCreatureResult, configResult] = await Promise.all([
+                supabase.from('creatures').select('id, base_hp').eq('is_boss', true).single(),
+                supabase.from('player_creatures').select('current_hp, level').eq('id', myCreatureId).single(),
+                supabase.from('game_config').select('stat_boost_hp').single(),
+            ]);
+
+            if (bossResult.error || !bossResult.data) {
+                setError('Could not load boss creature');
+                return;
+            }
+
+            const bossCreature = bossResult.data;
+            const playerLevel = myCreatureResult.data?.level ?? 1;
+            const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
+            const bossMaxHp = (bossCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
+
+            const { data: session, error: sessionErr } = await supabase
+                .from('game_sessions')
+                .insert({
+                    player1_id: user.id,
+                    player1_creature_id: myCreatureId,
+                    cpu_creature_id: bossCreature.id,
+                    is_cpu: true,
+                    status: 'active',
+                    current_turn: user.id,
+                })
+                .select()
+                .single();
+
+            if (sessionErr || !session) {
+                setError(sessionErr?.message ?? 'Unknown error');
+                return;
+            }
+
+            const { error: battleStateError } = await supabase.from('battle_state').insert({
+                session_id: session.id,
+                player1_hp: myCreatureResult.data?.current_hp ?? 100,
+                player2_hp: bossMaxHp,
                 player1_status: 'normal',
                 player2_status: 'normal',
                 turn_number: 1,
@@ -242,6 +305,7 @@ export function useGameSession() {
         error,
         createPvpSession,
         createCpuSession,
+        createBossSession,
         acceptInvitation,
         declineInvitation,
         fetchSession,

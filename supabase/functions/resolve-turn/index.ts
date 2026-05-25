@@ -177,13 +177,14 @@ Deno.serve(async (req) => {
         let oppDefence: number
         let oppSpeed = 50
         let oppCreatureId: number
+        let isBossBattle = false
 
         if (session.is_cpu) {
             if (!session.cpu_creature_id) {
                 return errorResponse('cpu_creature_id missing from session', 400)
             }
             const [{ data: cpuC, error: cpuCErr }, { data: cpuConfig }] = await Promise.all([
-                adminClient.from('creatures').select('id, type, base_attack, base_defence, base_speed').eq('id', session.cpu_creature_id).single(),
+                adminClient.from('creatures').select('id, type, base_attack, base_defence, base_speed, is_boss').eq('id', session.cpu_creature_id).single(),
                 adminClient.from('game_config').select('stat_boost_attack, stat_boost_defence, stat_boost_speed').single(),
             ])
 
@@ -196,6 +197,7 @@ Deno.serve(async (req) => {
             oppDefence = (cpuC.base_defence ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_defence ?? 2)
             oppSpeed = (cpuC.base_speed ?? 50) + levelsAboveBase * (cpuConfig?.stat_boost_speed ?? 1)
             oppCreatureId = cpuC.id
+            isBossBattle = cpuC.is_boss ?? false
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
             if (!opponentCreatureId) {
@@ -351,7 +353,7 @@ Deno.serve(async (req) => {
         let leveledUp = false
         let newLives: number | null = null
         let isWinner = false
-        const BOSS_CREATURE_ID = config?.boss_creature_id ?? 4
+        let bossBeat = false
 
         if (isFinished) {
             const { error: finishErr } = await adminClient
@@ -365,6 +367,7 @@ Deno.serve(async (req) => {
             }
 
             const { data: config } = await adminClient.from('game_config').select('*').single()
+            const BOSS_CREATURE_ID = config?.boss_creature_id ?? 4
             const XP_PVP_WIN = config?.xp_pvp_win ?? 100
             const XP_PVP_LOSS = config?.xp_pvp_loss ?? 50
             const XP_CPU_WIN = config?.xp_cpu_win ?? 50
@@ -495,6 +498,7 @@ Deno.serve(async (req) => {
                 const newCpuBattlesCount = (statsForCpu?.cpu_battles_count ?? 0) + 1
 
                 if (isWinner && isBossBattle) {
+                    bossBeat = true
                     const { error: bossBeatErr } = await adminClient
                         .from('player_stats')
                         .update({ boss_beaten: true, cpu_battles_count: newCpuBattlesCount })
@@ -573,7 +577,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsGained, newLevel, leveledUp, livesRemaining: newLives ?? null, bossBeat: isWinner && session.cpu_creature_id === BOSS_CREATURE_ID }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsGained, newLevel, leveledUp, livesRemaining: newLives ?? null, bossBeat }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 
