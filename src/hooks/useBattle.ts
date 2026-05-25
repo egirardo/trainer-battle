@@ -410,7 +410,6 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     creditsGained: data.creditsGained,
                     newLevel: data.newLevel,
                     leveledUp: data.leveledUp,
-                    creditsGained: data.creditsGained,
                 }))
                 void navigate(`/battle-result/${sessionId}`)
                 return
