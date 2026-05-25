@@ -1,12 +1,24 @@
 import Button from '@/components/atoms/button';
 import styles from './BossDialog.module.css';
 
-export default function BossDialog() {
+interface Props {
+    playerCreatureId: number | null;
+    onFight: (creatureId: number) => void;
+    loading?: boolean;
+}
+
+export default function BossDialog({ playerCreatureId, onFight, loading }: Props) {
     return (
         <div className={styles.bossDialog}>
             <h2>Congratz!</h2>
             <p>You have earned all six badges, thus qualifying you to take on the ultimate challenge!</p>
-            <Button variant='danger' onClick={() => alert('enter the boss fight!!')}>Fight the Boss</Button>
+            <Button
+                variant='danger'
+                onClick={() => playerCreatureId && onFight(playerCreatureId)}
+                disabled={!playerCreatureId || loading}
+            >
+                Fight the Boss
+            </Button>
         </div>
     );
 }

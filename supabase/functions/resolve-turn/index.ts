@@ -177,13 +177,14 @@ Deno.serve(async (req) => {
         let oppDefence: number
         let oppSpeed = 50
         let oppCreatureId: number
+        let isBossBattle = false
 
         if (session.is_cpu) {
             if (!session.cpu_creature_id) {
                 return errorResponse('cpu_creature_id missing from session', 400)
             }
             const [{ data: cpuC, error: cpuCErr }, { data: cpuConfig }] = await Promise.all([
-                adminClient.from('creatures').select('id, type, base_attack, base_defence, base_speed').eq('id', session.cpu_creature_id).single(),
+                adminClient.from('creatures').select('id, type, base_attack, base_defence, base_speed, is_boss').eq('id', session.cpu_creature_id).single(),
                 adminClient.from('game_config').select('stat_boost_attack, stat_boost_defence, stat_boost_speed').single(),
             ])
 
@@ -196,6 +197,7 @@ Deno.serve(async (req) => {
             oppDefence = (cpuC.base_defence ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_defence ?? 2)
             oppSpeed = (cpuC.base_speed ?? 50) + levelsAboveBase * (cpuConfig?.stat_boost_speed ?? 1)
             oppCreatureId = cpuC.id
+            isBossBattle = cpuC.is_boss ?? false
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
             if (!opponentCreatureId) {
@@ -387,6 +389,13 @@ Deno.serve(async (req) => {
             if (winnerStatsErr) {
                 console.error('Partial state: session closed but winner stats not updated', winnerStatsErr)
                 return errorResponse('Failed to update winner stats', 500)
+            }
+
+            if (isBossBattle && isWinner) {
+                await adminClient
+                    .from('player_stats')
+                    .update({ boss_beaten: true })
+                    .eq('player_id', playerId)
             }
 
             if (!session.is_cpu) {
