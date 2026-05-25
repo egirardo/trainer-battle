@@ -223,6 +223,7 @@ export default function AdminPanel() {
                             <th>ID</th><th>Name</th><th>Type</th>
                             <th>HP</th><th>Attack</th><th>Defence</th>
                             <th>Speed</th><th>Description</th><th>Image</th>
+                            <th>Boss</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -247,6 +248,7 @@ export default function AdminPanel() {
                                     <td>{creature.base_speed}</td>
                                     <td>{creature.description}</td>
                                     <td>{creature.image}</td>
+                                    <td>{creature.is_boss ? 'Yes' : 'No'}</td>
                                     <td>
                                         <button onClick={() => setEditingCreatureId(creature.id)}>Edit</button>
                                         <button onClick={() => handleDeleteCreature(creature.id)}>Delete</button>

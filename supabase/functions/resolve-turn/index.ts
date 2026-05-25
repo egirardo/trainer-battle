@@ -349,7 +349,9 @@ Deno.serve(async (req) => {
         let creditsGained = 0
         let newLevel: number | null = null
         let leveledUp = false
-        let creditsGained = 0
+        let newLives: number | null = null
+        let isWinner = false
+        const BOSS_CREATURE_ID = config?.boss_creature_id ?? 4
 
         if (isFinished) {
             const { error: finishErr } = await adminClient
@@ -369,7 +371,7 @@ Deno.serve(async (req) => {
             const XP_CPU_LOSS = config?.xp_cpu_loss ?? 25
             const XP_PER_LEVEL = config?.xp_per_level ?? 100
 
-            const isWinner = winnerId === playerId
+            isWinner = winnerId === playerId
             creditsGained = session.is_cpu
                 ? (isWinner ? (config?.credits_cpu_win ?? 50) : -(config?.credits_cpu_loss ?? 10))
                 : (isWinner ? (config?.credits_pvp_win ?? 100) : -(config?.credits_pvp_loss ?? 25))
@@ -410,23 +412,6 @@ Deno.serve(async (req) => {
                 ? (winnerId === playerId ? XP_CPU_WIN : XP_CPU_LOSS)
                 : (winnerId === playerId ? XP_PVP_WIN : XP_PVP_LOSS)
 
-            creditsGained = session.is_cpu
-                ? (winnerId === playerId ? (config?.credits_cpu_win ?? 10) : (config?.credits_cpu_loss ?? 5))
-                : (winnerId === playerId ? (config?.credits_pvp_win ?? 20) : (config?.credits_pvp_loss ?? 10))
-
-            const { data: currentStats } = await adminClient
-                .from('player_stats')
-                .select('credits')
-                .eq('player_id', playerId)
-                .single()
-
-            if (currentStats) {
-                const { error: creditsErr } = await adminClient
-                    .from('player_stats')
-                    .update({ credits: (currentStats.credits ?? 0) + creditsGained })
-                    .eq('player_id', playerId)
-                if (creditsErr) console.error('Failed to update player credits:', creditsErr)
-            }
 
             const { data: myPCForXp } = await adminClient
                 .from('player_creatures')
@@ -490,7 +475,90 @@ Deno.serve(async (req) => {
                         if (oppXpErr) console.error('Failed to update opponent XP:', oppXpErr)
                     }
                 }
+
             }
+
+            if (session.is_cpu) {
+                const isBossBattle = session.cpu_creature_id === BOSS_CREATURE_ID
+
+                const { data: statsForCpu, error: statsForCpuError } = await adminClient
+                    .from('player_stats')
+                    .select('lives, cpu_battles_count')
+                    .eq('player_id', playerId)
+                    .single()
+
+                if (statsForCpuError || !statsForCpu) {
+                    console.error('Failed to fetch CPU stats', statsForCpuError)
+                    return errorResponse('Failed to update player stats', 500)
+                }
+
+                const newCpuBattlesCount = (statsForCpu?.cpu_battles_count ?? 0) + 1
+
+                if (isWinner && isBossBattle) {
+                    const { error: bossBeatErr } = await adminClient
+                        .from('player_stats')
+                        .update({ boss_beaten: true, cpu_battles_count: newCpuBattlesCount })
+                        .eq('player_id', playerId)
+                    if (bossBeatErr) {
+                        console.error('Failed to set boss_beaten', bossBeatErr)
+                        return errorResponse('Failed to update player stats', 500)
+                    }
+                } else if (isWinner) {
+                    const { error: cpuWinErr } = await adminClient
+                        .from('player_stats')
+                        .update({ cpu_battles_count: newCpuBattlesCount })
+                        .eq('player_id', playerId)
+                    if (cpuWinErr) {
+                        console.error('Failed to update cpu_battles_count', cpuWinErr)
+                        return errorResponse('Failed to update player stats', 500)
+                    }
+                } else {
+                    newLives = Math.max(0, (statsForCpu?.lives ?? 1) - 1)
+                    const { error: cpuLossErr } = await adminClient
+                        .from('player_stats')
+                        .update({ lives: newLives, cpu_battles_count: newCpuBattlesCount })
+                        .eq('player_id', playerId)
+                    if (cpuLossErr) {
+                        console.error('Failed to update lives/cpu_battles_count', cpuLossErr)
+                        return errorResponse('Failed to update player stats', 500)
+                    }
+                }
+
+            } else {
+                // PVP
+                if (isWinner) {
+                    await adminClient
+                        .from('player_stats')
+                        .update({ cpu_battles_count: 0 })
+                        .eq('player_id', playerId)
+
+                    const loserId = isPlayer1 ? session.player2_id : session.player1_id
+                    if (loserId) {
+                        const { data: loserStats, error: loserStatsErr } = await adminClient
+                            .from('player_stats')
+                            .select('lives')
+                            .eq('player_id', loserId)
+                            .single()
+
+                        if (loserStatsErr || !loserStats) {
+                            console.error('Failed to fetch loser stats', loserStatsErr)
+                            return errorResponse('Failed to update loser lives', 500)
+                        }
+
+                        const loserNewLives = Math.max(0, (loserStats?.lives ?? 1) - 1)
+                        const { error: loserLivesErr } = await adminClient
+                            .from('player_stats')
+                            .update({ lives: loserNewLives })
+                            .eq('player_id', loserId)
+
+                        if (loserLivesErr) {
+                            console.error('Failed to decrement loser lives', loserLivesErr)
+                            return errorResponse('Failed to update loser lives', 500)
+                        }
+                    }
+                } 
+            }
+
         } else if (!session.is_cpu) {
             const nextTurn = isPlayer1 ? session.player2_id : session.player1_id
             const { error: updateTurnErr } = await adminClient
@@ -505,7 +573,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsGained, newLevel, leveledUp }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsGained, newLevel, leveledUp, livesRemaining: newLives ?? null, bossBeat: isWinner && session.cpu_creature_id === BOSS_CREATURE_ID }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 
