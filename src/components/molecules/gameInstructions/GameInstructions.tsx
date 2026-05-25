@@ -17,10 +17,10 @@ export default function GameInstructions({ onClose, className }: Props) {
             />
             <article className={styles.contentContainer}>
                 <div className={styles.contentSection}>
-                    <h3>
+                    <h2>
                         <span className={styles.listNumber}>1</span>
                         Get started
-                    </h3>
+                    </h2>
                     <p>
                         Tap <span className={styles.accentText}>New Game</span> to create your trainer, pick a name and choose your starting creature.
                     </p>
@@ -29,36 +29,36 @@ export default function GameInstructions({ onClose, className }: Props) {
                     </p>
                 </div>
                 <div className={styles.contentSection}>
-                    <h3>
+                    <h2>
                         <span className={styles.listNumber}>2</span>
                         Your dashboard
-                    </h3>
+                    </h2>
                     <p>
                         After creating your trainer, you'll land on your Dashboard — your home base between battles. From here you can: Check your creature's HP, browse items in your Bag, visit the Shop to spend stamps, or tap the big Battle button when you're ready to fight.
                     </p>
                 </div>
                 <div className={styles.contentSection}>
-                    <h3>
+                    <h2>
                         <span className={styles.listNumber}>3</span>
                         Join a battle
-                    </h3>
+                    </h2>
                     <p>
                         Tap Battle to enter the lobby, then choose your opponent: CPU OR PVP
                         {/* TODO: better desc for pvp and cpu */}
                     </p>
                 </div>
                 <div className={styles.contentSection}>
-                    <h3>
+                    <h2>
                        <span className={styles.listNumber}>4</span>
                         Fighting
-                    </h3>
+                    </h2>
                     <BattleInstructions/>
                 </div>
                 <div className={styles.contentSection}>
-                    <h3>
+                    <h2>
                         <span className={styles.listNumber}>6</span>
                         Earn prizes
-                    </h3>
+                    </h2>
                     <p>Win matches to earn stamps. Defeat 4 enemies to fight in a gym, and to win the highest rewards.</p>
                 </div>
 

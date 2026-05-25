@@ -6,6 +6,16 @@
   padding: 1rem;
 }
 
+.btnContainer {
+  display: flex;
+  grid-area: buttons;
+  margin: 0.5em 1em;
+}
+
+.btnContainer > *:last-child {
+  margin-left: auto;
+}
+
 @media (min-width: 768px) {
   .gameMenuBody {
     display: grid;
@@ -13,7 +23,8 @@
     grid-template-areas:
       "credits  credits"
       "actions actions"
-      "profile  progress";
+      "profile  progress"
+      "buttons buttons";
     gap: 1rem;
   }
 
@@ -45,6 +56,7 @@
       "credits  credits"
       "actions  actions"
       "profile  progress"
-      "boss     boss";
+      "boss     boss"
+      "buttons buttons";
   }
 }

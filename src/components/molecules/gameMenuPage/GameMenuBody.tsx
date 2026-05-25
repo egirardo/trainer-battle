@@ -14,6 +14,7 @@ import { ROUTES } from '@/routes';
 import GameInstructions from '../gameInstructions/GameInstructions';
 import Overlay from '@/components/atoms/Overlay';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
+import Button from '@/components/atoms/button';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -43,7 +44,11 @@ type PlayerCreatureData = {
 };
 
 
-export default function GameMenuBody() {
+interface Props {
+  onCashoutClick?: () => void;
+}
+
+export default function GameMenuBody({ onCashoutClick }: Props) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const userId = user?.id;
@@ -52,6 +57,7 @@ export default function GameMenuBody() {
   const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
   const [showInstructions, setShowInstructions] = useState(false);
+
   useEffect(() => {
     if (!userId) return;
 
@@ -153,6 +159,7 @@ export default function GameMenuBody() {
   const wins = playerStats?.total_wins ?? 0;
   const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
+  const isCentralbankUser = !!trainer?.centralbank_uuid;
 
   if (loading) return <LoadingScreen />;
   if (error) return <p role="alert">{error}</p>;
@@ -184,6 +191,23 @@ export default function GameMenuBody() {
             <GameInstructions onClose={() => setShowInstructions(false)} />
         </Overlay>
       )}
+        {isCentralbankUser && window.parent !== window && (
+          <div className={styles.btnContainer}>
+              <Button
+                  onClick={() =>
+                      window.parent.postMessage({ type: "AMUSEMENT_CLOSE" }, "https://loopland.se")
+                  }
+              >
+                  Back to Loopland
+              </Button>
+            <Button
+                variant='danger'
+                onClick={onCashoutClick}
+            >
+                Cash out
+            </Button>
+          </div>
+        )}
     </div>
   );
 }
