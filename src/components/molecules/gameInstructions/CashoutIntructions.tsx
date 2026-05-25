@@ -18,26 +18,28 @@ export default function CashoutIntructions({ onClose }: Props){
     const [credits, setCredits] = useState(0)
     const [startingCredits, setStartingCredits] = useState(0)
     const [transactionId, setTransactionId] = useState<string | null>(null)
+    const [bossBeaten, setBossBeaten] = useState(false)
 
     useEffect(() => {
         if (!user) return
         async function fetchStats() {
             const { data } = await supabase
                 .from('player_stats')
-                .select('credits, transaction_id, starting_credits')
+                .select('credits, transaction_id, starting_credits, boss_beaten')
                 .eq('player_id', user!.id)
                 .maybeSingle()
             if (data) {
                 setCredits(data.credits)
                 setTransactionId(data.transaction_id)
                 setStartingCredits(data.starting_credits)
+                setBossBeaten(data.boss_beaten ?? false)
             }
         }
         void fetchStats()
     }, [user])
 
     const isCentralbankUser = !!profile?.centralbank_uuid
-    const canCashOut = isCentralbankUser && !!transactionId && credits > startingCredits
+    const canCashOut = isCentralbankUser && !!transactionId && credits > startingCredits && bossBeaten
 
     function calculatePayout(amount: number): number {
         const raw = amount * 0.03
