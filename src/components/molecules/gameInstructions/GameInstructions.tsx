@@ -34,7 +34,10 @@ export default function GameInstructions({ onClose, className }: Props) {
                         Your dashboard
                     </h2>
                     <p>
-                        After creating your trainer, you'll land on your Dashboard — your home base between battles. From here you can: Check your creature's HP, browse items in your Bag, visit the Shop to spend stamps, or tap the big Battle button when you're ready to fight.
+                        Your home base between battles. Check your creature's current HP and level, browse items in your <span className={styles.accentText}>Bag</span>, or visit the <span className={styles.accentText}>Shop</span> to spend credits on items.
+                    </p>
+                    <p>
+                        Tap <span className={styles.accentText}>Find a match</span> when you're ready to fight.
                     </p>
                 </div>
                 <div className={styles.contentSection}>
@@ -43,8 +46,10 @@ export default function GameInstructions({ onClose, className }: Props) {
                         Join a battle
                     </h2>
                     <p>
-                        Tap Battle to enter the lobby, then choose your opponent: CPU OR PVP
-                        {/* TODO: better desc for pvp and cpu */}
+                        Tap <span className={styles.accentText}>Find a match</span> to enter the lobby.
+                    </p>
+                    <p>
+                        Choose <span className={styles.accentText}>Fight vs CPU</span> to battle a computer opponent scaled to your level, or invite another player from the lobby for a <span className={styles.accentText}>PvP</span> match.
                     </p>
                 </div>
                 <div className={styles.contentSection}>
@@ -56,10 +61,11 @@ export default function GameInstructions({ onClose, className }: Props) {
                 </div>
                 <div className={styles.contentSection}>
                     <h2>
-                        <span className={styles.listNumber}>6</span>
+                        <span className={styles.listNumber}>5</span>
                         Earn prizes
                     </h2>
-                    <p>Win matches to earn stamps. Defeat 4 enemies to fight in a gym, and to win the highest rewards.</p>
+                    <p>Win battles to earn <span className={styles.accentText}>credits</span> and <span className={styles.accentText}>XP</span>. Losses award a small amount of credits and some XP. XP levels up your creature, making it stronger.</p>
+                    <p>Each win earns you an in-game badge. Collect <span className={styles.accentText}>3 badges</span> to unlock a fight against the gym leader for the highest rewards.</p>
                 </div>
 
             </article>

@@ -48,6 +48,11 @@ export default function ProfilePageScreen() {
           </Overlay>
         )}
       </main>
+      {showInstructions && (
+        <Overlay>
+          <GameInstructions onClose={() => setShowInstructions(false)} />
+        </Overlay>
+      )}
     </>
   );
 }

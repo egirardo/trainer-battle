@@ -11,6 +11,8 @@ import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTracker";
+import Overlay from "@/components/atoms/Overlay";
+import GameInstructions from "@/components/molecules/gameInstructions/GameInstructions";
 
 export default function LobbyScreen() {
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
@@ -177,6 +179,11 @@ export default function LobbyScreen() {
                 </Overlay>
             )}
             </main>
+            {showInstructions && (
+                <Overlay>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </Overlay>
+            )}
         </>
     );
 }

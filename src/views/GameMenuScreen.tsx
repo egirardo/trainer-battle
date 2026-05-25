@@ -26,7 +26,10 @@ export default function GameMenuScreen(){
                 <StickyHeader label="Dashboard" navItems={navItems} />
             </header>
             <main>
-                <GameMenuBody onCashoutClick={() => setShowCashoutInstructions(true)} />
+                <GameMenuBody
+                    onCashoutClick={() => setShowCashoutInstructions(true)}
+                    onShowInstructions={() => setShowInstructions(true)}
+                />
                 {showCashoutInstructions && (
                     <Overlay>
                         <CashoutIntructions onClose={() => setShowCashoutInstructions(false)} />
