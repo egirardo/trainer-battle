@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import { useNavItems } from '@/hooks/useNavItems';
+import Overlay from '@/components/atoms/Overlay';
+import Credits from '@/components/molecules/Credits';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
@@ -15,7 +17,7 @@ export default function ShopScreen() {
     const { items, loading: itemsLoading, error: itemsError } = useItems();
     const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
     const { user } = useAuth();
-    const navItems = useNavItems();
+    const { navItems, showCredits, closeCredits } = useNavItems();
     const [spent, setSpent] = useState(0);
     const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
@@ -113,6 +115,11 @@ export default function ShopScreen() {
                     </div>
                 </div>
             </main>
+            {showCredits && (
+                <Overlay>
+                    <Credits onClose={closeCredits} />
+                </Overlay>
+            )}
             <TotalDisplay
                 total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)}
                 onBuy={() => void handleBuy()}

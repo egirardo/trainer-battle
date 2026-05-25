@@ -6,12 +6,12 @@ import LoadingScreen from '@/components/atoms/LoadingScreen';
 import { useState } from 'react';
 import Overlay from '@/components/atoms/Overlay';
 import CashoutIntructions from '@/components/molecules/gameInstructions/CashoutIntructions';
+import Credits from '@/components/molecules/Credits';
 
 export default function GameMenuScreen(){
     const { loading } = useAuth();
     const [showCashoutInstructions, setShowCashoutInstructions] = useState(false);
-
-    const navItems = useNavItems()
+    const { navItems, showCredits, closeCredits } = useNavItems()
 
     if (loading) {
         return <LoadingScreen />;
@@ -27,6 +27,11 @@ export default function GameMenuScreen(){
                 {showCashoutInstructions && (
                     <Overlay>
                         <CashoutIntructions onClose={() => setShowCashoutInstructions(false)} />
+                    </Overlay>
+                )}
+                {showCredits && (
+                    <Overlay>
+                        <Credits onClose={closeCredits} />
                     </Overlay>
                 )}
             </main>
