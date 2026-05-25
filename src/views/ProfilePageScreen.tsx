@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useTrainerData } from '@/hooks/useTrainerData';
 import ProfileBody from '@/components/molecules/profilePage/ProfileBody';
@@ -10,7 +10,8 @@ import Credits from '@/components/molecules/Credits';
 
 export default function ProfilePageScreen() {
   const { trainer, playerStats, moves, playerItems, loading, error } = useTrainerData({ moves: true });
-  const { navItems, showCredits, closeCredits } = useNavItems();
+  const [showCredits, setShowCredits] = useState(false);
+  const navItems = useNavItems(undefined, () => setShowCredits(true));
   const { hash } = useLocation();
 
   // Scroll to hash anchor after async content finishes loading
@@ -36,7 +37,7 @@ export default function ProfilePageScreen() {
         <ProfileBody trainer={trainer} playerStats={playerStats} creature={trainer.creature} playerCreature={trainer.playerCreature} moves={moves} playerItems={playerItems} />
         {showCredits && (
           <Overlay>
-            <Credits onClose={closeCredits} />
+            <Credits onClose={() => setShowCredits(false)} />
           </Overlay>
         )}
       </main>

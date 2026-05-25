@@ -17,7 +17,8 @@ export default function ShopScreen() {
     const { items, loading: itemsLoading, error: itemsError } = useItems();
     const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
     const { user } = useAuth();
-    const { navItems, showCredits, closeCredits } = useNavItems();
+    const [showCredits, setShowCredits] = useState(false);
+    const navItems = useNavItems(undefined, () => setShowCredits(true));
     const [spent, setSpent] = useState(0);
     const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
@@ -117,7 +118,7 @@ export default function ShopScreen() {
             </main>
             {showCredits && (
                 <Overlay>
-                    <Credits onClose={closeCredits} />
+                    <Credits onClose={() => setShowCredits(false)} />
                 </Overlay>
             )}
             <TotalDisplay

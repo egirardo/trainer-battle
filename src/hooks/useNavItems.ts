@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { ROUTES } from '@/routes'
@@ -9,18 +8,10 @@ const BASE_NAV_LINKS: NavItem[] = [
     { label: 'View Profile', to: ROUTES.profile },
     { label: 'Lobby',        to: ROUTES.lobby },
     { label: 'Shop',         to: ROUTES.shop },
-    { label: 'Help',         to: ROUTES.help },
 ]
 
-export interface UseNavItemsResult {
-    navItems: NavItem[]
-    showCredits: boolean
-    closeCredits: () => void
-}
-
-export function useNavItems(): UseNavItemsResult {
+export function useNavItems(onHelp?: () => void, onCredits?: () => void): NavItem[] {
     const navigate = useNavigate()
-    const [showCredits, setShowCredits] = useState(false)
 
     async function handleLogout(): Promise<void> {
         const { error } = await supabase.auth.signOut()
@@ -31,11 +22,14 @@ export function useNavItems(): UseNavItemsResult {
         void navigate(ROUTES.start)
     }
 
-    const navItems: NavItem[] = [
-        ...BASE_NAV_LINKS,
-        { label: 'Credits', onClick: () => setShowCredits(true) },
-        { label: 'Logout',  onClick: () => void handleLogout(), variant: 'danger' },
-    ]
+    const helpItem: NavItem = onHelp
+        ? { label: 'Help', onClick: onHelp }
+        : { label: 'Help', to: ROUTES.help }
 
-    return { navItems, showCredits, closeCredits: () => setShowCredits(false) }
+    return [
+        ...BASE_NAV_LINKS,
+        helpItem,
+        ...(onCredits ? [{ label: 'Credits', onClick: onCredits } as NavItem] : []),
+        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+    ]
 }

@@ -13,7 +13,8 @@ import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTra
 
 export default function LobbyScreen() {
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
-    const { navItems, showCredits, closeCredits } = useNavItems();
+    const [showCredits, setShowCredits] = useState(false);
+    const navItems = useNavItems(undefined, () => setShowCredits(true));
     const { stats } = usePlayerStats();
     const [inviteState, setInviteState] = useState<{ playerId: string; status: 'waiting' | 'declined' } | null>(null);
 
@@ -165,7 +166,7 @@ export default function LobbyScreen() {
             </section>
             {showCredits && (
                 <Overlay>
-                    <Credits onClose={closeCredits} />
+                    <Credits onClose={() => setShowCredits(false)} />
                 </Overlay>
             )}
             </main>
