@@ -8,15 +8,10 @@ import Overlay from '@/components/atoms/Overlay';
 import CashoutIntructions from '@/components/molecules/gameInstructions/CashoutIntructions';
 
 export default function GameMenuScreen(){
-    const { loading, profile } = useAuth();
+    const { loading } = useAuth();
     const [showCashoutInstructions, setShowCashoutInstructions] = useState(false);
 
-    const isCentralbankUser = !!profile?.centralbank_uuid
-    const navItems = useNavItems(isCentralbankUser ? [{
-        label: 'Cash Out',
-        onClick: () => setShowCashoutInstructions(true),
-        variant: 'success' as const,
-    }] : [])
+    const navItems = useNavItems()
 
     if (loading) {
         return <LoadingScreen />;
