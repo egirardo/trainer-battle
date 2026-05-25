@@ -346,6 +346,7 @@ Deno.serve(async (req) => {
         }
 
         let xpGained = 0
+        let creditsGained = 0
         let newLevel: number | null = null
         let leveledUp = false
         let creditsGained = 0
@@ -408,6 +409,24 @@ Deno.serve(async (req) => {
             xpGained = session.is_cpu
                 ? (winnerId === playerId ? XP_CPU_WIN : XP_CPU_LOSS)
                 : (winnerId === playerId ? XP_PVP_WIN : XP_PVP_LOSS)
+
+            creditsGained = session.is_cpu
+                ? (winnerId === playerId ? (config?.credits_cpu_win ?? 10) : (config?.credits_cpu_loss ?? 5))
+                : (winnerId === playerId ? (config?.credits_pvp_win ?? 20) : (config?.credits_pvp_loss ?? 10))
+
+            const { data: currentStats } = await adminClient
+                .from('player_stats')
+                .select('credits')
+                .eq('player_id', playerId)
+                .single()
+
+            if (currentStats) {
+                const { error: creditsErr } = await adminClient
+                    .from('player_stats')
+                    .update({ credits: (currentStats.credits ?? 0) + creditsGained })
+                    .eq('player_id', playerId)
+                if (creditsErr) console.error('Failed to update player credits:', creditsErr)
+            }
 
             const { data: myPCForXp } = await adminClient
                 .from('player_creatures')
@@ -486,7 +505,7 @@ Deno.serve(async (req) => {
         }
 
         return new Response(
-            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, newLevel, leveledUp, creditsGained }),
+            JSON.stringify({ descriptions, newPlayer1Hp, newPlayer2Hp, isFinished, winnerId, xpGained, creditsGained, newLevel, leveledUp }),
             { status: 200, headers: { 'Content-Type': 'application/json', ...corsHeaders } }
         )
 

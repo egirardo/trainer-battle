@@ -3,7 +3,7 @@
   background: white;
   min-height: 5rem;
   text-align: left;
-  border-top: 3px solid var(--border);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
