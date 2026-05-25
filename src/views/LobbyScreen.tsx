@@ -3,14 +3,17 @@ import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import StickyHeader from "@/components/atoms/StickyHeader";
 import { useNavItems } from "@/hooks/useNavItems";
+import { usePlayerStats } from "@/hooks/usePlayerStats";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import ArrowBackNav from "@/components/atoms/ArrowBackNav";
+import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTracker";
 
 export default function LobbyScreen() {
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
     const navItems = useNavItems();
+    const { stats } = usePlayerStats();
     const [inviteState, setInviteState] = useState<{ playerId: string; status: 'waiting' | 'declined' } | null>(null);
 
     const {
@@ -73,6 +76,7 @@ export default function LobbyScreen() {
                 <StickyHeader label="Lobby" navItems={navItems} />
             </header>
             <main>
+            <LifeCreditTracker lives={stats?.lives ?? 0} credits={stats?.credits ?? 0} />
             {incomingInvitation && (
                 <section className={styles.invSection} aria-label="Incoming battle invitation">
                     <div className={styles.invContainer}>
@@ -158,9 +162,6 @@ export default function LobbyScreen() {
                     </ul>
                 )}
             </section>
-
-
-            <ArrowBackNav/>
             </main>
         </>
     );
