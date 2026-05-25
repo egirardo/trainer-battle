@@ -144,6 +144,8 @@ Deno.serve(async (req) => {
       supabaseUserId = existingProfile.id
     }
 
+    console.log('entryFee:', entryFee, 'isReturning:', isReturning, 'config:', config)
+
     // POST /transactions to Centralbank - consumes the token
     const transactionRes = await fetch(`${CENTRALBANK_URL}/transactions`, {
         method: 'POST',
