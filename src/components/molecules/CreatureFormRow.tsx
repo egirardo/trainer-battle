@@ -27,6 +27,7 @@ export default function CreatureFormRow({
         base_speed: initialValues.base_speed ?? 0,
         description: initialValues.description ?? "",
         image: initialValues.image ?? "",
+        is_boss: initialValues.is_boss ?? false,
     });
 
     function handleChange(e: ChangeEvent<HTMLInputElement>): void {
@@ -45,6 +46,7 @@ export default function CreatureFormRow({
             <td><InputField hasLabel={false} type="number" name="base_speed" id={`${idPrefix}-base_speed`} placeholder="Base speed" value={form.base_speed} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="description" id={`${idPrefix}-description`} placeholder="Description" value={form.description} onChange={handleChange} /></td>
             <td><InputField hasLabel={false} name="image" id={`${idPrefix}-image`} placeholder="Image URL" value={form.image} onChange={handleChange} /></td>
+            <td><InputField hasLabel={false} type="checkbox" name="is_boss" id={`${idPrefix}-is_boss`} checked={form.is_boss} onChange={handleChange} /></td>
             <td><Button type="button" onClick={() => { void onSubmit(form); }}>{submitLabel}</Button></td>
         </tr>
     );
