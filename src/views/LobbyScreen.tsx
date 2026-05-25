@@ -7,7 +7,6 @@ import { usePlayerStats } from "@/hooks/usePlayerStats";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
-import ArrowBackNav from "@/components/atoms/ArrowBackNav";
 import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTracker";
 
 export default function LobbyScreen() {
