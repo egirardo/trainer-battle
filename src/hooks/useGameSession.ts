@@ -59,7 +59,7 @@ export function useGameSession() {
 
         try {
             const [creaturesResult, myCreatureResult, configResult] = await Promise.all([
-                supabase.from('creatures').select('id, base_hp'),
+                supabase.from('creatures').select('id, base_hp').eq('is_boss', false),
                 supabase.from('player_creatures').select('current_hp, level').eq('id', myCreatureId).single(),
                 supabase.from('game_config').select('stat_boost_hp').single(),
             ]);
