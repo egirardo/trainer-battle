@@ -27,6 +27,7 @@ export default function CreatureFormRow({
         base_speed: initialValues.base_speed ?? 0,
         description: initialValues.description ?? "",
         image: initialValues.image ?? "",
+        is_boss: initialValues.is_boss ?? false,
     });
 
     function handleChange(e: ChangeEvent<HTMLInputElement>): void {
