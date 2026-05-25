@@ -4,6 +4,7 @@ import StickyHeader from '@/components/atoms/StickyHeader';
 import { useNavItems } from '@/hooks/useNavItems';
 import Overlay from '@/components/atoms/Overlay';
 import Credits from '@/components/molecules/Credits';
+import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
@@ -17,8 +18,9 @@ export default function ShopScreen() {
     const { items, loading: itemsLoading, error: itemsError } = useItems();
     const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
     const { user } = useAuth();
+    const [showInstructions, setShowInstructions] = useState(false);
     const [showCredits, setShowCredits] = useState(false);
-    const navItems = useNavItems(undefined, () => setShowCredits(true));
+    const navItems = useNavItems(() => setShowInstructions(true), () => setShowCredits(true));
     const [spent, setSpent] = useState(0);
     const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
@@ -116,6 +118,11 @@ export default function ShopScreen() {
                     </div>
                 </div>
             </main>
+            {showInstructions && (
+                <Overlay>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </Overlay>
+            )}
             {showCredits && (
                 <Overlay>
                     <Credits onClose={() => setShowCredits(false)} />

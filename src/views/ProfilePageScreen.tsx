@@ -7,11 +7,13 @@ import StickyHeader from '@/components/atoms/StickyHeader';
 import { useNavItems } from '@/hooks/useNavItems';
 import Overlay from '@/components/atoms/Overlay';
 import Credits from '@/components/molecules/Credits';
+import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
 
 export default function ProfilePageScreen() {
   const { trainer, playerStats, moves, playerItems, loading, error } = useTrainerData({ moves: true });
+  const [showInstructions, setShowInstructions] = useState(false);
   const [showCredits, setShowCredits] = useState(false);
-  const navItems = useNavItems(undefined, () => setShowCredits(true));
+  const navItems = useNavItems(() => setShowInstructions(true), () => setShowCredits(true));
   const { hash } = useLocation();
 
   // Scroll to hash anchor after async content finishes loading
@@ -35,6 +37,11 @@ export default function ProfilePageScreen() {
       </header>
       <main>
         <ProfileBody trainer={trainer} playerStats={playerStats} creature={trainer.creature} playerCreature={trainer.playerCreature} moves={moves} playerItems={playerItems} />
+        {showInstructions && (
+          <Overlay>
+            <GameInstructions onClose={() => setShowInstructions(false)} />
+          </Overlay>
+        )}
         {showCredits && (
           <Overlay>
             <Credits onClose={() => setShowCredits(false)} />
