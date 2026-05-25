@@ -22,7 +22,7 @@ export default function TrainerInfoForm({ trainerGender, setTrainerGender, train
     return (
         <>
         <TrainerAvatarPreview trainerGender={trainerGender} />
-        <form className={styles.trainerInfoForm} noValidate>
+        <form className={styles.trainerInfoForm} noValidate onSubmit={e => { e.preventDefault() }}>
             <InputField labelName='What is your name?' id="trainer-name" type="text" placeholder="Enter your name..." value={trainerName} onChange={e => { setTrainerName(e.target.value); setTrainerNameError(undefined); }} error={trainerNameError} />
             <fieldset className={styles.genderSelect}>
                 <legend className={styles.genderSelectLegend}>What is your gender?</legend>

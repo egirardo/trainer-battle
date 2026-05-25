@@ -8,6 +8,6 @@ const map: Record<string, string> = {
     'grass-creature.png': grassCreatureImg,
 };
 
-export function getCreatureImage(filename: string): string {
-    return map[filename] ?? '';
+export function getCreatureImage(filename: string): string | undefined {
+    return map[filename];
 }

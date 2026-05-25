@@ -35,8 +35,12 @@ export function TrainerCreationProvider({ children }: { children: React.ReactNod
     const [creatureError, setCreatureError] = React.useState<string | undefined>(undefined)
 
     React.useEffect(() => {
-        const state: PersistedState = { trainerName, trainerGender, selectedCreature }
-        sessionStorage.setItem(TRAINER_CREATION_SESSION_KEY, JSON.stringify(state))
+        try {
+            const state: PersistedState = { trainerName, trainerGender, selectedCreature }
+            sessionStorage.setItem(TRAINER_CREATION_SESSION_KEY, JSON.stringify(state))
+        } catch {
+            // Storage unavailable or quota exceeded — creation flow continues without persistence
+        }
     }, [trainerName, trainerGender, selectedCreature])
 
     return (

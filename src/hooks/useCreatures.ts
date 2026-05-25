@@ -3,6 +3,12 @@ import { supabase } from '@/lib/supabase'
 import { getCreatureImage } from '@/lib/creatureImages'
 import type { Creature, CreatureType } from '@/models/models'
 
+const CREATURE_TYPES: CreatureType[] = ['fire', 'water', 'grass']
+
+function isCreatureType(value: unknown): value is CreatureType {
+    return CREATURE_TYPES.includes(value as CreatureType)
+}
+
 interface UseCreaturesResult {
     creatures: Creature[]
     loading: boolean
@@ -28,17 +34,19 @@ export function useCreatures(): UseCreaturesResult {
                 return
             }
 
-            const mapped: Creature[] = (data ?? []).map(row => ({
-                id: row.id,
-                name: row.name ?? '',
-                type: (row.type as CreatureType) ?? 'fire',
-                base_hp: row.base_hp ?? 0,
-                base_attack: row.base_attack ?? 0,
-                base_defence: row.base_defence ?? 0,
-                base_speed: row.base_speed ?? 0,
-                description: row.description ?? '',
-                image: getCreatureImage(row.image ?? ''),
-            }))
+            const mapped: Creature[] = (data ?? [])
+                .filter(row => isCreatureType(row.type))
+                .map(row => ({
+                    id: row.id,
+                    name: row.name ?? '',
+                    type: row.type as CreatureType,
+                    base_hp: row.base_hp ?? 0,
+                    base_attack: row.base_attack ?? 0,
+                    base_defence: row.base_defence ?? 0,
+                    base_speed: row.base_speed ?? 0,
+                    description: row.description ?? '',
+                    image: getCreatureImage(row.image ?? ''),
+                }))
 
             setCreatures(mapped)
             setLoading(false)
