@@ -5,7 +5,8 @@ import GameMenuBody from '@/components/molecules/gameMenuPage/GameMenuBody';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 
 export default function GameMenuScreen() {
-    const { loading } = useAuth();
+    const { loading, profile } = useAuth();
+    const isCentralbankUser = !!profile?.centralbank_uuid;
     const navItems = useNavItems();
 
     if (loading) {
