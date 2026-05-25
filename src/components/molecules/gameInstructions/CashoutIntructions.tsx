@@ -6,6 +6,7 @@ import StickyHeader from "@/components/atoms/StickyHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/supabase";
 import { ROUTES } from "@/routes";
+import styles from './GameInstructions.module.css';
 
 interface Props {
     onClose?: () => void;
@@ -56,26 +57,32 @@ export default function CashoutIntructions({ onClose }: Props){
     }
 
     return(
-        <>
+        <section className={styles.section}>
+
             <StickyHeader
                 label="Cashout"
                 action={<CloseButton onClick={onClose} />}
             />
-            <h2>
-                What is cashout?
-            </h2>
-            <p>Cashout converts your in-game credits into Tivoli's euros and ends your current session. You can only cash out if you've earned more credits than you started with — the payout is based on your profit, not your total balance.</p>
-            <p>Your credits are converted at a fixed rate. The exact amount is shown on the cash out button before you confirm.</p>
-            <p>After cashing out you'll be logged out, but your progress is saved. When you come back, returning players pay a reduced entry fee.</p>
-
-            <Button onClick={onClose}>Cancel</Button>
-            <Button
-                variant="danger"
-                disabled={!canCashOut}
-                onClick={() => void handleCashOut()}
-            >
-                {canCashOut ? `Cash out €${payout}` : 'Cash out'}
-            </Button>
-        </>
+            <article className={styles.contentContainer}>
+                <div className={styles.contentSection}>
+                    <h2>
+                        What is cashout?
+                    </h2>
+                    <p>Cashout converts your in-game credits into Tivoli's euros and ends your current session. You can only cash out if you've earned more credits than you started with - the payout is based on your profit, not your total balance.</p>
+                    <p>Your credits are converted at a fixed rate. The exact amount is shown on the cash out button before you confirm.</p>
+                    <p>After cashing out you'll be logged out, but your progress is saved. When you come back, returning players pay a reduced entry fee.</p>
+                </div>
+                <div className={styles.btnContainer}>
+                    <Button onClick={onClose}>Cancel</Button>
+                    <Button
+                        variant="danger"
+                        disabled={!canCashOut}
+                        onClick={() => void handleCashOut()}
+                    >
+                        {canCashOut ? `Cash out €${payout}` : 'Cash out'}
+                    </Button>
+                </div>
+            </article>
+        </section>
     )
 }
