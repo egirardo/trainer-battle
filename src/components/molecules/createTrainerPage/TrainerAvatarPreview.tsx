@@ -1,6 +1,6 @@
 import styles from './TrainerAvatarPreview.module.css';
-import maleTrainer from "@/assets/sprites/trainers/avatar-m.svg";
-import femaleTrainer from "@/assets/sprites/trainers/avatar-f.svg";
+import maleTrainer from "@/assets/sprites/trainers/avatar-m.png";
+import femaleTrainer from "@/assets/sprites/trainers/avatar-f.png";
 import nbTrainer from "@/assets/sprites/trainers/avatar-nb.png";
 
 
