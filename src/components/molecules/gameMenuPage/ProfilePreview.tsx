@@ -1,7 +1,7 @@
 import styles from './ProfilePreview.module.css';
 import type { Trainer, TrainerGender } from '@/models/models';
-import femaleTrainer from '@/assets/sprites/trainers/avatar-f.svg';
-import maleTrainer from '@/assets/sprites/trainers/avatar-m.svg';
+import femaleTrainer from '@/assets/sprites/trainers/avatar-f.png';
+import maleTrainer from '@/assets/sprites/trainers/avatar-m.png';
 import nbTrainer from '@/assets/sprites/trainers/avatar-nb.png';
 import { Link } from 'react-router-dom';
 import Button from '@/components/atoms/button';
