@@ -23,20 +23,30 @@ export function useNavItems(): NavItem[] {
     const [startingCredits, setStartingCredits] = useState(50)
 
     useEffect(() => {
-        if (!user || !isCentralbankUser) return
-        async function fetchStats() {
-            const { data } = await supabase
+        async function syncStats() {
+            if (!user || !isCentralbankUser) {
+                setCredits(0)
+                setTransactionId(null)
+                setStartingCredits(50)
+                return
+            }
+            const { data, error } = await supabase
                 .from('player_stats')
                 .select('credits, transaction_id, starting_credits')
-                .eq('player_id', user!.id)
+                .eq('player_id', user.id)
                 .maybeSingle()
-            if (data) {
-                setCredits(data.credits)
-                setTransactionId(data.transaction_id)
-                setStartingCredits(data.starting_credits)
+            if (error || !data) {
+                if (error) console.error('Failed to fetch player stats:', error)
+                setCredits(0)
+                setTransactionId(null)
+                setStartingCredits(50)
+                return
             }
+            setCredits(data.credits)
+            setTransactionId(data.transaction_id)
+            setStartingCredits(data.starting_credits)
         }
-        void fetchStats()
+        void syncStats()
     }, [user, isCentralbankUser])
 
     async function handleLogout(): Promise<void> {
@@ -49,9 +59,9 @@ export function useNavItems(): NavItem[] {
     }
 
     async function handleCashOut(): Promise<void> {
-        const { error } = (await supabase.functions.invoke('cashout')) as { data: null; error: Error | null }
-        if (error) {
-            console.error('Cash out failed:', error)
+        const result = await supabase.functions.invoke<void>('cashout')
+        if (result.error) {
+            console.error('Cash out failed:', result.error)
             return
         }
         await supabase.auth.signOut()
