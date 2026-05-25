@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
 import { ROUTES } from "@/routes";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
+import { useNavigate } from "react-router-dom";
 
 type Creature = Tables<'creatures'>;
 type Move = Tables<'moves'>;
@@ -39,6 +40,7 @@ export default function AdminPanel() {
     const [gameConfig, setGameConfig] = useState<GameConfig | null>(null)
     const [editingConfig, setEditingConfig] = useState(false)
     const [configForm, setConfigForm] = useState<Partial<GameConfig>>({})
+    const navigate = useNavigate();
 
     // Gate data fetching behind auth check
     useEffect(() => {
@@ -185,6 +187,13 @@ export default function AdminPanel() {
     async function handleDeleteItem(id: number): Promise<void> {
         const success = await deleteItem(id);
         if (success) setItems(prev => prev.filter(i => i.id !== id));
+    }
+
+    async function handleLogout(): Promise<void> {
+        const { error } = await supabase.auth.signOut()
+        if (error) {
+            console.error('Failed to sign out:', error); return }
+        void navigate(ROUTES.start)
     }
 
     async function handleUpdateConfig(): Promise<void> {
@@ -439,6 +448,9 @@ export default function AdminPanel() {
                         setEditingConfig(true)
                     }}>Edit config</button>
                 )}
+            </section>
+            <section>
+                <button onClick={() => void handleLogout()}>Logout</button>
             </section>
         </main>
     );
