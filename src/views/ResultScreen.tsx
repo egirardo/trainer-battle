@@ -48,6 +48,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const isWin = result.outcome === 'win'
     const lostALife = result.outcome === 'loss' && !result.isForfeit
     const livesLeft = stats?.lives
+    const isGameOver = !isWin && livesLeft === 0
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
     return (
@@ -64,9 +65,11 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                     </p>
                     {lostALife && (
                         <p className={styles.lostLife}>
-                            {livesLeft != null
-                                ? `You lost a life! ${livesLeft} ${livesLeft === 1 ? 'life' : 'lives'} remaining.`
-                                : 'You lost a life!'}
+                            {isGameOver
+                                ? "You've lost all your lives!"
+                                : livesLeft != null
+                                    ? `You lost a life! ${livesLeft} ${livesLeft === 1 ? 'life' : 'lives'} remaining.`
+                                    : 'You lost a life!'}
                         </p>
                     )}
                 </div>
@@ -102,19 +105,27 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                     />
                 </div>
                 <div className={styles.actions}>
-                    <Button 
-                        variant='danger' 
-                        className={styles.asLink} 
-                        as={Link} 
-                        to={ROUTES.lobby}>
-                            Play Again
-                    </Button>
-                    <Button 
-                        className={styles.asLink} 
-                        as={Link} 
-                        to={ROUTES.gameMenu}>
-                            Main Menu
-                    </Button>
+                    {isGameOver ? (
+                        <Button variant='danger' onClick={() => void handleLogout()}>
+                            Sign Out
+                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                variant='danger'
+                                className={styles.asLink}
+                                as={Link}
+                                to={ROUTES.lobby}>
+                                    Play Again
+                            </Button>
+                            <Button
+                                className={styles.asLink}
+                                as={Link}
+                                to={ROUTES.gameMenu}>
+                                    Main Menu
+                            </Button>
+                        </>
+                    )}
                 </div>
             </main>
         </>

@@ -158,6 +158,12 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
     void fetchTrainerData();
   }, [userId]);
 
+  useEffect(() => {
+    if (playerStats && playerStats.lives === 0) {
+      void supabase.auth.signOut().then(() => navigate(ROUTES.start));
+    }
+  }, [playerStats]);
+
   const wins = playerStats?.total_wins ?? 0;
   const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;
