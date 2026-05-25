@@ -1,7 +1,7 @@
 import styles from './CreatureSprite.module.css';
 
 interface CreatureSpriteProps {
-    image: string;
+    image: string | undefined;
     name: string;
     isOpponent?: boolean;
 }

@@ -37,7 +37,7 @@ export interface Creature {
     base_defence: number;
     base_speed: number;
     description: string;
-    image: string;
+    image: string | undefined;
 }
 
 export interface Move {
@@ -84,7 +84,7 @@ export interface LobbyPlayer {
     creatureId: number;
     creatureName: string;
     creatureType: string;
-    creatureImage: string;
+    creatureImage: string | undefined;
     level: number;
 }
 
@@ -114,7 +114,7 @@ export interface BattleParticipantInfo {
     level: number;
     currentHp: number;
     maxHp: number;
-    creatureImage: string;
+    creatureImage: string | undefined;
     creatureType: CreatureType;
 }
 
