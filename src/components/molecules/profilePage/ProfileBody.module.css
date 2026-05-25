@@ -1,0 +1,38 @@
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "credits credits"
+      "trainer creature"
+      "bag     bag";
+    gap: 1rem;
+    padding: 1rem 1rem;
+  }
+
+  .creditsRow {
+    grid-area: credits;
+  }
+
+  /* flex column so the inner wrapper can stretch to fill equal height */
+  .trainerCol {
+    grid-area: trainer;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .creatureCol {
+    grid-area: creature;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .bagRow {
+    grid-area: bag;
+  }
+}
