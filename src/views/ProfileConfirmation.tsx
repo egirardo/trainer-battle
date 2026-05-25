@@ -1,36 +1,40 @@
 import { useTrainerCreation } from '@/hooks/useTrainerCreation'
-import { GENDER_LABELS } from '@/models/models'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { ROUTES } from '@/routes'
 import { useState } from 'react'
+import ProfileConfirmationBody from '@/components/molecules/profileConfirmation/ProfileConfirmationBody'
+import { clearCreationSession } from '@/context/trainerCreationContextDef'
+import { capitalizeFirst } from '@/utils/trainerValidation'
 
 export default function ProfileConfirmation() {
     const { trainerName, trainerGender, selectedCreature } = useTrainerCreation()
+    const formattedName = capitalizeFirst(trainerName)
     const { user } = useAuth()
     const navigate = useNavigate()
     const [saving, setSaving] = useState(false)
-    const [error , setError] = useState<string | null>(null)
+    const [error, setError] = useState<string | null>(null)
 
+    if (!selectedCreature) {
+        return (
+            <main>
+                <p role="alert">No creature selected. Please go back and select a creature.</p>
+            </main>
+        )
+    }
 
     async function handleSubmit(): Promise<void> {
-        if (!user) return
+        if (!user || !selectedCreature) return
 
-        if (!selectedCreature) {
-            setError('Please go back and select a creature before confirming your profile.')
-            return
-        }
-        
         setSaving(true)
         setError(null)
 
         try {
-            // Save trainer info first — less critical
             const { error: profileError } = await supabase
                 .from('profiles')
                 .update({
-                    username: trainerName,
+                    username: formattedName,
                     trainer_gender: trainerGender,
                 })
                 .eq('id', user.id)
@@ -40,7 +44,6 @@ export default function ProfileConfirmation() {
                 return
             }
 
-            // Save creature — more critical, runs second
             const { error: creatureError } = await supabase
                 .from('player_creatures')
                 .upsert(
@@ -62,6 +65,7 @@ export default function ProfileConfirmation() {
                 return
             }
 
+            clearCreationSession()
             void navigate(ROUTES.gameMenu)
         } catch {
             setError('Something went wrong. Please try again.')
@@ -72,13 +76,14 @@ export default function ProfileConfirmation() {
 
     return (
         <main>
-            <p>Name: {trainerName}</p>
-            <p>Gender: {trainerGender ? GENDER_LABELS[trainerGender] : ''}</p>
-            <p>Starter Creature: {selectedCreature?.name ?? 'None selected'}</p>
-            {error && <p role="alert">{error}</p>}
-            <button onClick={() => { void handleSubmit() }} disabled={saving}>
-                {saving ? 'Saving...' : 'Confirm & Start'}
-            </button>
+            <ProfileConfirmationBody
+                trainerName={formattedName}
+                trainerGender={trainerGender}
+                creature={selectedCreature}
+                onConfirm={() => { void handleSubmit() }}
+                saving={saving}
+                error={error}
+            />
         </main>
     )
 }
