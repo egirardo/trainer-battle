@@ -346,7 +346,7 @@ Deno.serve(async (req) => {
         }
 
         let xpGained = 0
-        let creditsEarned = 0
+        let creditsGained = 0
         let newLevel: number | null = null
         let leveledUp = false
         let creditsGained = 0
@@ -410,7 +410,7 @@ Deno.serve(async (req) => {
                 ? (winnerId === playerId ? XP_CPU_WIN : XP_CPU_LOSS)
                 : (winnerId === playerId ? XP_PVP_WIN : XP_PVP_LOSS)
 
-            creditsEarned = session.is_cpu
+            creditsGained = session.is_cpu
                 ? (winnerId === playerId ? (config?.credits_cpu_win ?? 10) : (config?.credits_cpu_loss ?? 5))
                 : (winnerId === playerId ? (config?.credits_pvp_win ?? 20) : (config?.credits_pvp_loss ?? 10))
 
@@ -423,7 +423,7 @@ Deno.serve(async (req) => {
             if (currentStats) {
                 const { error: creditsErr } = await adminClient
                     .from('player_stats')
-                    .update({ credits: (currentStats.credits ?? 0) + creditsEarned })
+                    .update({ credits: (currentStats.credits ?? 0) + creditsGained })
                     .eq('player_id', playerId)
                 if (creditsErr) console.error('Failed to update player credits:', creditsErr)
             }

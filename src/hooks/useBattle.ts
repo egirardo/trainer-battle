@@ -474,7 +474,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
         });
 
         if (forfeitError) {
-            setError(forfeitError.message);
+            setError(forfeitError.message ?? 'Forfeit failed');
             return;
         }
 
