@@ -26,7 +26,7 @@ export function useResult(sessionId: number) {
                 // Fetch session
                 const { data: session, error: sessionErr } = await supabase
                     .from('game_sessions')
-                    .select('*')
+                    .select('*, forfeit_by')
                     .eq('id', sessionId)
                     .single();
 
@@ -91,6 +91,7 @@ export function useResult(sessionId: number) {
                 setResult({
                     outcome,
                     isCpu: session.is_cpu,
+                    isForfeit: session.forfeit_by === currentUser.id,
                     opponentUsername,
                     totalWins: statsResult.data?.total_wins ?? 0,
                     totalLosses: statsResult.data?.total_losses ?? 0,

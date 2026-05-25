@@ -391,13 +391,6 @@ Deno.serve(async (req) => {
                 return errorResponse('Failed to update winner stats', 500)
             }
 
-            if (isBossBattle && isWinner) {
-                await adminClient
-                    .from('player_stats')
-                    .update({ boss_beaten: true })
-                    .eq('player_id', playerId)
-            }
-
             if (!session.is_cpu) {
                 const loserId = isPlayer1 ? session.player2_id : session.player1_id
                 if (loserId) {

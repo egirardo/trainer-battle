@@ -43,6 +43,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
     const isWin = result.outcome === 'win'
+    const isForfeit = result.isForfeit
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
     return (
@@ -70,8 +71,8 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                         <span className={styles.statValue}>{result.totalForfeits}</span>
                     </div>
                     <div className={styles.statRow}>
-                        <span className={styles.statLabel}>Credits earned</span>
-                        <span className={styles.statValue}>+{result.creditsGained}</span>
+                        <span className={styles.statLabel}>Credits {isForfeit ? 'lost' : 'earned'}</span>
+                        <span className={styles.statValue}>{isForfeit ? result.creditsGained : `+${result.creditsGained}`}</span>
                     </div>
                 </div>
 
