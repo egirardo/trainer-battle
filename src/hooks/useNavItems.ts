@@ -22,13 +22,9 @@ export function useNavItems(onHelp?: () => void): NavItem[] {
         void navigate(ROUTES.start)
     }
 
-    const helpItem: NavItem = onHelp
-        ? { label: 'Help', onClick: onHelp }
-        : { label: 'Help', to: ROUTES.help }
-
     return [
         ...BASE_NAV_LINKS,
-        helpItem,
+        ...(onHelp ? [{ label: 'Help' as const, onClick: onHelp }] : []),
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
 }

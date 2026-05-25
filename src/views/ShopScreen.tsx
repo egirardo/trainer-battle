@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import { useNavItems } from '@/hooks/useNavItems';
+import Overlay from '@/components/atoms/Overlay';
+import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
 import { useItems } from '@/hooks/useItems';
@@ -15,7 +17,8 @@ export default function ShopScreen() {
     const { items, loading: itemsLoading, error: itemsError } = useItems();
     const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
     const { user } = useAuth();
-    const navItems = useNavItems();
+    const [showInstructions, setShowInstructions] = useState(false);
+    const navItems = useNavItems(() => setShowInstructions(true));
     const [spent, setSpent] = useState(0);
     const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
@@ -123,6 +126,11 @@ export default function ShopScreen() {
                 isExpanded={isCartExpanded}
                 onToggleExpanded={() => setIsCartExpanded(e => !e)}
             />
+            {showInstructions && (
+                <Overlay>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </Overlay>
+            )}
         </>
     );
 }
