@@ -174,7 +174,7 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
         <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
       </div>
       <div className={styles.actionsCol}>
-        <ButtonGroup horizontal />
+        <ButtonGroup horizontal onShowInstructions={() => setShowInstructions(true)} />
       </div>
       <div className={styles.profileCol}>
         <ProfilePreview trainer={trainerWithStats} />
