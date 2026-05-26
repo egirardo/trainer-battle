@@ -70,6 +70,14 @@ export default function GameInstructions({ onClose, className }: Props) {
                 <div className={styles.contentSection}>
                     <h2>
                         <span className={styles.listNumber}>6</span>
+                        Music
+                    </h2>
+                    <p>Toggle music on and off using the <span className={styles.accentText}>volume icon</span> in the navbar.</p>
+                    <p>Browsers block audio until you interact with the page - if you don't hear anything, tap the volume icon once to start playback.</p>
+                </div>
+                <div className={styles.contentSection}>
+                    <h2>
+                        <span className={styles.listNumber}>7</span>
                         Earn prizes
                     </h2>
                     <p>Win battles to earn in-game <span className={styles.accentText}>credits</span> and <span className={styles.accentText}>XP</span>. Losses cost a small amount of credits but still award XP. XP levels up your creature, making it stronger.</p>
