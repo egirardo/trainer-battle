@@ -1,14 +1,30 @@
 import styles from './Credits.module.css';
 import CloseButton from "../atoms/headerButtons/CloseButton";
 import StickyHeader from "../atoms/StickyHeader";
+import { useEffect, useRef } from 'react';
 
 interface Props {
     onClose?: () => void;
 }
 
 export default function Credits({ onClose }: Props) {
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        sectionRef.current?.focus();
+    }, [])
+
+    useEffect(() => {
+        if (!onClose) return;
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key === 'Escape') onClose?.()
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [onClose])
+
     return (
-        <section>
+        <section ref={sectionRef} tabIndex={-1}>
             <StickyHeader
                 label="Credits"
                 action={<CloseButton onClick={onClose} />}

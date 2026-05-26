@@ -3,6 +3,7 @@ import BattleInstructions from './BattleInstructions'
 import ShopInstructions from './ShopInstructions'
 import StickyHeader from '@/components/atoms/StickyHeader';
 import CloseButton from '@/components/atoms/headerButtons/CloseButton';
+import { useEffect, useRef } from 'react';
 
 interface Props {
     onClose?: () => void;
@@ -10,8 +11,23 @@ interface Props {
 }
 
 export default function GameInstructions({ onClose, className }: Props) {
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        sectionRef.current?.focus();
+    }, [])
+
+    useEffect(() => {
+        if (!onClose) return;
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key === 'Escape') onClose?.()
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [onClose])
+
     return(
-        <section className={className} aria-label="How to play">
+        <section className={className} ref={sectionRef} tabIndex={-1} aria-label="How to play">
             <StickyHeader
                 label="How to play"
                 action={<CloseButton onClick={onClose} />}
@@ -96,7 +112,6 @@ export default function GameInstructions({ onClose, className }: Props) {
                     <p>Each PvP win earns you a badge. Collect 3 badges to unlock a fight against the final boss. </p>
                     <p>Defeating the boss lets you cash out your credits for Tivoli euros, which is only available when playing at Tivoli's LoopLand.</p>
                 </div>
-
             </article>
         </section>
     )
