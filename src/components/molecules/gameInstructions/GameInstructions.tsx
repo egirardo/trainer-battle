@@ -10,7 +10,7 @@ interface Props {
 
 export default function GameInstructions({ onClose, className }: Props) {
     return(
-        <section className={className}>
+        <section className={className} aria-label="How to play">
             <StickyHeader
                 label="How to play"
                 action={<CloseButton onClick={onClose} />}
