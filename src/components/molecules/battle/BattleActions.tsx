@@ -44,7 +44,7 @@ export default function BattleActions({ moves, isMyTurn, playerItems, onFight, o
                             className={`${styles.moveRow} ${selectedMoveId === move.id ? styles.selected : ''}`}
                             onClick={() => setSelectedMoveId(move.id)}
                             onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
+                                if (e.key === 'Enter') {
                                     e.preventDefault();
                                     if (selectedMoveId === move.id && isMyTurn) {
                                         handleMoveClick(move.id);
