@@ -131,6 +131,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                             {showLeaveConfirm && (
                                 <LeaveConfirmDialog
                                     onConfirm={() => void handleLogout(() => {
+                                        setShowLeaveConfirm(false)
                                         window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
                                     })}
                                     onCancel={() => setShowLeaveConfirm(false)}
@@ -153,6 +154,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                                     {showLeaveConfirm && (
                                         <LeaveConfirmDialog
                                             onConfirm={() => void handleLogout(() => {
+                                                setShowLeaveConfirm(false)
                                                 window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
                                             })}
                                             onCancel={() => setShowLeaveConfirm(false)}
@@ -176,7 +178,10 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                                     </Button>
                                     {showLeaveConfirm && (
                                         <LeaveConfirmDialog
-                                            onConfirm={() => window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')}
+                                            onConfirm={() => {
+                                                setShowLeaveConfirm(false)
+                                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
+                                            }}
                                             onCancel={() => setShowLeaveConfirm(false)}
                                         />
                                     )}
