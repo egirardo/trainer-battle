@@ -18,7 +18,12 @@ export default function ProfileBody({ trainer, playerStats, creature, playerCrea
   return (
     <div className={styles.body}>
       <div className={styles.creditsRow}>
-        <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0} />
+        <LifeCreditTracker
+            lives={playerStats?.lives ?? 0}
+            credits={playerStats?.credits ?? 0}
+            level={playerCreature?.level ?? undefined}
+            experience={playerCreature?.experience ?? undefined}
+          />
       </div>
       <div className={styles.trainerCol}>
         <TrainerInfo trainer={trainer} playerStats={playerStats} />
