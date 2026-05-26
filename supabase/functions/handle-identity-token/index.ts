@@ -233,7 +233,7 @@ Deno.serve(async (req) => {
     if (isReturning) {
       const { data: existingStats, error: existingStatsErr } = await adminClient
         .from('player_stats')
-        .select('credits')
+        .select('credits, lives')
         .eq('player_id', supabaseUserId)
         .maybeSingle()
 
@@ -241,7 +241,7 @@ Deno.serve(async (req) => {
         return errorResponse('Failed to load player stats', 500)
       }
 
-      if (existingStats) {
+      if (existingStats && existingStats.lives > 0) {
         creditsToSet = existingStats.credits
         startingCreditsToSet = existingStats.credits
       }
