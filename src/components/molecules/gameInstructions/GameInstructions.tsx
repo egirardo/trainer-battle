@@ -18,6 +18,7 @@ export default function GameInstructions({ onClose, className }: Props) {
     }, [])
 
     useEffect(() => {
+        if (!onClose) return;
         function handleKeyDown(e: KeyboardEvent) {
             if (e.key === 'Escape') onClose?.()
         }

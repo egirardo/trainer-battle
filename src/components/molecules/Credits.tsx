@@ -15,6 +15,7 @@ export default function Credits({ onClose }: Props) {
     }, [])
 
     useEffect(() => {
+        if (!onClose) return;
         function handleKeyDown(e: KeyboardEvent) {
             if (e.key === 'Escape') onClose?.()
         }

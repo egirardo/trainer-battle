@@ -24,8 +24,8 @@ export default function LeaveConfirmDialog({ onConfirm, onCancel, entryFee = 1.5
     }, [onCancel])
 
     return (
-        <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="leave-dialog-title">
-            <div className={styles.dialog} ref={dialogRef} tabIndex={-1}>
+        <div className={styles.overlay}>
+            <div className={styles.dialog} ref={dialogRef} tabIndex={-1} role="dialog" aria-modal="true" aria-labelledby="leave-dialog-title">
                 <h2 id="leave-dialog-title">Leave game?</h2>
                 <p>If you return, you will be charged <strong>{entryFee.toFixed(2)}€</strong> to re-enter. Your progress will be saved if you leave.</p>
                 <div className={styles.actions}>
