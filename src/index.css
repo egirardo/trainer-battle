@@ -19,7 +19,7 @@
     rgba(50, 50, 93, 0.2) 0px 6px 12px -2px, rgba(0, 0, 0, 0.2) 0px 3px 7px -3px;
   --outline: #493f47;
 
-  /* Type colours — used for move badges; overridden in dark mode */
+  /* Type colours — used for move badges */
   --type-fire:  #991b1b;
   --type-water: #1e40af;
   --type-grass: #166534;

@@ -23,7 +23,7 @@ interface Props {
 export default function StickyHeader({ label, action, navItems, showVolumeButton = true }: Props) {
     const { muted, toggleMute } = useAudio()
     const [isOpen, setIsOpen] = useState(false)
-    const wrapperRef = useRef<HTMLDivElement>(null)
+    const wrapperRef = useRef<HTMLElement>(null)
     const hasNav = !!navItems?.length
 
     useEffect(() => {
