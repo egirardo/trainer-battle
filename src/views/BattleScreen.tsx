@@ -85,7 +85,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                             image={player.creatureImage}
                             name={player.name}
                         />
-                    </div>`
+                    </div>
                 </div>
 
                 <div className={styles.playerInfo}>
