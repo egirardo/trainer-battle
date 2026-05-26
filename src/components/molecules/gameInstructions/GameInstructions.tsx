@@ -28,6 +28,9 @@ export default function GameInstructions({ onClose, className }: Props) {
                     <p>
                         <span className={styles.accentText}>Continue</span> lets you log in to your existing account.
                     </p>
+                    <p>
+                        At Tivoli's LoopLand, you'll be logged in automatically - New Game and Continue are not available.
+                    </p>
                 </div>
                 <div className={styles.contentSection}>
                     <h2>
