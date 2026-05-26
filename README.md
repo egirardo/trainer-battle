@@ -1,73 +1,63 @@
-# React + TypeScript + Vite
+# Trainer Battle
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A turn-based creature battle game built as a school project for Yrgo WU25. Create your trainer, choose your creature, battle other players or the CPU, collect badges, and take on the boss.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Account system** (outside of tivoli) — register, log in, and persist your progress
+- **Account system** (inside of tivoli) - enter the game through loopland.se, you are automatically registered based on your user id, and your progress is saved as you go
+- **Trainer creation** — pick a name, gender, and starting creature
+- **Turn-based battles** — fight vs CPU or challenge another player in PvP
+  - Choose to Fight, use a Bag item, or Run each turn
+  - Type matchups (Fire → Grass → Water → Fire) affect damage
+  - 45-second turn timer in PvP matches
+- **Progression** — earn XP to level up your creature and credits to spend in the shop
+- **Badge system** — earn a badge for each win (four total badges available to earn); collect 3 to unlock a boss fight
+- **Shop** — spend credits on items to use in battle
+- **Profile page** — view your trainer stats, creature info, badges, and bag
+- **Lobby** — find live PvP opponents or jump into a CPU match
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+| Layer | Technology |
+|---|---|
+| Frontend | React 19, TypeScript, Vite |
+| Routing | React Router v7 |
+| Backend / DB | Supabase (PostgreSQL + Realtime) |
+| Styling | CSS Modules |
+| Font | Minecraft Standard (CC PD) |
 
-## Expanding the ESLint configuration
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Project Structure
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```
+src/
+├── assets/          # Sprites, badges, fonts, audio
+├── components/
+│   ├── atoms/       # Small reusable UI elements (Button, BadgeRow, StickyHeader…)
+│   └── molecules/   # Feature-level components grouped by page
+├── context/         # React context providers (auth, trainer creation)
+├── hooks/           # Custom hooks
+├── layouts/         # Page layout wrappers
+├── models/          # TypeScript model types
+├── views/           # Top-level route screens
+└── routes.ts        # Route constants
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Credits
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+**Development**
+- John Ahlenhed — Backend / DevOps
+- Laura Kotlinska — Frontend Logic / Backend / Design
+- Elsa Girardo — Frontend / Art & Design / Scrum Master
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Art & Sprites** — Elsa Girardo
+
+**Music**
+- *Boogie* — Pecan Pie
+- *Boss Time* — David Renda
+
+**Font** — Minecraft Standard (Faithful OpenType recreation of the Minecraft GUI font, CC PD)
+
+**Special thanks** — Yrgo WU25
