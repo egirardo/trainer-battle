@@ -17,9 +17,11 @@ export function useLobby() {
     const [playersInLobby, setPlayersInLobby] = useState<LobbyPlayer[]>([]);
     const [incomingInvitation, setIncomingInvitation] = useState<IncomingInvitation | null>(null);
     const [myCreatureId, setMyCreatureId] = useState<number | null>(null);
+    const [pendingPlayerIds, setPendingPlayerIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+    const pendingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
     const hasInviteRef = useRef(false);
     const inviteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -182,6 +184,32 @@ export function useLobby() {
                 .eq('player1_id', user!.id)
                 .eq('status', 'pending')
 
+            const { data: pendingSessions } = await supabase
+                .from('game_sessions')
+                .select('player2_id')
+                .eq('status', 'pending')
+
+            setPendingPlayerIds(new Set((pendingSessions ?? []).map(s => s.player2_id as string)))
+
+            if (pendingChannelRef.current) {
+                void supabase.removeChannel(pendingChannelRef.current)
+            }
+            pendingChannelRef.current = supabase
+                .channel('pending_invites')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_sessions' }, (payload) => {
+                    const session = payload.new as { player2_id: string; status: string }
+                    if (session.status === 'pending') {
+                        setPendingPlayerIds(prev => new Set([...prev, session.player2_id]))
+                    }
+                })
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_sessions' }, (payload) => {
+                    const session = payload.new as { player2_id: string; status: string }
+                    if (session.status !== 'pending') {
+                        setPendingPlayerIds(prev => { const next = new Set(prev); next.delete(session.player2_id); return next })
+                    }
+                })
+                .subscribe()
+
             const { data: existingInvite } = await supabase
                 .from('game_sessions')
                 .select('id, player1_id, player1_creature_id')
@@ -278,6 +306,10 @@ export function useLobby() {
                 void supabase.removeChannel(presenceChannelRef.current)
                 presenceChannelRef.current = null
             }
+            if (pendingChannelRef.current) {
+                void supabase.removeChannel(pendingChannelRef.current)
+                pendingChannelRef.current = null
+            }
             if (sessionAcceptedChannelRef.current) {
                 void supabase.removeChannel(sessionAcceptedChannelRef.current)
                 sessionAcceptedChannelRef.current = null
@@ -316,6 +348,7 @@ export function useLobby() {
         playersInLobby,
         incomingInvitation,
         myCreatureId,
+        pendingPlayerIds,
         loading,
         error: sessionError ?? error,
         handleAccept,
