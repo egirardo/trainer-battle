@@ -57,7 +57,7 @@ export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onTo
                         aria-controls="cart-list"
                     >
                         {isExpanded ? 'Hide cart' : 'View cart'}
-                    </button>
+                    </Button>
                     <p aria-live="polite" aria-atomic="true" className={styles.statusMessage}>
                         {buyDisabled ? 'Processing your purchase, please wait.' : ''}
                     </p>
