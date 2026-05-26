@@ -75,10 +75,11 @@ export function useLobby() {
                             if (session.status !== "pending") return;
                             if (hasInviteRef.current) {
                                 // Decline extra invites
-                                void supabase
+                                supabase
                                     .from('game_sessions')
                                     .update({ status: 'declined' })
                                     .eq('id', session.id)
+                                    .then(() => {})
                                 return;
                             }
 
@@ -100,11 +101,12 @@ export function useLobby() {
                             // Start timeout
                             inviteTimeoutRef.current = setTimeout(() => {
                                 if (!hasInviteRef.current) return
-                                void supabase
+                                supabase
                                     .from('game_sessions')
                                     .update({ status: 'declined' })
                                     .eq('id', session.id)
-                                    .eq('status', 'pending')  // ← guard against racing accept
+                                    .eq('status', 'pending')
+                                    .then(() => {})
                                 hasInviteRef.current = false
                                 setIncomingInvitation(null)
                             }, 30000)
@@ -236,11 +238,12 @@ export function useLobby() {
 
                 // Start timeout
                 inviteTimeoutRef.current = setTimeout(() => {
-                    void supabase
+                    supabase
                         .from('game_sessions')
                         .update({ status: 'declined' })
                         .eq('id', existingInvite.id)
                         .eq('status', 'pending')
+                        .then(() => {})
                     hasInviteRef.current = false
                     setIncomingInvitation(null)
                 }, 30000)
