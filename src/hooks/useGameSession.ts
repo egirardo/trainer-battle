@@ -232,6 +232,24 @@ export function useGameSession() {
         const myHp = myCreature.data?.current_hp ?? 100;
         const oppHp = opponentCreature.data?.current_hp ?? 100;
 
+        const { data, error } = await fetchFromSupabase(() => 
+            supabase
+                .from('game_sessions')
+                .update({
+                    player2_creature_id: myCreatureId,
+                    status: 'active',
+                })
+                .eq('id', sessionId)
+                .select()
+                .single()
+        );
+
+        if (error || !data) {
+            setError(error?.message ?? 'Unknown error');
+            setLoading(false);
+            return;
+        }
+
         const { error: battleStateError } = await supabase.from('battle_state').insert({
             session_id: sessionId,
             player1_hp: oppHp,
@@ -244,24 +262,6 @@ export function useGameSession() {
 
         if (battleStateError) {
             setError(battleStateError.message);
-            setLoading(false);
-            return;
-        }
-
-        const { data, error } = await fetchFromSupabase(() =>
-            supabase
-                .from("game_sessions")
-                .update({
-                    player2_creature_id: myCreatureId,
-                    status: "active",
-                })
-                .eq("id", sessionId)
-                .select()
-                .single()
-        );
-
-        if (error || !data) {
-            setError(error?.message ?? "Unknown error");
             setLoading(false);
             return;
         }
