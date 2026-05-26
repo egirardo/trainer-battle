@@ -132,9 +132,9 @@
   white-space: nowrap;
 }
 
-.moveCard.fire .moveName  { color: #991b1b; }
-.moveCard.water .moveName { color: #1e40af; }
-.moveCard.grass .moveName { color: #166534; }
+.moveCard.fire  .moveName { color: var(--type-fire); }
+.moveCard.water .moveName { color: var(--type-water); }
+.moveCard.grass .moveName { color: var(--type-grass); }
 
 @media (min-width: 505px) {
   .wrapper {

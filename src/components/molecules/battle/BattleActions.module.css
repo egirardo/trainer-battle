@@ -77,12 +77,6 @@
 }
 
 /* type-coloured badge */
-.fire {
-  color: #991b1b;
-}
-.water {
-  color: #1e40af;
-}
-.grass {
-  color: #166534;
-}
+.fire  { color: var(--type-fire); }
+.water { color: var(--type-water); }
+.grass { color: var(--type-grass); }
