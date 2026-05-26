@@ -200,13 +200,13 @@ export function useLobby() {
             }
             pendingChannelRef.current = supabase
                 .channel('pending_invites')
-                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_sessions' }, (payload) => {
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_sessions', filter: 'is_cpu=eq.false' }, (payload) => {
                     const session = payload.new as { player2_id: string | null; status: string; is_cpu: boolean }
                     if (session.status === 'pending' && !session.is_cpu && session.player2_id) {
                         setPendingPlayerIds(prev => new Set([...prev, session.player2_id!]))
                     }
                 })
-                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_sessions' }, (payload) => {
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_sessions', filter: 'is_cpu=eq.false' }, (payload) => {
                     const session = payload.new as { player2_id: string | null; status: string }
                     if (session.status !== 'pending' && session.player2_id) {
                         setPendingPlayerIds(prev => { const next = new Set(prev); next.delete(session.player2_id!); return next })
