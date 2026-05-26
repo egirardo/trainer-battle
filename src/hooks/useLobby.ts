@@ -93,7 +93,14 @@ export function useLobby() {
         return channel;
     }, [user?.id]);
 
+    const sessionAcceptedChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
     const subscribeToSessionAccepted = useCallback((sessionId: number, onDeclined: () => void): ReturnType<typeof supabase.channel> => {
+        // Clean up any existing channel
+        if (sessionAcceptedChannelRef.current) {
+            void supabase.removeChannel(sessionAcceptedChannelRef.current);
+        }
+
         const channel = supabase
             .channel(`session_accepted:${sessionId}`)
             .on(
@@ -115,6 +122,7 @@ export function useLobby() {
             )
             .subscribe();
 
+        sessionAcceptedChannelRef.current = channel;
         return channel;
     }, [navigate]);
 
@@ -224,6 +232,10 @@ export function useLobby() {
             if (presenceChannelRef.current) {
                 void supabase.removeChannel(presenceChannelRef.current)
                 presenceChannelRef.current = null
+            }
+            if (sessionAcceptedChannelRef.current) {
+                void supabase.removeChannel(sessionAcceptedChannelRef.current)
+                sessionAcceptedChannelRef.current = null
             }
             void invitationChannel?.unsubscribe();
         };
