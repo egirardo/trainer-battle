@@ -12,7 +12,7 @@ type Props = {
 };
 
 export default function LifeCreditTracker({ lives, credits, level, experience, xpPerLevel = 100 }: Props) {
-  const showXp = level != null && experience != null;
+  const showXp = level != null && experience != null && xpPerLevel > 0;
   const currentXp = showXp ? experience % xpPerLevel : 0;
 
   return (

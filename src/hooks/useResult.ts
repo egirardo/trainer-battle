@@ -102,7 +102,7 @@ export function useResult(sessionId: number) {
                     xpGained,
                     creditsGained,
                     newLevel,
-                    currentXp: currentExp % xpPerLevel,
+                    experience: currentExp,
                     xpPerLevel,
                     leveledUp,
                     livesRemaining: serverResult?.livesRemaining ?? statsResult.data?.lives ?? null,

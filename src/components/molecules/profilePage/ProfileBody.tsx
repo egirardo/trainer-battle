@@ -3,6 +3,7 @@ import TrainerInfo from "./TrainerInfo";
 import CreatureInfo from "./CreatureInfo";
 import BagInfo from "./BagInfo";
 import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTracker";
+import { useGameConfig } from "@/hooks/useGameConfig";
 import styles from "./ProfileBody.module.css";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
 }
 
 export default function ProfileBody({ trainer, playerStats, creature, playerCreature, moves, playerItems }: Props) {
+  const { xpPerLevel } = useGameConfig();
   return (
     <div className={styles.body}>
       <div className={styles.creditsRow}>
@@ -23,6 +25,7 @@ export default function ProfileBody({ trainer, playerStats, creature, playerCrea
             credits={playerStats?.credits ?? 0}
             level={playerCreature?.level ?? undefined}
             experience={playerCreature?.experience ?? undefined}
+            xpPerLevel={xpPerLevel}
           />
       </div>
       <div className={styles.trainerCol}>

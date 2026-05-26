@@ -109,7 +109,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                     )}
                     <XpBar
                         level={result.newLevel}
-                        currentXp={result.currentXp}
+                        experience={result.experience}
                         xpPerLevel={result.xpPerLevel}
                     />
                 </div>
