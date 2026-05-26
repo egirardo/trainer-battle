@@ -8,4 +8,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error("Supabase URL and Anon Key must be provided in environment variables.");
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        storage: window.localStorage,
+        storageKey: 'trainer-battle-auth',
+        persistSession: true,
+    }
+});

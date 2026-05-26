@@ -129,6 +129,12 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                         </Button>
                     ) : (
                         <>
+                            <Button variant='danger' className={styles.asLink} as={Link} to={ROUTES.lobby}>
+                                Play Again
+                            </Button>
+                            <Button className={styles.asLink} as={Link} to={ROUTES.gameMenu}>
+                                Main Menu
+                            </Button>
                             {window.parent !== window && (
                                 <Button
                                     onClick={() =>
@@ -137,12 +143,6 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                                         Back to Loopland
                                 </Button>
                             )}
-                            <Button variant='danger' className={styles.asLink} as={Link} to={ROUTES.lobby}>
-                                Play Again
-                            </Button>
-                            <Button className={styles.asLink} as={Link} to={ROUTES.gameMenu}>
-                                Main Menu
-                            </Button>
                         </>
                     )}
                 </div>
