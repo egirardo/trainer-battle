@@ -66,7 +66,15 @@ function ResultContent({ sessionId }: { sessionId: number }) {
 
     return (
         <>
-            <StickyHeader label="Result" navItems={navItems} />
+                {isGameOver ? (
+                    <StickyHeader label="Result"/>
+                ) : (
+                    <StickyHeader 
+                        label="Result" 
+                        navItems={navItems}   
+                    />
+                )}
+
             <main className={styles.main}>
                 <LifeCreditTracker lives={result.livesRemaining ?? 0} credits={result.creditsBalance} />
                 <div className={styles.outcomeSection}>
