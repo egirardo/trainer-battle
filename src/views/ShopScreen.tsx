@@ -136,11 +136,6 @@ export default function ShopScreen() {
                 isExpanded={isCartExpanded}
                 onToggleExpanded={() => setIsCartExpanded(e => !e)}
             />
-            {showInstructions && (
-                <Overlay>
-                    <GameInstructions onClose={() => setShowInstructions(false)} />
-                </Overlay>
-            )}
         </>
     );
 }

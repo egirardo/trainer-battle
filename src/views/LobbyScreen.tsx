@@ -181,11 +181,6 @@ export default function LobbyScreen() {
                 </Overlay>
             )}
             </main>
-            {showInstructions && (
-                <Overlay>
-                    <GameInstructions onClose={() => setShowInstructions(false)} />
-                </Overlay>
-            )}
         </>
     );
 }

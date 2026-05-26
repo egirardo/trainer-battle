@@ -2,6 +2,7 @@ import styles from './GameInstructions.module.css'
 import BattleInstructions from './BattleInstructions'
 import StickyHeader from '@/components/atoms/StickyHeader';
 import CloseButton from '@/components/atoms/headerButtons/CloseButton';
+import { useEffect, useRef } from 'react';
 
 interface Props {
     onClose?: () => void;
@@ -9,8 +10,22 @@ interface Props {
 }
 
 export default function GameInstructions({ onClose, className }: Props) {
+    const sectionRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        sectionRef.current?.focus();
+    }, [])
+
+    useEffect(() => {
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key === 'Escape') onClose?.()
+        }
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+    }, [onClose])
+
     return(
-        <section className={className}>
+        <section className={className} ref={sectionRef} tabIndex={-1} aria-labelledby="game-instructions-title">
             <StickyHeader
                 label="How to play"
                 action={<CloseButton onClick={onClose} />}
@@ -75,7 +90,6 @@ export default function GameInstructions({ onClose, className }: Props) {
                         <p>Each win earns you an in-game badge. Collect <span className={styles.accentText}>3 badges</span> to unlock a fight against the boss for the highest rewards.</p>
                     </div>
                 </div>
-
             </article>
         </section>
     )
