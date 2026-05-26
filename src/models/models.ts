@@ -127,6 +127,7 @@ export interface PlayerStats {
     total_forfeits: number;
     lives: number;
     credits: number;
+    cpu_battles_count?: number;
     boss_beaten?: boolean;
 }
 
@@ -172,4 +173,7 @@ export interface ResultData {
     currentXp: number;
     xpPerLevel: number;
     leveledUp: boolean;
+    livesRemaining: number | null;
+    creditsBalance: number;
+    bossBeat: boolean;
 }

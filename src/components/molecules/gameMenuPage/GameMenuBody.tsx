@@ -156,6 +156,18 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
     void fetchTrainerData();
   }, [userId]);
 
+  useEffect(() => {
+    if (!playerStats || playerStats.lives !== 0) return;
+    void supabase.auth.signOut().then(({ error }) => {
+      if (error) return;
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
+      } else {
+        window.location.href = 'https://loopland.se/';
+      }
+    });
+  }, [playerStats]);
+
   const wins = playerStats?.total_wins ?? 0;
   const losses = playerStats?.total_losses ?? 0;
   const trainerWithStats = trainer ? { ...trainer, wins, losses } : null;

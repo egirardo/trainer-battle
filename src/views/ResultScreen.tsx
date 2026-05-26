@@ -1,7 +1,6 @@
 import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import { useResult } from "@/hooks/useResult";
-import { usePlayerStats } from "@/hooks/usePlayerStats";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import StickyHeader, { type NavItem } from '@/components/atoms/StickyHeader'
 import { supabase } from '@/lib/supabase'
@@ -23,7 +22,6 @@ export default function ResultScreen() {
 
 function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId)
-    const { stats } = usePlayerStats()
     const navigate = useNavigate()
 
     async function handleLogout(): Promise<void> {
@@ -46,18 +44,32 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
     const isWin = result.outcome === 'win'
+    const lostALife = result.outcome === 'loss' && !result.isForfeit
+    const livesLeft = result.livesRemaining
+    const isGameOver = !isWin && livesLeft === 0
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
     return (
         <>
             <StickyHeader label="Result" navItems={navItems} />
             <main className={styles.main}>
-                <LifeCreditTracker lives={stats?.lives ?? 0} credits={stats?.credits ?? 0} />
+                <LifeCreditTracker lives={result.livesRemaining ?? 0} credits={result.creditsBalance} />
                 <div className={styles.outcomeSection}>
                     <h1 className={isWin ? styles.victory : styles.defeat}>
                         {isWin ? 'Victory!' : 'Defeat'}
                     </h1>
-                    <p className={styles.opponent}>vs {opponentLabel}</p>
+                    <p className={result.bossBeat ? styles.bossBeat : styles.opponent}>
+                        {result.bossBeat ? 'You defeated the boss!' : `vs ${opponentLabel}`}
+                    </p>
+                    {lostALife && (
+                        <p className={styles.lostLife}>
+                            {isGameOver
+                                ? "You've lost all your lives!"
+                                : livesLeft != null
+                                    ? `You lost a life! ${livesLeft} ${livesLeft === 1 ? 'life' : 'lives'} remaining.`
+                                    : 'You lost a life!'}
+                        </p>
+                    )}
                 </div>
 
                 <div className={styles.card}>
@@ -91,19 +103,27 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                     />
                 </div>
                 <div className={styles.actions}>
-                    <Button 
-                        variant='danger' 
-                        className={styles.asLink} 
-                        as={Link} 
-                        to={ROUTES.lobby}>
-                            Play Again
-                    </Button>
-                    <Button 
-                        className={styles.asLink} 
-                        as={Link} 
-                        to={ROUTES.gameMenu}>
-                            Main Menu
-                    </Button>
+                    {isGameOver ? (
+                        <Button variant='danger' onClick={() => void handleLogout()}>
+                            Sign Out
+                        </Button>
+                    ) : (
+                        <>
+                            <Button
+                                variant='danger'
+                                className={styles.asLink}
+                                as={Link}
+                                to={ROUTES.lobby}>
+                                    Play Again
+                            </Button>
+                            <Button
+                                className={styles.asLink}
+                                as={Link}
+                                to={ROUTES.gameMenu}>
+                                    Main Menu
+                            </Button>
+                        </>
+                    )}
                 </div>
             </main>
         </>

@@ -56,7 +56,7 @@ export function useResult(sessionId: number) {
                 const [statsResult, creatureResult, configResult] = await Promise.all([
                     supabase
                         .from('player_stats')
-                        .select('total_wins, total_losses, total_forfeits')
+                        .select('total_wins, total_losses, total_forfeits, lives, credits')
                         .eq('player_id', currentUser.id)
                         .single(),
                     supabase
@@ -72,7 +72,7 @@ export function useResult(sessionId: number) {
 
                 const cached = sessionStorage.getItem(`battle-result-${sessionId}`);
                 sessionStorage.removeItem(`battle-result-${sessionId}`);
-                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; creditsGained: number; newLevel: number; leveledUp: boolean } : null;
+                const serverResult = cached ? JSON.parse(cached) as { xpGained: number; creditsGained: number; newLevel: number; leveledUp: boolean; livesRemaining: number | null; bossBeat: boolean } : null;
 
                 const xpGained = serverResult?.xpGained ?? (outcome === 'win'
                     ? (session.is_cpu ? (configResult.data?.xp_cpu_win ?? 50) : (configResult.data?.xp_pvp_win ?? 100))
@@ -105,6 +105,9 @@ export function useResult(sessionId: number) {
                     currentXp: currentExp % xpPerLevel,
                     xpPerLevel,
                     leveledUp,
+                    livesRemaining: serverResult?.livesRemaining ?? statsResult.data?.lives ?? null,
+                    creditsBalance: statsResult.data?.credits ?? 0,
+                    bossBeat: serverResult?.bossBeat ?? false,
                 })
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Unknown error');

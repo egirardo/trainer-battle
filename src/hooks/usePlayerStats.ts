@@ -27,7 +27,7 @@ export function usePlayerStats() {
                     .from("player_stats")
                     .select("*")
                     .eq("player_id", user.id)
-                    .single()
+                    .maybeSingle()
             );
 
             if (error) {

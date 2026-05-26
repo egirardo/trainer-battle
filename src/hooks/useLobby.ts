@@ -12,7 +12,7 @@ import { ROUTES } from "@/routes";
 export function useLobby() {
     const navigate = useNavigate();
     const { user, profile } = useAuth();
-    const { acceptInvitation, declineInvitation, createPvpSession, createCpuSession } = useGameSession();
+    const { acceptInvitation, declineInvitation, createPvpSession, createCpuSession, error: sessionError } = useGameSession();
 
     const [playersInLobby, setPlayersInLobby] = useState<LobbyPlayer[]>([]);
     const [incomingInvitation, setIncomingInvitation] = useState<IncomingInvitation | null>(null);
@@ -224,7 +224,7 @@ export function useLobby() {
         incomingInvitation,
         myCreatureId,
         loading,
-        error,
+        error: sessionError ?? error,
         handleAccept,
         handleDecline,
         createPvpSession,

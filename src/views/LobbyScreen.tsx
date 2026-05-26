@@ -110,14 +110,20 @@ export default function LobbyScreen() {
 
             <section className={styles.section} aria-label="CPU battle">
                 <h2 className={styles.heading}>Battle against CPU</h2>
-                <p>Your opponent will match your skill level.</p>
-                <Button 
-                    className={styles.cpuBtn}
-                    variant={"danger"}
-                    onClick={() => void handleCpu()}
-                >
-                    Fight vs CPU
-                </Button>
+                {(stats?.cpu_battles_count ?? 0) >= 5 ? (
+                    <p>CPU battle limit reached. Win a PVP battle to reset.</p>
+                ) : (
+                    <>
+                        <p>Your opponent will match your skill level.</p>
+                        <Button
+                            className={styles.cpuBtn}
+                            variant={"danger"}
+                            onClick={() => void handleCpu()}
+                        >
+                            Fight vs CPU
+                        </Button>
+                    </>
+                )}
             </section>
 
             <section className={styles.section} aria-label="Players in Lobby">
