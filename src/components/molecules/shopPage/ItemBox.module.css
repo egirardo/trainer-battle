@@ -74,6 +74,17 @@
     gap: 0.5rem;
 }
 
+.statusMessage {
+    margin: 0;
+    font-family: var(--pixel-regular);
+    font-size: 0.875rem;
+    visibility: hidden;
+}
+
+.statusMessage:not(:empty) {
+    visibility: visible;
+}
+
 .itemFooter {
     display: flex;
     flex-wrap: wrap;

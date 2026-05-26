@@ -23,10 +23,10 @@ export default function GameInstructions({ onClose, className }: Props) {
                         Get started
                     </h2>
                     <p>
-                        <span className={styles.accentText}>New Game</span> let's you pick your trainer, username and your starting creature.
+                        <span className={styles.accentText}>New Game</span> lets you create an account. You pick your trainer, username and your starting creature. Your progress will be saved throughout the game.
                     </p>
                     <p>
-                        <span className={styles.accentText}>Continue</span> let's you log in to your existing account.
+                        <span className={styles.accentText}>Continue</span> lets you log in to your existing account.
                     </p>
                 </div>
                 <div className={styles.contentSection}>

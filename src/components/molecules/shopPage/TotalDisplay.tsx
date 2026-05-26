@@ -58,12 +58,13 @@ export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onTo
                     >
                         {isExpanded ? 'Hide cart' : 'View cart'}
                     </button>
-                    {buyDisabled && <p id="purchase-in-progress">Processing your purchase, please wait.</p>}
+                    <p aria-live="polite" aria-atomic="true" className={styles.statusMessage}>
+                        {buyDisabled ? 'Processing your purchase, please wait.' : ''}
+                    </p>
                     <Button
                         onClick={onBuy}
                         disabled={total === 0 || buyDisabled}
                         className={styles.buyButton}
-                        aria-describedby={buyDisabled ? 'purchase-in-progress' : undefined}
                     >Buy</Button>
                 </div>
             </div>
