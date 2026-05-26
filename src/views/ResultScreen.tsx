@@ -104,23 +104,31 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                 </div>
                 <div className={styles.actions}>
                     {isGameOver ? (
-                        <Button variant='danger' onClick={() => void handleLogout()}>
-                            Sign Out
+                        <Button variant='danger' onClick={() => {
+                            void supabase.auth.signOut()
+                            if (window.parent !== window) {
+                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
+                            } else {
+                                void navigate(ROUTES.start)
+                            }
+                        }}>
+                            {window.parent !== window ? 'Back to Loopland' : 'Sign out'}
                         </Button>
                     ) : (
                         <>
-                            <Button
-                                variant='danger'
-                                className={styles.asLink}
-                                as={Link}
-                                to={ROUTES.lobby}>
-                                    Play Again
+                            {window.parent !== window && (
+                                <Button
+                                    onClick={() =>
+                                        window.parent.postMessage({ type: "AMUSEMENT_CLOSE" }, "https://loopland.se")
+                                    }>
+                                        Back to Loopland
+                                </Button>
+                            )}
+                            <Button variant='danger' className={styles.asLink} as={Link} to={ROUTES.lobby}>
+                                Play Again
                             </Button>
-                            <Button
-                                className={styles.asLink}
-                                as={Link}
-                                to={ROUTES.gameMenu}>
-                                    Main Menu
+                            <Button className={styles.asLink} as={Link} to={ROUTES.gameMenu}>
+                                Main Menu
                             </Button>
                         </>
                     )}
