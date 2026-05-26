@@ -8,12 +8,13 @@ import greenBadgeShadow from '@/assets/sprites/badges/green-badge-shadow.png';
 import bossBadge from '@/assets/sprites/badges/boss-badge.png';
 import bossBadgeShadow from '@/assets/sprites/badges/boss-badge-shadow.png';
 
-const BADGE_DEFINITIONS = [
+const REGULAR_BADGES = [
     { earned: blueBadge,  shadow: blueBadgeShadow,  name: 'Blue Badge' },
     { earned: redBadge,   shadow: redBadgeShadow,   name: 'Red Badge' },
     { earned: greenBadge, shadow: greenBadgeShadow, name: 'Green Badge' },
-    { earned: bossBadge,  shadow: bossBadgeShadow,  name: 'Boss Badge' },
 ];
+
+const BOSS_BADGE = { earned: bossBadge, shadow: bossBadgeShadow, name: 'Boss Badge' };
 
 interface Props {
     wins: number;
@@ -21,10 +22,12 @@ interface Props {
 }
 
 export default function BadgeRow({ wins, bossBeaten }: Props) {
+    const showBossBadge = wins >= 3;
+
     return (
         <div className={styles.badgeRow}>
-            {BADGE_DEFINITIONS.map((badge, index) => {
-                const isEarned = index < BADGE_DEFINITIONS.length - 1 ? wins > index : bossBeaten;
+            {REGULAR_BADGES.map((badge, index) => {
+                const isEarned = wins > index;
                 return (
                     <img
                         key={index}
@@ -34,6 +37,13 @@ export default function BadgeRow({ wins, bossBeaten }: Props) {
                     />
                 );
             })}
+            {showBossBadge && (
+                <img
+                    src={bossBeaten ? BOSS_BADGE.earned : BOSS_BADGE.shadow}
+                    alt={bossBeaten ? BOSS_BADGE.name : `${BOSS_BADGE.name} (locked)`}
+                    className={bossBeaten ? styles.earned : styles.locked}
+                />
+            )}
         </div>
     );
 }
