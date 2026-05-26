@@ -71,7 +71,16 @@ export function useLobby() {
                             };
 
                             if (session.status !== "pending") return;
-                            if (hasInviteRef.current) return;
+                            if (hasInviteRef.current) {
+                                // Decline extra invites
+                                void supabase
+                                    .from('game_sessions')
+                                    .update({ status: 'declined' })
+                                    .eq('id', session.id)
+                                return;
+                            }
+
+                            hasInviteRef.current = true;
 
                             const { data: inviterProfile } = await supabase
                                 .from('profiles')
@@ -79,7 +88,6 @@ export function useLobby() {
                                 .eq('id', session.player1_id)
                                 .single();
 
-                            hasInviteRef.current = true;
                             setIncomingInvitation({
                                 sessionId: session.id,
                                 fromUserId: session.player1_id,
@@ -88,20 +96,16 @@ export function useLobby() {
                             })
 
                             // Start timeout
-                            if (inviteTimeoutRef.current) clearTimeout(inviteTimeoutRef.current);
                             inviteTimeoutRef.current = setTimeout(() => {
-                                setIncomingInvitation(prev => {
-                                    if (prev?.sessionId === session.id) {
-                                        void supabase
-                                            .from('game_sessions')
-                                            .update({ status: 'declined' })
-                                            .eq('id', session.id)
-                                        hasInviteRef.current = false;
-                                        return null;
-                                    }
-                                    return prev;
-                                })
-                            }, 30000); // 30 seconds
+                                if (!hasInviteRef.current) return
+                                void supabase
+                                    .from('game_sessions')
+                                    .update({ status: 'declined' })
+                                    .eq('id', session.id)
+                                    .eq('status', 'pending')  // ← guard against racing accept
+                                hasInviteRef.current = false
+                                setIncomingInvitation(null)
+                            }, 30000)
                             
                         } catch (err) {
                             setError(err instanceof Error ? err.message : 'Failed to process invitation')
@@ -183,6 +187,8 @@ export function useLobby() {
                 .select('id, player1_id, player1_creature_id')
                 .eq('player2_id', user!.id)
                 .eq('status', 'pending')
+                .order('created_at', { ascending: true })
+                .limit(1)
                 .maybeSingle()
 
             if (existingInvite) {
@@ -192,12 +198,24 @@ export function useLobby() {
                     .eq('id', existingInvite.player1_id)
                     .single();
 
+                hasInviteRef.current = true;
                 setIncomingInvitation({
                     sessionId: existingInvite.id,
                     fromUserId: existingInvite.player1_id,
                     fromUsername: inviterProfile?.username ?? 'Unknown',
                     creatureId: existingInvite.player1_creature_id ?? 0,
                 })
+
+                // Start timeout
+                inviteTimeoutRef.current = setTimeout(() => {
+                    void supabase
+                        .from('game_sessions')
+                        .update({ status: 'declined' })
+                        .eq('id', existingInvite.id)
+                        .eq('status', 'pending')
+                    hasInviteRef.current = false
+                    setIncomingInvitation(null)
+                }, 30000)
             }
 
             const rawCreature = creature?.creatures;
