@@ -47,6 +47,17 @@
 }
 
 
+.statusMessage {
+    margin: 0;
+    font-family: var(--pixel-regular);
+    font-size: 0.875rem;
+    visibility: hidden;
+}
+
+.statusMessage:not(:empty) {
+    visibility: visible;
+}
+
 .totalCount {
     display: flex;
     justify-content: space-between;
