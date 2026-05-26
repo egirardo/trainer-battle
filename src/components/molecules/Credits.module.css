@@ -45,9 +45,6 @@
   gap: 0.35em;
 }
 
-.name {
-  font-decoration: underline;
-}
 
 .techRow {
   display: flex;
