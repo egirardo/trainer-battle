@@ -28,6 +28,9 @@ export default function ItemBox({ item, quantity, onAdd, onRemove, disabled = fa
                         <span className={styles.itemPrice}>{item.price}</span>
                     </div>
                     <div className={styles.purchaseButtons}>
+                        <p role="status" className={styles.statusMessage}>
+                            {disabled ? 'Processing your purchase, please wait.' : ''}
+                        </p>
                         <IconButton image={minusButton} ariaLabel="Remove Item" onClick={() => onRemove(item.id)} disabled={disabled} />
                         <div className={styles.countIcon}>
                             <p className={styles.count}>{quantity}</p>
