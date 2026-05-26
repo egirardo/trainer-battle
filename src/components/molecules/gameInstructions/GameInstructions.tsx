@@ -78,10 +78,18 @@ export default function GameInstructions({ onClose, className }: Props) {
                 <div className={styles.contentSection}>
                     <h2>
                         <span className={styles.listNumber}>7</span>
+                        Stamps
+                    </h2>
+                    <p>Stamps are awarded by Tivoli.</p>
+                    <p>You can view your earned stamps in your LoopLand account.</p>
+                </div>
+                <div className={styles.contentSection}>
+                    <h2>
+                        <span className={styles.listNumber}>8</span>
                         Earn prizes
                     </h2>
-                    <p>Win battles to earn in-game <span className={styles.accentText}>credits</span> and <span className={styles.accentText}>XP</span>. Losses cost a small amount of credits but still award XP. XP levels up your creature, making it stronger.</p>
-                    <p>Each <span className={styles.accentText}>PvP</span> win earns you a badge. Collect <span className={styles.accentText}>3 badges</span> to unlock a fight against the final boss. </p>
+                    <p>Win battles to earn in-game credits and XP. Losses cost a small amount of credits but still award XP. XP levels up your creature, making it stronger.</p>
+                    <p>Each PvP win earns you a badge. Collect 3 badges to unlock a fight against the final boss. </p>
                     <p>Defeating the boss lets you cash out your credits for Tivoli euros, which is only available when playing at Tivoli's LoopLand.</p>
                 </div>
 
