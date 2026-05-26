@@ -14,6 +14,7 @@ import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import Button from '@/components/atoms/button';
+import LeaveConfirmDialog from '@/components/molecules/gameInstructions/LeaveConfirmDialog';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -57,6 +58,7 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
 
   useEffect(() => {
     if (!userId) return;
@@ -204,19 +206,21 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
 
         {isCentralbankUser && window.parent !== window && (
           <div className={styles.btnContainer}>
-              <Button
-                  onClick={() =>
-                      window.parent.postMessage({ type: "AMUSEMENT_CLOSE" }, "https://loopland.se")
-                  }
-              >
+              <Button onClick={() => setShowLeaveConfirm(true)}>
                   Back to Loopland
               </Button>
-            <Button
-                variant='danger'
-                onClick={onCashoutClick}
-            >
-                Cash out
-            </Button>
+              <Button
+                  variant='danger'
+                  onClick={onCashoutClick}
+              >
+                  Cash out
+              </Button>
+              {showLeaveConfirm && (
+                  <LeaveConfirmDialog
+                      onConfirm={() => window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')}
+                      onCancel={() => setShowLeaveConfirm(false)}
+                  />
+              )}
           </div>
         )}
     </div>
