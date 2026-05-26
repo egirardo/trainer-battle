@@ -8,6 +8,8 @@ import Button from '@/components/atoms/button'
 import XpBar from '@/components/atoms/XpBar'
 import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTracker";
 import styles from './ResultScreen.module.css'
+import { useState } from "react";
+import LeaveConfirmDialog from "@/components/molecules/gameInstructions/LeaveConfirmDialog";
 
 export default function ResultScreen() {
     const { sessionId } = useParams<{ sessionId: string }>()
@@ -23,6 +25,7 @@ export default function ResultScreen() {
 function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId)
     const navigate = useNavigate()
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
 
     async function handleLogout(onSuccess?: () => void): Promise<void> {
         const isInIframe = window.parent !== window
@@ -115,25 +118,51 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                 </div>
                 <div className={styles.actions}>
                     {isGameOver ? (
-                        <Button variant='danger' onClick={() => void handleLogout(() => {
-                            if (window.parent !== window) {
-                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
-                            } else {
-                                void navigate(ROUTES.start)
-                            }
-                        })}>
-                            {window.parent !== window ? 'Back to Loopland' : 'Sign out'}
-                        </Button>
+                        <>
+                            <Button variant='danger' onClick={() => {
+                                if (window.parent !== window) {
+                                    setShowLeaveConfirm(true)
+                                } else {
+                                    void handleLogout()
+                                }
+                            }}>
+                                {window.parent !== window ? 'Back to Loopland' : 'Sign out'}
+                            </Button>
+                            {showLeaveConfirm && (
+                                <LeaveConfirmDialog
+                                    onConfirm={() => void handleLogout(() => {
+                                        setShowLeaveConfirm(false)
+                                        window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
+                                    })}
+                                    onCancel={() => setShowLeaveConfirm(false)}
+                                />
+                            )}
+                        </>
                     ) : isWin ? (
-                        <Button onClick={() => void handleLogout(() => {
-                            if (window.parent !== window) {
-                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
-                            } else {
-                                void navigate(ROUTES.start)
-                            }
-                        })}>
-                            {window.parent !== window ? 'Back to Loopland' : 'Sign out'}
-                        </Button>
+                        <>
+                            <Button className={styles.asLink} as={Link} to={ROUTES.lobby}>
+                                Play Again
+                            </Button>
+                            <Button className={styles.asLink} as={Link} to={ROUTES.gameMenu}>
+                                Main Menu
+                            </Button>
+                            {window.parent !== window && (
+                                <>
+                                    <Button onClick={() => setShowLeaveConfirm(true)}>
+                                        Back to Loopland
+                                    </Button>
+                                    {showLeaveConfirm && (
+                                        <LeaveConfirmDialog
+                                            onConfirm={() => void handleLogout(() => {
+                                                setShowLeaveConfirm(false)
+                                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
+                                            })}
+                                            onCancel={() => setShowLeaveConfirm(false)}
+                                        />
+                                    )}
+                                </>
+                            )}
+                        </>
                     ) : (
                         <>
                             <Button variant='danger' className={styles.asLink} as={Link} to={ROUTES.lobby}>
@@ -143,12 +172,20 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                                 Main Menu
                             </Button>
                             {window.parent !== window && (
-                                <Button
-                                    onClick={() =>
-                                        window.parent.postMessage({ type: "AMUSEMENT_CLOSE" }, "https://loopland.se")
-                                    }>
+                                <>
+                                    <Button onClick={() => setShowLeaveConfirm(true)}>
                                         Back to Loopland
-                                </Button>
+                                    </Button>
+                                    {showLeaveConfirm && (
+                                        <LeaveConfirmDialog
+                                            onConfirm={() => {
+                                                setShowLeaveConfirm(false)
+                                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
+                                            }}
+                                            onCancel={() => setShowLeaveConfirm(false)}
+                                        />
+                                    )}
+                                </>
                             )}
                         </>
                     )}

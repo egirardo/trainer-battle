@@ -14,6 +14,7 @@ import { getCreatureImage } from '@/lib/creatureImages';
 import { ROUTES } from '@/routes';
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import Button from '@/components/atoms/button';
+import LeaveConfirmDialog from '@/components/molecules/gameInstructions/LeaveConfirmDialog';
 
 
 type TrainerPreview = Omit<Trainer, 'is_admin' | 'created_at' | 'wins' | 'losses'>;
@@ -57,15 +58,18 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
   const [loading, setLoading] = useState(!!userId);
   const [error, setError] = useState<string | null>(null);
+  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [entryFeeReturning, setEntryFeeReturning] = useState<number>(1.50)
 
   useEffect(() => {
     if (!userId) return;
 
     async function fetchTrainerData() {
-      const [profileResult, pcResult, statsResult] = await Promise.all([
+      const [profileResult, pcResult, statsResult, configResult] = await Promise.all([
         supabase.from('profiles').select('id, username, trainer_gender, centralbank_uuid').eq('id', userId!).maybeSingle(),
         supabase.from('player_creatures').select('id, level, creature_id, player_id, nickname, experience, current_hp, attack, defence, speed, creatures(id, name, type, image, base_hp, base_attack, base_defence, base_speed, description)').eq('player_id', userId!).maybeSingle(),
         supabase.from('player_stats').select('*').eq('player_id', userId!).maybeSingle(),
+        supabase.from('game_config').select('entry_fee_returning').single(),
       ]);
 
       if (profileResult.error || pcResult.error || statsResult.error) {
@@ -112,6 +116,8 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
         lives: 3,
         credits: 0,
       }
+
+      setEntryFeeReturning(Number(configResult.data?.entry_fee_returning) || 1.50)
 
       if (statsResult.data) {
         setPlayerStats(statsResult.data)
@@ -204,19 +210,25 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
 
         {isCentralbankUser && window.parent !== window && (
           <div className={styles.btnContainer}>
-              <Button
-                  onClick={() =>
-                      window.parent.postMessage({ type: "AMUSEMENT_CLOSE" }, "https://loopland.se")
-                  }
-              >
+              <Button onClick={() => setShowLeaveConfirm(true)}>
                   Back to Loopland
               </Button>
-            <Button
-                variant='danger'
-                onClick={onCashoutClick}
-            >
-                Cash out
-            </Button>
+              <Button
+                  variant='danger'
+                  onClick={onCashoutClick}
+              >
+                  Cash out
+              </Button>
+              {showLeaveConfirm && (
+                  <LeaveConfirmDialog
+                      entryFee={entryFeeReturning}
+                      onConfirm={() => {
+                          setShowLeaveConfirm(false)
+                          window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se')
+                      }}
+                      onCancel={() => setShowLeaveConfirm(false)}
+                  />
+              )}
           </div>
         )}
     </div>
