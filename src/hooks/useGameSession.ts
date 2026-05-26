@@ -58,11 +58,16 @@ export function useGameSession() {
         setLoading(true);
 
         try {
-            const { data: stats } = await supabase
+            const { data: stats, error: statsError } = await supabase
                 .from('player_stats')
                 .select('cpu_battles_count')
                 .eq('player_id', user.id)
                 .maybeSingle();
+
+            if (statsError) {
+                setError('Could not verify battle limit. Please try again.');
+                return;
+            }
 
             if ((stats?.cpu_battles_count ?? 0) >= 5) {
                 setError('CPU battle limit reached. Win a PVP battle to reset.');
