@@ -99,6 +99,10 @@
     text-align: left;
 }
 
+.creatureType {
+    text-transform: capitalize;
+}
+
 
 .viewProfileLink {
     align-self: center;
