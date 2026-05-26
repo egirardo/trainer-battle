@@ -158,7 +158,7 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
 
   useEffect(() => {
     if (!playerStats || playerStats.lives !== 0) return;
-    void supabase.auth.signOut().then(({ error }) => {
+    void supabase.auth.signOut({ scope: 'local' }).then(({ error }) => {
       if (error) return;
       if (window.parent !== window) {
         window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');

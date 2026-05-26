@@ -25,7 +25,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const navigate = useNavigate()
 
     async function handleLogout(onSuccess?: () => void): Promise<void> {
-        const { error } = await supabase.auth.signOut()
+        const { error } = await supabase.auth.signOut({ scope: 'local' })
         if (error) { console.error('Failed to sign out:', error); return }
         if (onSuccess) {
             onSuccess()
