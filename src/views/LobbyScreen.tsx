@@ -24,6 +24,7 @@ export default function LobbyScreen() {
         playersInLobby,
         incomingInvitation,
         myCreatureId,
+        pendingPlayerIds,
         loading,
         error,
         handleAccept,
@@ -152,13 +153,17 @@ export default function LobbyScreen() {
                                             disabled={
                                                 !!incomingInvitation ||
                                                 inviteState?.status === 'waiting' ||
-                                                (inviteState?.playerId === player.userId && inviteState?.status === 'declined')
+                                                (inviteState?.playerId === player.userId && inviteState?.status === 'declined') ||
+                                                (pendingPlayerIds.has(player.userId) && inviteState?.playerId !== player.userId)
                                             }
                                         >
                                             {(() => {
                                                 const invite = inviteState;
                                                 if (invite?.playerId === player.userId) {
                                                     return invite.status === 'waiting' ? "Waiting..." : "Declined";
+                                                }
+                                                if (pendingPlayerIds.has(player.userId)) {
+                                                    return "Busy...";
                                                 }
                                                 return "Invite";
                                             })()}

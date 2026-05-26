@@ -17,9 +17,11 @@ export function useLobby() {
     const [playersInLobby, setPlayersInLobby] = useState<LobbyPlayer[]>([]);
     const [incomingInvitation, setIncomingInvitation] = useState<IncomingInvitation | null>(null);
     const [myCreatureId, setMyCreatureId] = useState<number | null>(null);
+    const [pendingPlayerIds, setPendingPlayerIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+    const pendingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
     const hasInviteRef = useRef(false);
     const inviteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -73,10 +75,11 @@ export function useLobby() {
                             if (session.status !== "pending") return;
                             if (hasInviteRef.current) {
                                 // Decline extra invites
-                                void supabase
+                                supabase
                                     .from('game_sessions')
                                     .update({ status: 'declined' })
                                     .eq('id', session.id)
+                                    .then(() => {})
                                 return;
                             }
 
@@ -98,11 +101,12 @@ export function useLobby() {
                             // Start timeout
                             inviteTimeoutRef.current = setTimeout(() => {
                                 if (!hasInviteRef.current) return
-                                void supabase
+                                supabase
                                     .from('game_sessions')
                                     .update({ status: 'declined' })
                                     .eq('id', session.id)
-                                    .eq('status', 'pending')  // ← guard against racing accept
+                                    .eq('status', 'pending')
+                                    .then(() => {})
                                 hasInviteRef.current = false
                                 setIncomingInvitation(null)
                             }, 30000)
@@ -182,6 +186,34 @@ export function useLobby() {
                 .eq('player1_id', user!.id)
                 .eq('status', 'pending')
 
+            const { data: pendingSessions } = await supabase
+                .from('game_sessions')
+                .select('player2_id')
+                .eq('status', 'pending')
+                .eq('is_cpu', false)
+                .not('player2_id', 'is', null)
+
+            setPendingPlayerIds(new Set((pendingSessions ?? []).map(s => s.player2_id as string)))
+
+            if (pendingChannelRef.current) {
+                void supabase.removeChannel(pendingChannelRef.current)
+            }
+            pendingChannelRef.current = supabase
+                .channel('pending_invites')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'game_sessions', filter: 'is_cpu=eq.false' }, (payload) => {
+                    const session = payload.new as { player2_id: string | null; status: string; is_cpu: boolean }
+                    if (session.status === 'pending' && !session.is_cpu && session.player2_id) {
+                        setPendingPlayerIds(prev => new Set([...prev, session.player2_id!]))
+                    }
+                })
+                .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_sessions', filter: 'is_cpu=eq.false' }, (payload) => {
+                    const session = payload.new as { player2_id: string | null; status: string }
+                    if (session.status !== 'pending' && session.player2_id) {
+                        setPendingPlayerIds(prev => { const next = new Set(prev); next.delete(session.player2_id!); return next })
+                    }
+                })
+                .subscribe()
+
             const { data: existingInvite } = await supabase
                 .from('game_sessions')
                 .select('id, player1_id, player1_creature_id')
@@ -208,11 +240,12 @@ export function useLobby() {
 
                 // Start timeout
                 inviteTimeoutRef.current = setTimeout(() => {
-                    void supabase
+                    supabase
                         .from('game_sessions')
                         .update({ status: 'declined' })
                         .eq('id', existingInvite.id)
                         .eq('status', 'pending')
+                        .then(() => {})
                     hasInviteRef.current = false
                     setIncomingInvitation(null)
                 }, 30000)
@@ -278,6 +311,10 @@ export function useLobby() {
                 void supabase.removeChannel(presenceChannelRef.current)
                 presenceChannelRef.current = null
             }
+            if (pendingChannelRef.current) {
+                void supabase.removeChannel(pendingChannelRef.current)
+                pendingChannelRef.current = null
+            }
             if (sessionAcceptedChannelRef.current) {
                 void supabase.removeChannel(sessionAcceptedChannelRef.current)
                 sessionAcceptedChannelRef.current = null
@@ -316,6 +353,7 @@ export function useLobby() {
         playersInLobby,
         incomingInvitation,
         myCreatureId,
+        pendingPlayerIds,
         loading,
         error: sessionError ?? error,
         handleAccept,
