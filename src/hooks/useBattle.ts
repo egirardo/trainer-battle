@@ -74,7 +74,6 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 isPlayer1Ref.current = isPlayer1
                 isCpuRef.current = session.is_cpu
                 setIsCpu(session.is_cpu)
-                setIsBoss((session as unknown as { is_boss?: boolean }).is_boss ?? false)
 
                 const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
                 if (!myCreatureId) throw new Error('Creature IDs missing from session');
@@ -122,16 +121,18 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 if (session.is_cpu && session.cpu_creature_id) {
                     const { data: cpuCreature, error: cpuErr } = await supabase
                         .from('creatures')
-                        .select('name, type, image, base_hp')
+                        .select('name, type, image, base_hp, is_boss')
                         .eq('id', session.cpu_creature_id)
                         .single();
                     if (cpuErr || !cpuCreature) throw new Error('Could not load CPU creature');
+                    const isBossBattle = cpuCreature.is_boss ?? false;
+                    setIsBoss(isBossBattle);
                     const playerLevel = myPC.level ?? 1;
                     const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
                     const cpuMaxHp = (cpuCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
-                        trainerName: 'CPU',
+                        trainerName: isBossBattle ? 'Big Boss Man' : 'CPU',
                         trainerGender: randomTrainerGender(),
                         level: playerLevel,
                         currentHp: oppBattleHp ?? cpuMaxHp,

@@ -60,28 +60,32 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                     />
                 </div>
 
-                <div className={styles.opponentSpriteWrap}>
-                    <CreatureSprite
-                        image={opponent.creatureImage}
-                        name={opponent.name}
-                        isOpponent
-                    />
-                    <TrainerSprite
-                        image={isBoss ? finalBossImg : getTrainerImage(opponent.trainerGender)}
-                        name={opponent.trainerName}
-                        isOpponent
-                    />
-                </div>
+                {/* spriteRow: display:contents on desktop (transparent to absolute layout);
+                    flex row with space-between on mobile so groups face each other */}
+                <div className={styles.spriteRow}>
+                    <div className={styles.opponentSpriteWrap}>
+                        <CreatureSprite
+                            image={opponent.creatureImage}
+                            name={opponent.name}
+                            isOpponent
+                        />
+                        <TrainerSprite
+                            image={isBoss ? finalBossImg : getTrainerImage(opponent.trainerGender)}
+                            name={opponent.trainerName}
+                            isOpponent
+                        />
+                    </div>
 
-                <div className={styles.playerSpriteWrap}>
-                    <TrainerSprite
-                        image={getTrainerImage(player.trainerGender)}
-                        name={player.trainerName}
-                    />
-                    <CreatureSprite
-                        image={player.creatureImage}
-                        name={player.name}
-                    />
+                    <div className={styles.playerSpriteWrap}>
+                        <TrainerSprite
+                            image={getTrainerImage(player.trainerGender)}
+                            name={player.trainerName}
+                        />
+                        <CreatureSprite
+                            image={player.creatureImage}
+                            name={player.name}
+                        />
+                    </div>`
                 </div>
 
                 <div className={styles.playerInfo}>
@@ -98,13 +102,22 @@ function BattleContent({ sessionId }: { sessionId: number }) {
 
             {!isCpu && isMyTurn && (
                 <div className={styles.timerBar}>
-                    <span className={`${styles.timerLabel} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
+                    {/* Dark label behind the fill — readable on the gray track */}
+                    <span className={`${styles.timerLabel} ${styles.timerLabelBg} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
                         {timeRemaining}s
                     </span>
+                    {/* Fill — clips the white label as it shrinks */}
                     <div
                         className={`${styles.timerFill} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}
                         style={{ width: `${(timeRemaining / TURN_DURATION_SECONDS) * 100}%` }}
-                    />
+                    >
+                        {/* Full-bar-width wrapper so right:0.5rem stays pinned to the bar's right edge */}
+                        <div className={styles.timerLabelClip}>
+                            <span className={`${styles.timerLabel} ${styles.timerLabelFg} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
+                                {timeRemaining}s
+                            </span>
+                        </div>
+                    </div>
                 </div>
             )}
 

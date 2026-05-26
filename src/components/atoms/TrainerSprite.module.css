@@ -16,3 +16,15 @@
   width: 105px;
   transform: scaleX(-1);
 }
+
+@media (max-width: 700px) {
+  .opponent { width: 85px; }
+  /* preserve the flip on the player trainer */
+  .player { width: 72px; }
+}
+
+/* Tight fit for 360px screens */
+@media (max-width: 380px) {
+  .opponent { width: 76px; }
+  .player { width: 64px; }
+}
