@@ -49,15 +49,15 @@ export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onTo
                     </div>
                 </div>
                 <div className={styles.actions}>
-                    <button
-                        className={styles.viewCartButton}
+                    <Button
+                        className={styles.buyButton}
                         onClick={onToggleExpanded}
                         disabled={!hasItems}
                         aria-expanded={isExpanded}
                         aria-controls="cart-list"
                     >
                         {isExpanded ? 'Hide cart' : 'View cart'}
-                    </button>
+                    </Button>
                     <Button onClick={onBuy} disabled={total === 0 || buyDisabled} className={styles.buyButton}>Buy</Button>
                 </div>
             </div>

@@ -17,7 +17,6 @@
   display: flex;
   justify-content: space-between;
   gap: 0.5rem;
-  margin-bottom: 1.5em;
 }
 /* fight submenu */
 .moveList {
@@ -33,7 +32,7 @@
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
   text-align: right;
-  padding: 0.5rem 0.25rem;
+  min-height: 44px;
   cursor: pointer;
   border-bottom: 1px solid var(--border);
   color: var(--text-h);
@@ -60,12 +59,19 @@
   border-radius: 4px;
   padding: 0 0.25rem;
   text-align: center;
-  text-transform: capitalize;
+  text-transform: uppercase;
 }
 
 .movePower {
   font-size: 0.9rem;
-  padding-left: 1.5rem;
+  justify-content: flex-end;
+}
+
+.moveName,
+.moveType,
+.movePower {
+  display: flex;
+  align-items: center;
 }
 
 .backBtn,
@@ -74,9 +80,28 @@
   min-width: 7em;
   max-width: 10em;
   text-transform: uppercase;
+  min-height: 44px;
+  padding: 0.25rem 0;
 }
 
 /* type-coloured badge */
-.fire  { color: var(--type-fire); }
-.water { color: var(--type-water); }
-.grass { color: var(--type-grass); }
+.fire {
+  color: var(--type-fire);
+}
+.water {
+  color: var(--type-water);
+}
+.grass {
+  color: var(--type-grass);
+}
+
+@media (min-width: 768px) {
+  .moveList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+  .moveRow {
+    margin: 0 1em;
+  }
+}

@@ -202,7 +202,7 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
         <div className={styles.bossCol}>
           <BossDialog
             playerCreatureId={trainer?.playerCreature?.id ?? null}
-            onFight={(playerCreatureId) => createBossSession(playerCreatureId)}
+            onFight={(playerCreatureId) => void createBossSession(playerCreatureId)}
             loading={bossLoading}
           />
         </div>
