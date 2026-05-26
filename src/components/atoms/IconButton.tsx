@@ -12,7 +12,7 @@ export default function IconButton({
     type = 'button',
     ...props
 }: Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> & {
-    image: string;
+    image?: string;
     ariaLabel: string;
     ariaPressed?: boolean;
     iconSize?: 'S' | 'M' | 'L';
@@ -27,7 +27,7 @@ export default function IconButton({
             aria-label={ariaLabel}
             aria-pressed={ariaPressed ?? isSelected}
         >
-        <img className={styles.image} src={image} alt="" />
+        {image && <img className={styles.image} src={image} alt="" />}
         </button>
     );
 }

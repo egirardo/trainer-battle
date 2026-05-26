@@ -74,6 +74,7 @@ export function useBattle(sessionId: number): UseBattleReturn {
                 isPlayer1Ref.current = isPlayer1
                 isCpuRef.current = session.is_cpu
                 setIsCpu(session.is_cpu)
+                setIsBoss(false) // reset before the CPU branch so stale boss state never leaks into a new session
 
                 const myCreatureId = isPlayer1 ? session.player1_creature_id : session.player2_creature_id;
                 if (!myCreatureId) throw new Error('Creature IDs missing from session');

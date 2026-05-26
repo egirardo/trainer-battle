@@ -31,7 +31,7 @@ export default function CreatureSelectForm() {
                         {creatures.map(creature => (
                             <IconButton
                                 key={creature.id}
-                                image={ballImages[creature.type] ?? ''}
+                                image={ballImages[creature.type]}
                                 iconSize='L'
                                 ariaLabel={`Select ${creature.name}`}
                                 onClick={() => { setSelectedCreature(creature); setCreatureError(undefined); }}

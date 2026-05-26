@@ -113,7 +113,7 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                     >
                         {/* Full-bar-width wrapper so right:0.5rem stays pinned to the bar's right edge */}
                         <div className={styles.timerLabelClip}>
-                            <span className={`${styles.timerLabel} ${styles.timerLabelFg} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
+                            <span aria-hidden="true" className={`${styles.timerLabel} ${styles.timerLabelFg} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
                                 {timeRemaining}s
                             </span>
                         </div>
