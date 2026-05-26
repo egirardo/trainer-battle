@@ -248,20 +248,17 @@ export function useGameSession() {
             return;
         }
 
-        const { data, error } = await fetchFromSupabase(() =>
+        const { data, error } = await fetchFromSupabase(() => 
             supabase
-                .from("game_sessions")
-                .update({
-                    player2_creature_id: myCreatureId,
-                    status: "active",
-                })
-                .eq("id", sessionId)
+                .from('game_sessions')
+                .update({ player2_creature_id: myCreatureId, status: 'active' })
+                .eq('id', sessionId)
                 .select()
                 .single()
-        );
-
+            )
+        
         if (error || !data) {
-            setError(error?.message ?? "Unknown error");
+            setError(error?.message ?? 'Unknown error');
             setLoading(false);
             return;
         }

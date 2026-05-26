@@ -20,6 +20,8 @@ export function useLobby() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+    const hasInviteRef = useRef(false);
+    const inviteTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     // Fetch players active creature
     const fetchMyCreature = useCallback(async (): Promise<number | null> => {
@@ -69,11 +71,21 @@ export function useLobby() {
                             };
 
                             if (session.status !== "pending") return;
+                            if (hasInviteRef.current) {
+                                // Decline extra invites
+                                void supabase
+                                    .from('game_sessions')
+                                    .update({ status: 'declined' })
+                                    .eq('id', session.id)
+                                return;
+                            }
+
+                            hasInviteRef.current = true;
 
                             const { data: inviterProfile } = await supabase
-                                .from("profiles")
-                                .select("username")
-                                .eq("id", session.player1_id)
+                                .from('profiles')
+                                .select('username')
+                                .eq('id', session.player1_id)
                                 .single();
 
                             setIncomingInvitation({
@@ -81,7 +93,20 @@ export function useLobby() {
                                 fromUserId: session.player1_id,
                                 fromUsername: inviterProfile?.username ?? "Unknown",
                                 creatureId: session.player1_creature_id ?? 0,
-                            });
+                            })
+
+                            // Start timeout
+                            inviteTimeoutRef.current = setTimeout(() => {
+                                if (!hasInviteRef.current) return
+                                void supabase
+                                    .from('game_sessions')
+                                    .update({ status: 'declined' })
+                                    .eq('id', session.id)
+                                    .eq('status', 'pending')  // ← guard against racing accept
+                                hasInviteRef.current = false
+                                setIncomingInvitation(null)
+                            }, 30000)
+                            
                         } catch (err) {
                             setError(err instanceof Error ? err.message : 'Failed to process invitation')
                         }
@@ -93,7 +118,14 @@ export function useLobby() {
         return channel;
     }, [user?.id]);
 
+    const sessionAcceptedChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+
     const subscribeToSessionAccepted = useCallback((sessionId: number, onDeclined: () => void): ReturnType<typeof supabase.channel> => {
+        // Clean up any existing channel
+        if (sessionAcceptedChannelRef.current) {
+            void supabase.removeChannel(sessionAcceptedChannelRef.current);
+        }
+
         const channel = supabase
             .channel(`session_accepted:${sessionId}`)
             .on(
@@ -115,6 +147,7 @@ export function useLobby() {
             )
             .subscribe();
 
+        sessionAcceptedChannelRef.current = channel;
         return channel;
     }, [navigate]);
 
@@ -141,6 +174,48 @@ export function useLobby() {
             if (presenceChannelRef.current) {
                 await supabase.removeChannel(presenceChannelRef.current)
                 presenceChannelRef.current = null
+            }
+
+            await supabase
+                .from('game_sessions')
+                .update({ status: 'declined' })
+                .eq('player1_id', user!.id)
+                .eq('status', 'pending')
+
+            const { data: existingInvite } = await supabase
+                .from('game_sessions')
+                .select('id, player1_id, player1_creature_id')
+                .eq('player2_id', user!.id)
+                .eq('status', 'pending')
+                .order('created_at', { ascending: true })
+                .limit(1)
+                .maybeSingle()
+
+            if (existingInvite) {
+                const { data: inviterProfile } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', existingInvite.player1_id)
+                    .single();
+
+                hasInviteRef.current = true;
+                setIncomingInvitation({
+                    sessionId: existingInvite.id,
+                    fromUserId: existingInvite.player1_id,
+                    fromUsername: inviterProfile?.username ?? 'Unknown',
+                    creatureId: existingInvite.player1_creature_id ?? 0,
+                })
+
+                // Start timeout
+                inviteTimeoutRef.current = setTimeout(() => {
+                    void supabase
+                        .from('game_sessions')
+                        .update({ status: 'declined' })
+                        .eq('id', existingInvite.id)
+                        .eq('status', 'pending')
+                    hasInviteRef.current = false
+                    setIncomingInvitation(null)
+                }, 30000)
             }
 
             const rawCreature = creature?.creatures;
@@ -203,20 +278,38 @@ export function useLobby() {
                 void supabase.removeChannel(presenceChannelRef.current)
                 presenceChannelRef.current = null
             }
+            if (sessionAcceptedChannelRef.current) {
+                void supabase.removeChannel(sessionAcceptedChannelRef.current)
+                sessionAcceptedChannelRef.current = null
+            }
+            if (inviteTimeoutRef.current) {
+                clearTimeout(inviteTimeoutRef.current);
+                inviteTimeoutRef.current = null;
+            }
             void invitationChannel?.unsubscribe();
         };
     }, [user?.id, profile?.username, fetchMyCreature, subscribeToInvitations]);
 
     async function handleAccept(): Promise<void> {
         if (!incomingInvitation || !myCreatureId) return;
+        if (inviteTimeoutRef.current) {
+            clearTimeout(inviteTimeoutRef.current);
+            inviteTimeoutRef.current = null;
+        }
         await acceptInvitation(incomingInvitation.sessionId, myCreatureId);
         setIncomingInvitation(null);
+        hasInviteRef.current = false;
     }
 
     async function handleDecline(): Promise<void> {
         if (!incomingInvitation) return;
+        if (inviteTimeoutRef.current) {
+            clearTimeout(inviteTimeoutRef.current);
+            inviteTimeoutRef.current = null;
+        }
         await declineInvitation(incomingInvitation.sessionId);
         setIncomingInvitation(null);
+        hasInviteRef.current = false;
     }
 
     return {
