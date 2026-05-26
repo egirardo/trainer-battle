@@ -18,7 +18,7 @@ export default function LifeCreditTracker({ lives, credits, level, experience, x
   return (
     <div className={styles.trackerContainer}>
       <div className={styles.livesRow} aria-label={`Lives: ${lives}`} role="img">
-        {Array.from({ length: lives }, (_, i) => (
+        {Array.from({ length: 3 }, (_, i) => (
           <img
             key={i}
             src={i < lives ? filledHeart : emptyHeart}
