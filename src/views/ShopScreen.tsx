@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import StickyHeader from '@/components/atoms/StickyHeader';
 import { useNavItems } from '@/hooks/useNavItems';
 import Overlay from '@/components/atoms/Overlay';
+import Credits from '@/components/molecules/Credits';
 import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
 import CreditsDisplay from '@/components/molecules/shopPage/CreditsDisplay';
 import ItemBox from '@/components/molecules/shopPage/ItemBox';
@@ -18,7 +19,8 @@ export default function ShopScreen() {
     const { stats, loading: statsLoading, error: statsError } = usePlayerStats();
     const { user } = useAuth();
     const [showInstructions, setShowInstructions] = useState(false);
-    const navItems = useNavItems(() => setShowInstructions(true));
+    const [showCredits, setShowCredits] = useState(false);
+    const navItems = useNavItems(() => setShowInstructions(true), () => setShowCredits(true));
     const [spent, setSpent] = useState(0);
     const credits = (stats?.credits ?? 0) - spent;
     const [cart, setCart] = useState<Record<number, number>>({});
@@ -116,6 +118,16 @@ export default function ShopScreen() {
                     </div>
                 </div>
             </main>
+            {showInstructions && (
+                <Overlay>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </Overlay>
+            )}
+            {showCredits && (
+                <Overlay>
+                    <Credits onClose={() => setShowCredits(false)} />
+                </Overlay>
+            )}
             <TotalDisplay
                 total={items.reduce((sum, i) => sum + i.price * (cart[i.id] ?? 0), 0)}
                 onBuy={() => void handleBuy()}
