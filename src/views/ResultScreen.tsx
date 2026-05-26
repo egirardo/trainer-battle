@@ -44,16 +44,6 @@ function ResultContent({ sessionId }: { sessionId: number }) {
         }
     }
 
-    const navItems: NavItem[] = [
-        { label: 'Dashboard',    to: ROUTES.gameMenu },
-        { label: 'Lobby',        to: ROUTES.lobby },
-        { label: 'Shop',         to: ROUTES.shop },
-        { label: 'Help',         to: ROUTES.help },
-        { label: 'Credits',      to: ROUTES.credits },
-        { label: 'View Profile', to: ROUTES.profile },
-        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
-    ]
-
     if (loading) return <LoadingScreen message="Loading result..." />;
     if (error || !result) return <main><p role="alert" aria-atomic="true">{error ?? 'Result data unavailable'}</p></main>;
 
@@ -64,16 +54,21 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const creditsPushedBelowZero = result.creditsGained < 0 && result.creditsBalance < 0 && (result.creditsBalance - result.creditsGained) >= 0
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
+    const navItems: NavItem[] = isGameOver ? [
+        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+    ] : [
+        { label: 'Dashboard',    to: ROUTES.gameMenu },
+        { label: 'Lobby',        to: ROUTES.lobby },
+        { label: 'Shop',         to: ROUTES.shop },
+        { label: 'Help',         to: ROUTES.help },
+        { label: 'Credits',      to: ROUTES.credits },
+        { label: 'View Profile', to: ROUTES.profile },
+        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+    ]
+
     return (
         <>
-                {isGameOver ? (
-                    <StickyHeader label="Result"/>
-                ) : (
-                    <StickyHeader 
-                        label="Result" 
-                        navItems={navItems}   
-                    />
-                )}
+            <StickyHeader label="Result" navItems={navItems} />
 
             <main className={styles.main}>
                 <LifeCreditTracker lives={result.livesRemaining ?? 0} credits={result.creditsBalance} />
