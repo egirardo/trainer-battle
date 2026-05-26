@@ -170,7 +170,7 @@ export interface ResultData {
     xpGained: number;
     creditsGained: number;
     newLevel: number;
-    currentXp: number;
+    experience: number;
     xpPerLevel: number;
     leveledUp: boolean;
     livesRemaining: number | null;

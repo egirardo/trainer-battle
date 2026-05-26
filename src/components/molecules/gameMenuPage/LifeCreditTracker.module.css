@@ -1,6 +1,7 @@
 .trackerContainer {
   width: 100%;
   display: flex;
+  align-items: center;
   justify-content: space-between;
 }
 
@@ -16,6 +17,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 1rem;
+  flex-shrink: 0;
 }
 
 .heartIcon {
@@ -24,11 +26,55 @@
   margin-right: 0.5em;
 }
 
+/* ── XP section (middle) ──────────────────────────────── */
+
+.xpSection {
+  flex: 0 0 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0 0.75rem;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.xpLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.xpBar {
+  width: 100%;
+  height: 0.55em;
+  appearance: none;
+  border: none;
+  border-radius: 0;
+  background: #b0aeb5;
+}
+
+.xpBar::-webkit-progress-bar {
+  background: #b0aeb5;
+}
+
+.xpBar::-webkit-progress-value {
+  background: var(--primary);
+}
+
+.xpBar::-moz-progress-bar {
+  background: var(--primary);
+}
+
+/* ── Credits section ─────────────────────────────────── */
+
 .creditsRow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 1rem;
+  flex-shrink: 0;
 }
 
 .starIcon {

@@ -8,6 +8,7 @@ import { PlayerStats, Trainer } from '@/models/models';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useGameConfig } from '@/hooks/useGameConfig';
 import { useGameSession } from '@/hooks/useGameSession';
 import { supabase } from '@/lib/supabase';
 import { getCreatureImage } from '@/lib/creatureImages';
@@ -53,6 +54,7 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
   const { user } = useAuth();
   const navigate = useNavigate();
   const { createBossSession, loading: bossLoading } = useGameSession();
+  const { xpPerLevel } = useGameConfig();
   const userId = user?.id;
   const [trainer, setTrainer] = useState<TrainerPreview | null>(null);
   const [playerStats, setPlayerStats] = useState<PlayerStats | null>(null);
@@ -187,7 +189,13 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
   return (
     <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
       <div className={styles.creditsRow}>
-        <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
+        <LifeCreditTracker
+            lives={playerStats?.lives ?? 0}
+            credits={playerStats?.credits ?? 0}
+            level={trainer?.playerCreature?.level ?? undefined}
+            experience={trainer?.playerCreature?.experience ?? undefined}
+            xpPerLevel={xpPerLevel}
+          />
       </div>
       <div className={styles.actionsCol}>
         <ButtonGroup horizontal onShowInstructions={onShowInstructions} />

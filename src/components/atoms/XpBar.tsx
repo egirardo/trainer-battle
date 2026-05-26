@@ -2,12 +2,13 @@ import styles from './XpBar.module.css'
 
 interface XpBarProps {
     level: number
-    currentXp: number
+    experience: number
     xpPerLevel: number
 }
 
-export default function XpBar({ level, currentXp, xpPerLevel }: XpBarProps) {
-    const xpToNext = xpPerLevel - currentXp
+export default function XpBar({ level, experience, xpPerLevel }: XpBarProps) {
+    const currentXp = xpPerLevel > 0 ? experience % xpPerLevel : 0
+    const xpToNext = xpPerLevel > 0 ? xpPerLevel - currentXp : 0
 
     return (
         <div>
@@ -17,7 +18,6 @@ export default function XpBar({ level, currentXp, xpPerLevel }: XpBarProps) {
             </div>
             <progress className={styles.bar} value={currentXp} max={xpPerLevel} />
             <p>{xpToNext} XP to Lv. {level + 1}</p>
-
         </div>
     )
 }
