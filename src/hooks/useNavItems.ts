@@ -1,5 +1,3 @@
-import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase'
 import { ROUTES } from '@/routes'
 import type { NavItem } from '@/components/atoms/StickyHeader'
 
@@ -11,16 +9,6 @@ const BASE_NAV_LINKS: NavItem[] = [
 ]
 
 export function useNavItems(onHelp?: () => void, onCredits?: () => void): NavItem[] {
-    const navigate = useNavigate()
-
-    async function handleLogout(): Promise<void> {
-        const { error } = await supabase.auth.signOut()
-        if (error) {
-            console.error('Failed to sign out:', error)
-            return
-        }
-        void navigate(ROUTES.start)
-    }
 
     const helpItem: NavItem = onHelp
         ? { label: 'Help', onClick: onHelp }
@@ -29,7 +17,6 @@ export function useNavItems(onHelp?: () => void, onCredits?: () => void): NavIte
     return [
         ...BASE_NAV_LINKS,
         helpItem,
-         ...(onCredits ? [{ label: 'Credits', onClick: onCredits }] : []),
-        { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
+         ...(onCredits ? [{ label: 'Credits', onClick: onCredits }] : [])
     ]
 }
