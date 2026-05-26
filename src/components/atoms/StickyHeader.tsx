@@ -23,7 +23,7 @@ interface Props {
 export default function StickyHeader({ label, action, navItems, showVolumeButton = true }: Props) {
     const { muted, toggleMute } = useAudio()
     const [isOpen, setIsOpen] = useState(false)
-    const wrapperRef = useRef<HTMLDivElement>(null)
+    const wrapperRef = useRef<HTMLElement>(null)
     const hasNav = !!navItems?.length
 
     useEffect(() => {
@@ -52,7 +52,7 @@ export default function StickyHeader({ label, action, navItems, showVolumeButton
         : styles.stickyContainer
 
     return (
-        <div className={containerClass} ref={wrapperRef}>
+        <header className={containerClass} ref={wrapperRef}>
             <div className={styles.headerRow}>
                 <h1 className={styles.stickyHeading}>{label}</h1>
                 <div className={styles.headerActions}>
@@ -100,6 +100,6 @@ export default function StickyHeader({ label, action, navItems, showVolumeButton
                     </nav>
                 )}
             </div>
-        </div>
+        </header>
     )
 }
