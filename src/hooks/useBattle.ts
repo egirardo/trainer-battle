@@ -130,7 +130,9 @@ export function useBattle(sessionId: number): UseBattleReturn {
                     setIsBoss(isBossBattle);
                     const playerLevel = myPC.level ?? 1;
                     const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
-                    const cpuMaxHp = (cpuCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
+                    const cpuMaxHp = cpuCreature.is_boss
+                        ? (cpuCreature.base_hp ?? 100)
+                        : (cpuCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
                     setOpponent({
                         name: cpuCreature.name ?? 'CPU',
                         trainerName: isBossBattle ? 'Big Boss Man' : 'CPU',

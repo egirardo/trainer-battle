@@ -139,10 +139,9 @@ export function useGameSession() {
         setLoading(true);
 
         try {
-            const [bossResult, myCreatureResult, configResult] = await Promise.all([
+            const [bossResult, myCreatureResult] = await Promise.all([
                 supabase.from('creatures').select('id, base_hp').eq('is_boss', true).single(),
                 supabase.from('player_creatures').select('current_hp, level').eq('id', myCreatureId).single(),
-                supabase.from('game_config').select('stat_boost_hp').single(),
             ]);
 
             if (bossResult.error || !bossResult.data) {
@@ -151,9 +150,7 @@ export function useGameSession() {
             }
 
             const bossCreature = bossResult.data;
-            const playerLevel = myCreatureResult.data?.level ?? 1;
-            const statBoostHp = configResult.data?.stat_boost_hp ?? 25;
-            const bossMaxHp = (bossCreature.base_hp ?? 100) + (playerLevel - 1) * statBoostHp;
+            const bossMaxHp = bossCreature.base_hp ?? 100;
 
             const { data: session, error: sessionErr } = await supabase
                 .from('game_sessions')
