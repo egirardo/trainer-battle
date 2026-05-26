@@ -14,6 +14,7 @@ type ItemBoxProps = {
 };
 
 export default function ItemBox({ item, quantity, onAdd, onRemove, disabled = false }: ItemBoxProps) {
+    const busyMsgId = `item-${item.id}-busy`;
     return (
         <div className={styles.itemBox}>
             <img src={item.image} alt={item.name} className={styles.itemImage} />
@@ -28,11 +29,12 @@ export default function ItemBox({ item, quantity, onAdd, onRemove, disabled = fa
                         <span className={styles.itemPrice}>{item.price}</span>
                     </div>
                     <div className={styles.purchaseButtons}>
-                        <IconButton image={minusButton} ariaLabel="Remove Item" onClick={() => onRemove(item.id)} disabled={disabled} />
+                        {disabled && <p id={busyMsgId}>Processing your purchase, please wait.</p>}
+                        <IconButton image={minusButton} ariaLabel="Remove Item" onClick={() => onRemove(item.id)} disabled={disabled} aria-describedby={disabled ? busyMsgId : undefined} />
                         <div className={styles.countIcon}>
                             <p className={styles.count}>{quantity}</p>
                         </div>
-                        <IconButton image={plusButton} ariaLabel="Add Item" onClick={() => onAdd(item.id)} disabled={disabled} />
+                        <IconButton image={plusButton} ariaLabel="Add Item" onClick={() => onAdd(item.id)} disabled={disabled} aria-describedby={disabled ? busyMsgId : undefined} />
                     </div>
                 </div>
             </div>

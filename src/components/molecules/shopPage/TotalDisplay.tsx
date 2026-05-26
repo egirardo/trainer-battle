@@ -57,8 +57,14 @@ export default function TotalDisplay({ total, onBuy, cartItems, isExpanded, onTo
                         aria-controls="cart-list"
                     >
                         {isExpanded ? 'Hide cart' : 'View cart'}
-                    </Button>
-                    <Button onClick={onBuy} disabled={total === 0 || buyDisabled} className={styles.buyButton}>Buy</Button>
+                    </button>
+                    {buyDisabled && <p id="purchase-in-progress">Processing your purchase, please wait.</p>}
+                    <Button
+                        onClick={onBuy}
+                        disabled={total === 0 || buyDisabled}
+                        className={styles.buyButton}
+                        aria-describedby={buyDisabled ? 'purchase-in-progress' : undefined}
+                    >Buy</Button>
                 </div>
             </div>
         </div>
