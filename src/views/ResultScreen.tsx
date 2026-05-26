@@ -61,6 +61,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const lostALife = result.outcome === 'loss' && !result.isForfeit
     const livesLeft = result.livesRemaining
     const isGameOver = !isWin && livesLeft === 0
+    const creditsPushedBelowZero = result.creditsGained < 0 && result.creditsBalance < 0 && (result.creditsBalance - result.creditsGained) >= 0
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
     return (
@@ -83,6 +84,9 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                                     ? `You lost a life! ${livesLeft} ${livesLeft === 1 ? 'life' : 'lives'} remaining.`
                                     : 'You lost a life!'}
                         </p>
+                    )}
+                    {creditsPushedBelowZero && (
+                        <p className={styles.lostLife}>Your credits dropped below 0 — you lost a life as a penalty.</p>
                     )}
                 </div>
 
