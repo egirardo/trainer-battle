@@ -24,10 +24,14 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId)
     const navigate = useNavigate()
 
-    async function handleLogout(): Promise<void> {
+    async function handleLogout(onSuccess?: () => void): Promise<void> {
         const { error } = await supabase.auth.signOut()
         if (error) { console.error('Failed to sign out:', error); return }
-        void navigate(ROUTES.start)
+        if (onSuccess) {
+            onSuccess()
+        } else {
+            void navigate(ROUTES.start)
+        }
     }
 
     const navItems: NavItem[] = [
@@ -104,14 +108,23 @@ function ResultContent({ sessionId }: { sessionId: number }) {
                 </div>
                 <div className={styles.actions}>
                     {isGameOver ? (
-                        <Button variant='danger' onClick={() => {
-                            void supabase.auth.signOut()
+                        <Button variant='danger' onClick={() => void handleLogout(() => {
                             if (window.parent !== window) {
                                 window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
                             } else {
                                 void navigate(ROUTES.start)
                             }
-                        }}>
+                        })}>
+                            {window.parent !== window ? 'Back to Loopland' : 'Sign out'}
+                        </Button>
+                    ) : isWin ? (
+                        <Button onClick={() => void handleLogout(() => {
+                            if (window.parent !== window) {
+                                window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
+                            } else {
+                                void navigate(ROUTES.start)
+                            }
+                        })}>
                             {window.parent !== window ? 'Back to Loopland' : 'Sign out'}
                         </Button>
                     ) : (
