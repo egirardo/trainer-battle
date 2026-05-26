@@ -60,6 +60,7 @@ export default function StickyHeader({ label, action, navItems, showVolumeButton
                         <IconButton
                             image={muted ? volumeOff : volumeOn}
                             ariaLabel={muted ? 'Unmute music' : 'Mute music'}
+                            ariaPressed={muted}
                             onClick={toggleMute}
                         />
                     )}

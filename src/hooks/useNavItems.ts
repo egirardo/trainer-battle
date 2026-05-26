@@ -29,7 +29,7 @@ export function useNavItems(onHelp?: () => void, onCredits?: () => void): NavIte
     return [
         ...BASE_NAV_LINKS,
         helpItem,
-        ...(onCredits ? [{ label: 'Credits', onClick: onCredits } as NavItem] : []),
+         ...(onCredits ? [{ label: 'Credits', onClick: onCredits }] : []),
         { label: 'Logout', onClick: () => void handleLogout(), variant: 'danger' },
     ]
 }

@@ -35,17 +35,17 @@
   margin: 0;
 }
 
-.headerRow > button {
-  padding: 0;
-  display: flex;
-  justify-content: end;
-  align-items: center;
-}
-
 .headerActions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.headerActions > button {
+  padding: 0;
+  display: flex;
+  justify-content: end;
+  align-items: center;
 }
 
 /* ── Nav drawer ──────────────────────────────────────── */
