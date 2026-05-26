@@ -111,7 +111,9 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                         label="How to battle"
                         action={<CloseButton onClick={() => setShowInstructions(false)} />}
                     />
-                    <BattleInstructions />
+                    <div className={styles.btlInstructions}>
+                        <BattleInstructions />
+                    </div>
                 </Overlay>
             )}
         </main>

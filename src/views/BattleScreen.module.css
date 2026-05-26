@@ -117,3 +117,8 @@
   color: var(--text);
   padding: 2rem;
 }
+
+.btlInstructions {
+  padding: 1.5em;
+  text-align: left;
+}
