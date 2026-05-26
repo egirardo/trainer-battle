@@ -25,11 +25,13 @@ function ResultContent({ sessionId }: { sessionId: number }) {
     const navigate = useNavigate()
 
     async function handleLogout(onSuccess?: () => void): Promise<void> {
-        const { error } = await supabase.auth.signOut({ scope: 'local' })
-        if (error) { console.error('Failed to sign out:', error); return }
         if (onSuccess) {
+            // In iframe context — just run the callback, no signout needed
             onSuccess()
         } else {
+            // Not in iframe — sign out locally and navigate
+            const { error } = await supabase.auth.signOut({ scope: 'local' })
+            if (error) { console.error('Failed to sign out:', error); return }
             void navigate(ROUTES.start)
         }
     }

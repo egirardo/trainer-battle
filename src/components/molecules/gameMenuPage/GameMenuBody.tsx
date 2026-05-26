@@ -158,14 +158,13 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
 
   useEffect(() => {
     if (!playerStats || playerStats.lives !== 0) return;
-    void supabase.auth.signOut({ scope: 'local' }).then(({ error }) => {
-      if (error) return;
-      if (window.parent !== window) {
+    if (window.parent !== window) {
         window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
-      } else {
-        window.location.href = 'https://loopland.se/';
-      }
-    });
+    } else {
+        void supabase.auth.signOut({ scope: 'local' }).then(() => {
+            window.location.href = 'https://loopland.se/';
+        })
+    }
   }, [playerStats]);
 
   const wins = playerStats?.total_wins ?? 0;
