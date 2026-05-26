@@ -143,6 +143,28 @@ export function useLobby() {
                 presenceChannelRef.current = null
             }
 
+            const { data: existingInvite } = await supabase
+                .from('game_sessions')
+                .select('id, player1_id, player1_creature_id')
+                .eq('player2_id', user!.id)
+                .eq('status', 'pending')
+                .maybeSingle()
+
+            if (existingInvite) {
+                const { data: inviterProfile } = await supabase
+                    .from('profiles')
+                    .select('username')
+                    .eq('id', existingInvite.player1_id)
+                    .single();
+
+                setIncomingInvitation({
+                    sessionId: existingInvite.id,
+                    fromUserId: existingInvite.player1_id,
+                    fromUsername: inviterProfile?.username ?? 'Unknown',
+                    creatureId: existingInvite.player1_creature_id ?? 0,
+                })
+            }
+
             const rawCreature = creature?.creatures;
             const creatureData = (Array.isArray(rawCreature) ? rawCreature[0] : rawCreature) as { name: string | null; type: string | null; image: string | null } | null;
 
