@@ -26,7 +26,7 @@ export interface Trainer extends Player {
     losses: number;
 }
 
-export type CreatureType = 'fire' | 'water' | 'grass'
+export type CreatureType = 'fire' | 'water' | 'grass' | 'normal'
 
 export interface Creature {
     id: number;
@@ -111,6 +111,7 @@ export interface PlayerCreature {
 export interface BattleParticipantInfo {
     name: string;
     trainerName: string;
+    trainerGender: TrainerGender;
     level: number;
     currentHp: number;
     maxHp: number;

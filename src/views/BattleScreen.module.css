@@ -39,19 +39,27 @@
 }
 
 /* opponent sprite: upper-right, anchored to top edge */
+/* order: creature first, trainer to its right */
 .opponentSpriteWrap {
   position: absolute;
   right: 0.5rem;
   top: 0.5rem;
   z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
 }
 
 /* player sprite: lower-left, anchored to bottom edge */
+/* order: trainer first (left), creature to its right */
 .playerSpriteWrap {
   position: absolute;
   left: 0.5rem;
   bottom: 0.5rem;
   z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
 }
 
 /* player health bar: lower-right */

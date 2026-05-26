@@ -1,18 +1,21 @@
 import fireCreatureImg from '@/assets/sprites/creatures/fire-creature.png';
 import waterCreatureImg from '@/assets/sprites/creatures/water-creature.png';
 import grassCreatureImg from '@/assets/sprites/creatures/grass-creature.png';
+import bossCreatureImg from '@/assets/sprites/creatures/boss-creature.png';
 import type { CreatureType } from '@/models/models';
 
 const filenameMap: Record<string, string> = {
     'fire-creature.png': fireCreatureImg,
     'water-creature.png': waterCreatureImg,
     'grass-creature.png': grassCreatureImg,
+    'boss-creature.png': bossCreatureImg,
 };
 
 const typeMap: Record<CreatureType, string> = {
     fire: fireCreatureImg,
     water: waterCreatureImg,
     grass: grassCreatureImg,
+    normal: bossCreatureImg,
 };
 
 /**

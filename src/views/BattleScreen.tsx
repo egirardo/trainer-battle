@@ -3,6 +3,9 @@ import { ROUTES } from '@/routes';
 import { useBattle, TURN_DURATION_SECONDS } from '@/hooks/useBattle';
 import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
+import TrainerSprite from '@/components/atoms/TrainerSprite';
+import { getTrainerImage } from '@/lib/trainerImages';
+import finalBossImg from '@/assets/sprites/trainers/final-boss.png';
 import BattleLog from '@/components/molecules/battle/BattleLog';
 import BattleActions from '@/components/molecules/battle/BattleActions';
 import styles from './BattleScreen.module.css';
@@ -27,7 +30,7 @@ export default function BattleScreen() {
 
 function BattleContent({ sessionId }: { sessionId: number }) {
     const [showInstructions, setShowInstructions] = useState(false);
-    const { player, opponent, messages, isMyTurn, isCpu, timeRemaining, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
+    const { player, opponent, messages, isMyTurn, isCpu, isBoss, timeRemaining, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
 
     if (loading) return <LoadingScreen message="Loading battle…" />;
@@ -63,9 +66,18 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                         name={opponent.name}
                         isOpponent
                     />
+                    <TrainerSprite
+                        image={isBoss ? finalBossImg : getTrainerImage(opponent.trainerGender)}
+                        name={opponent.trainerName}
+                        isOpponent
+                    />
                 </div>
 
                 <div className={styles.playerSpriteWrap}>
+                    <TrainerSprite
+                        image={getTrainerImage(player.trainerGender)}
+                        name={player.trainerName}
+                    />
                     <CreatureSprite
                         image={player.creatureImage}
                         name={player.name}

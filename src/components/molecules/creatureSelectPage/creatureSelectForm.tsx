@@ -9,7 +9,7 @@ import grassBall from '@/assets/sprites/creatures/grass-ball.png';
 import type { CreatureType } from '@/models/models';
 import CreatureInfo from './creatureInfo';
 
-const ballImages: Record<CreatureType, string> = {
+const ballImages: Partial<Record<CreatureType, string>> = {
     fire: fireBall,
     water: waterBall,
     grass: grassBall,
@@ -31,7 +31,7 @@ export default function CreatureSelectForm() {
                         {creatures.map(creature => (
                             <IconButton
                                 key={creature.id}
-                                image={ballImages[creature.type]}
+                                image={ballImages[creature.type] ?? ''}
                                 iconSize='L'
                                 ariaLabel={`Select ${creature.name}`}
                                 onClick={() => { setSelectedCreature(creature); setCreatureError(undefined); }}
