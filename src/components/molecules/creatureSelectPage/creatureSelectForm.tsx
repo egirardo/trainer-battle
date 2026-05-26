@@ -9,7 +9,7 @@ import grassBall from '@/assets/sprites/creatures/grass-ball.png';
 import type { CreatureType } from '@/models/models';
 import CreatureInfo from './creatureInfo';
 
-const ballImages: Record<CreatureType, string> = {
+const ballImages: Partial<Record<CreatureType, string>> = {
     fire: fireBall,
     water: waterBall,
     grass: grassBall,

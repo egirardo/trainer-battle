@@ -177,7 +177,6 @@ Deno.serve(async (req) => {
         let oppDefence: number
         let oppSpeed = 50
         let oppCreatureId: number
-        let isBossBattle = false
 
         if (session.is_cpu) {
             if (!session.cpu_creature_id) {
@@ -197,7 +196,6 @@ Deno.serve(async (req) => {
             oppDefence = (cpuC.base_defence ?? 1) + levelsAboveBase * (cpuConfig?.stat_boost_defence ?? 2)
             oppSpeed = (cpuC.base_speed ?? 50) + levelsAboveBase * (cpuConfig?.stat_boost_speed ?? 1)
             oppCreatureId = cpuC.id
-            isBossBattle = cpuC.is_boss ?? false
         } else {
             const opponentCreatureId = isPlayer1 ? session.player2_creature_id : session.player1_creature_id
             if (!opponentCreatureId) {
@@ -498,10 +496,11 @@ Deno.serve(async (req) => {
                 const newCpuBattlesCount = (statsForCpu?.cpu_battles_count ?? 0) + 1
 
                 if (isWinner && isBossBattle) {
+                    // Boss win: mark boss as beaten but do NOT count towards cpu_battles_count
                     bossBeat = true
                     const { error: bossBeatErr } = await adminClient
                         .from('player_stats')
-                        .update({ boss_beaten: true, cpu_battles_count: newCpuBattlesCount })
+                        .update({ boss_beaten: true })
                         .eq('player_id', playerId)
                     if (bossBeatErr) {
                         console.error('Failed to set boss_beaten', bossBeatErr)
@@ -514,6 +513,17 @@ Deno.serve(async (req) => {
                         .eq('player_id', playerId)
                     if (cpuWinErr) {
                         console.error('Failed to update cpu_battles_count', cpuWinErr)
+                        return errorResponse('Failed to update player stats', 500)
+                    }
+                } else if (isBossBattle) {
+                    // Boss loss: deduct a life but do NOT count towards cpu_battles_count
+                    newLives = Math.max(0, (statsForCpu?.lives ?? 1) - 1)
+                    const { error: bossLossErr } = await adminClient
+                        .from('player_stats')
+                        .update({ lives: newLives })
+                        .eq('player_id', playerId)
+                    if (bossLossErr) {
+                        console.error('Failed to update lives after boss loss', bossLossErr)
                         return errorResponse('Failed to update player stats', 500)
                     }
                 } else {

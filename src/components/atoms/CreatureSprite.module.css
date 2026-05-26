@@ -16,3 +16,15 @@
   width: 120px;
   transform: scaleX(-1);
 }
+
+@media (max-width: 700px) {
+  .opponent { width: 100px; }
+  /* preserve the flip on the player sprite */
+  .player { width: 90px; }
+}
+
+/* Tight fit for 360px screens */
+@media (max-width: 380px) {
+  .opponent { width: 90px; }
+  .player { width: 80px; }
+}

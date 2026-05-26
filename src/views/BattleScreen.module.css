@@ -38,20 +38,34 @@
   z-index: 2;
 }
 
+/* Desktop: transparent wrapper — children (absolutely positioned) still
+   reference .arena as their positioning context */
+.spriteRow {
+  display: contents;
+}
+
 /* opponent sprite: upper-right, anchored to top edge */
+/* order: creature first, trainer to its right */
 .opponentSpriteWrap {
   position: absolute;
   right: 0.5rem;
   top: 0.5rem;
   z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
 }
 
 /* player sprite: lower-left, anchored to bottom edge */
+/* order: trainer first (left), creature to its right */
 .playerSpriteWrap {
   position: absolute;
   left: 0.5rem;
   bottom: 0.5rem;
   z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
 }
 
 /* player health bar: lower-right */
@@ -75,13 +89,26 @@
 }
 
 .timerFill {
+  position: relative;
   height: 100%;
   background: var(--primary);
+  overflow: hidden;
   transition:
     width 1s linear,
     background 0.3s;
 }
 
+/* Full-bar-width container inside the fill; clipped by fill's overflow:hidden */
+.timerLabelClip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 100vw;
+  pointer-events: none;
+}
+
+/* Shared label layout */
 .timerLabel {
   position: absolute;
   right: 0.5rem;
@@ -89,8 +116,17 @@
   transform: translateY(-50%);
   font-family: var(--heading);
   font-size: 0.85rem;
-  color: white;
   line-height: 1;
+}
+
+/* Behind the fill — dark so it reads on the gray track */
+.timerLabelBg {
+  color: var(--text);
+}
+
+/* Inside the fill — white on the colored bar */
+.timerLabelFg {
+  color: white;
 }
 
 .timerUrgent {
@@ -103,6 +139,55 @@
   }
   to {
     opacity: 0.6;
+  }
+}
+
+/* ── Team colour-coding ── */
+
+/* box-shadow on the wrapper avoids GPU-compositing overflow that
+   filter:drop-shadow can cause on absolutely-positioned elements */
+.opponentInfo {
+  box-shadow: 0 2px 14px color-mix(in srgb, var(--opponent-accent) 70%, transparent);
+}
+.opponentSpriteWrap img {
+  filter: drop-shadow(2px 4px 4px color-mix(in srgb, var(--opponent-accent) 85%, transparent));
+}
+
+.playerInfo {
+  box-shadow: 0 2px 14px color-mix(in srgb, var(--player-accent) 70%, transparent);
+}
+.playerSpriteWrap img {
+  filter: drop-shadow(2px 4px 4px color-mix(in srgb, var(--player-accent) 85%, transparent));
+}
+
+/* ── Mobile layout (≤700px) ── */
+@media (max-width: 700px) {
+  /* Give the arena a taller floor so both sprite groups fit between the cards */
+  .arena {
+    min-height: 280px;
+  }
+
+  /* On mobile the sprite row becomes a full-arena flex overlay:
+     sprites are centred vertically and pushed to opposite edges,
+     so they face each other with space between them.
+     pointer-events:none lets taps pass through to the info cards beneath. */
+  .spriteRow {
+    display: flex;
+    flex-direction: row-reverse;
+    position: absolute;
+    inset: 0;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.5rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* Sprite wraps become flex items; restore pointer events for the images */
+  .opponentSpriteWrap,
+  .playerSpriteWrap {
+    position: static;
+    pointer-events: all;
   }
 }
 

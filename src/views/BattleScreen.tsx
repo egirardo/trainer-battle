@@ -3,6 +3,9 @@ import { ROUTES } from '@/routes';
 import { useBattle, TURN_DURATION_SECONDS } from '@/hooks/useBattle';
 import HealthBar from '@/components/atoms/HealthBar';
 import CreatureSprite from '@/components/atoms/CreatureSprite';
+import TrainerSprite from '@/components/atoms/TrainerSprite';
+import { getTrainerImage } from '@/lib/trainerImages';
+import finalBossImg from '@/assets/sprites/trainers/final-boss.png';
 import BattleLog from '@/components/molecules/battle/BattleLog';
 import BattleActions from '@/components/molecules/battle/BattleActions';
 import styles from './BattleScreen.module.css';
@@ -27,7 +30,7 @@ export default function BattleScreen() {
 
 function BattleContent({ sessionId }: { sessionId: number }) {
     const [showInstructions, setShowInstructions] = useState(false);
-    const { player, opponent, messages, isMyTurn, isCpu, timeRemaining, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
+    const { player, opponent, messages, isMyTurn, isCpu, isBoss, timeRemaining, loading, error, moves, playerItems, onFight, onBag, onRun, onUseItem } =
         useBattle(sessionId);
 
     if (loading) return <LoadingScreen message="Loading battle…" />;
@@ -57,19 +60,32 @@ function BattleContent({ sessionId }: { sessionId: number }) {
                     />
                 </div>
 
-                <div className={styles.opponentSpriteWrap}>
-                    <CreatureSprite
-                        image={opponent.creatureImage}
-                        name={opponent.name}
-                        isOpponent
-                    />
-                </div>
+                {/* spriteRow: display:contents on desktop (transparent to absolute layout);
+                    flex row with space-between on mobile so groups face each other */}
+                <div className={styles.spriteRow}>
+                    <div className={styles.opponentSpriteWrap}>
+                        <CreatureSprite
+                            image={opponent.creatureImage}
+                            name={opponent.name}
+                            isOpponent
+                        />
+                        <TrainerSprite
+                            image={isBoss ? finalBossImg : getTrainerImage(opponent.trainerGender)}
+                            name={opponent.trainerName}
+                            isOpponent
+                        />
+                    </div>
 
-                <div className={styles.playerSpriteWrap}>
-                    <CreatureSprite
-                        image={player.creatureImage}
-                        name={player.name}
-                    />
+                    <div className={styles.playerSpriteWrap}>
+                        <TrainerSprite
+                            image={getTrainerImage(player.trainerGender)}
+                            name={player.trainerName}
+                        />
+                        <CreatureSprite
+                            image={player.creatureImage}
+                            name={player.name}
+                        />
+                    </div>
                 </div>
 
                 <div className={styles.playerInfo}>
@@ -86,13 +102,22 @@ function BattleContent({ sessionId }: { sessionId: number }) {
 
             {!isCpu && isMyTurn && (
                 <div className={styles.timerBar}>
-                    <span className={`${styles.timerLabel} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
+                    {/* Dark label behind the fill — readable on the gray track */}
+                    <span className={`${styles.timerLabel} ${styles.timerLabelBg} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
                         {timeRemaining}s
                     </span>
+                    {/* Fill — clips the white label as it shrinks */}
                     <div
                         className={`${styles.timerFill} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}
                         style={{ width: `${(timeRemaining / TURN_DURATION_SECONDS) * 100}%` }}
-                    />
+                    >
+                        {/* Full-bar-width wrapper so right:0.5rem stays pinned to the bar's right edge */}
+                        <div className={styles.timerLabelClip}>
+                            <span aria-hidden="true" className={`${styles.timerLabel} ${styles.timerLabelFg} ${timeRemaining <= 10 ? styles.timerUrgent : ''}`}>
+                                {timeRemaining}s
+                            </span>
+                        </div>
+                    </div>
                 </div>
             )}
 

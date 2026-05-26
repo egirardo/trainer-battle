@@ -14,8 +14,10 @@
 
 .header {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: baseline;
+  column-gap: 0.4rem;
   margin-bottom: 0.3rem;
 }
 
@@ -24,12 +26,15 @@
   font-size: 1rem;
   text-transform: uppercase;
   color: var(--text-h);
+  /* Don't compress — let the level wrap to the next line instead */
+  flex-shrink: 0;
 }
 
 .level {
   font-family: var(--pixel-regular);
   font-size: 0.85rem;
   color: var(--text-h);
+  white-space: nowrap;
 }
 
 .barTrack {

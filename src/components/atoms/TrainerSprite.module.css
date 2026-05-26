@@ -1,0 +1,30 @@
+.sprite {
+  image-rendering: pixelated;
+  display: block;
+  height: auto;
+  /* slight drop shadow so sprites pop off the arena background */
+  filter: drop-shadow(2px 4px 0px rgba(0, 0, 0, 0.25));
+}
+
+/* opponent trainer — slightly smaller than the creature to keep creature as focus */
+.opponent {
+  width: 130px;
+}
+
+/* player trainer — smaller/further perspective, flipped to face opponent */
+.player {
+  width: 105px;
+  transform: scaleX(-1);
+}
+
+@media (max-width: 700px) {
+  .opponent { width: 85px; }
+  /* preserve the flip on the player trainer */
+  .player { width: 72px; }
+}
+
+/* Tight fit for 360px screens */
+@media (max-width: 380px) {
+  .opponent { width: 76px; }
+  .player { width: 64px; }
+}
