@@ -3,7 +3,7 @@
   border-image: url("../../assets/sprites/components/white-fill.png") 4 / 8px /
     0 stretch;
   image-rendering: pixelated;
-  background-color: #fff;
+  background-color: var(--ui-bg);
   background-clip: padding-box;
   padding: 0.4rem 0.75rem 0.5rem;
   font-family: var(--pixel-regular);

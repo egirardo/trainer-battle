@@ -32,9 +32,7 @@ export default function ProfilePageScreen() {
 
   return (
     <>
-      <header>
-        <StickyHeader label="Profile" navItems={navItems}/>
-      </header>
+      <StickyHeader label="Profile" navItems={navItems}/>
       <main>
         <ProfileBody trainer={trainer} playerStats={playerStats} creature={trainer.creature} playerCreature={trainer.playerCreature} moves={moves} playerItems={playerItems} />
         {showInstructions && (

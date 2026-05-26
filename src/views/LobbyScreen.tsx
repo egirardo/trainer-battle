@@ -76,9 +76,7 @@ export default function LobbyScreen() {
 
     return (
         <>
-            <header>
-                <StickyHeader label="Lobby" navItems={navItems} />
-            </header>
+            <StickyHeader label="Lobby" navItems={navItems} />
             <main>
             <LifeCreditTracker lives={stats?.lives ?? 0} credits={stats?.credits ?? 0} />
             {incomingInvitation && (

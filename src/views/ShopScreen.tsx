@@ -97,9 +97,7 @@ export default function ShopScreen() {
 
     return (
         <>
-            <header>
-                <StickyHeader label="Shop" navItems={navItems} />
-            </header>
+            <StickyHeader label="Shop" navItems={navItems} />
             <main className={styles.shopMain}>
                 <CreditsDisplay credits={credits} />
                 {fundsError && <p key={fundsErrorKey} className={styles.fundsError} role="alert" aria-atomic="true">{fundsError}</p>}

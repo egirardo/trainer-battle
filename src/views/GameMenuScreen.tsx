@@ -22,9 +22,7 @@ export default function GameMenuScreen(){
 
     return (
         <>
-            <header>
-                <StickyHeader label="Dashboard" navItems={navItems} />
-            </header>
+            <StickyHeader label="Dashboard" navItems={navItems} />
             <main>
                 <GameMenuBody
                     onCashoutClick={() => setShowCashoutInstructions(true)}

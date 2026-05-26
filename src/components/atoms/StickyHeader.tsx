@@ -52,7 +52,7 @@ export default function StickyHeader({ label, action, navItems, showVolumeButton
         : styles.stickyContainer
 
     return (
-        <div className={containerClass} ref={wrapperRef}>
+        <header className={containerClass} ref={wrapperRef}>
             <div className={styles.headerRow}>
                 <h1 className={styles.stickyHeading}>{label}</h1>
                 <div className={styles.headerActions}>
@@ -100,6 +100,6 @@ export default function StickyHeader({ label, action, navItems, showVolumeButton
                     </nav>
                 )}
             </div>
-        </div>
+        </header>
     )
 }
