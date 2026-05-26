@@ -1,7 +1,6 @@
 import { Link, useParams, Navigate, useNavigate } from "react-router-dom";
 import { ROUTES } from "@/routes";
 import { useResult } from "@/hooks/useResult";
-import { usePlayerStats } from "@/hooks/usePlayerStats";
 import LoadingScreen from '@/components/atoms/LoadingScreen';
 import StickyHeader, { type NavItem } from '@/components/atoms/StickyHeader'
 import { supabase } from '@/lib/supabase'
@@ -23,7 +22,6 @@ export default function ResultScreen() {
 
 function ResultContent({ sessionId }: { sessionId: number }) {
     const { result, loading, error } = useResult(sessionId)
-    const { stats } = usePlayerStats()
     const navigate = useNavigate()
 
     async function handleLogout(): Promise<void> {
@@ -47,7 +45,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
 
     const isWin = result.outcome === 'win'
     const lostALife = result.outcome === 'loss' && !result.isForfeit
-    const livesLeft = stats?.lives
+    const livesLeft = result.livesRemaining
     const isGameOver = !isWin && livesLeft === 0
     const opponentLabel = result.isCpu ? 'CPU' : (result.opponentUsername ?? 'Opponent')
 
@@ -55,7 +53,7 @@ function ResultContent({ sessionId }: { sessionId: number }) {
         <>
             <StickyHeader label="Result" navItems={navItems} />
             <main className={styles.main}>
-                <LifeCreditTracker lives={stats?.lives ?? 0} credits={stats?.credits ?? 0} />
+                <LifeCreditTracker lives={result.livesRemaining ?? 0} credits={result.creditsBalance} />
                 <div className={styles.outcomeSection}>
                     <h1 className={isWin ? styles.victory : styles.defeat}>
                         {isWin ? 'Victory!' : 'Defeat'}

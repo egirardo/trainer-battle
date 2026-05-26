@@ -56,7 +56,7 @@ export function useResult(sessionId: number) {
                 const [statsResult, creatureResult, configResult] = await Promise.all([
                     supabase
                         .from('player_stats')
-                        .select('total_wins, total_losses, total_forfeits')
+                        .select('total_wins, total_losses, total_forfeits, lives, credits')
                         .eq('player_id', currentUser.id)
                         .single(),
                     supabase
@@ -105,7 +105,8 @@ export function useResult(sessionId: number) {
                     currentXp: currentExp % xpPerLevel,
                     xpPerLevel,
                     leveledUp,
-                    livesRemaining: serverResult?.livesRemaining ?? null,
+                    livesRemaining: serverResult?.livesRemaining ?? statsResult.data?.lives ?? null,
+                    creditsBalance: statsResult.data?.credits ?? 0,
                     bossBeat: serverResult?.bossBeat ?? false,
                 })
             } catch (err) {
