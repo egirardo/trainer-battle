@@ -161,9 +161,14 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
   useEffect(() => {
     if (!playerStats || playerStats.lives !== 0) return;
     void supabase.auth.signOut().then(({ error }) => {
-      if (!error) void navigate(ROUTES.start, { replace: true });
+      if (error) return;
+      if (window.parent !== window) {
+        window.parent.postMessage({ type: 'AMUSEMENT_CLOSE' }, 'https://loopland.se');
+      } else {
+        window.location.href = 'https://loopland.se/';
+      }
     });
-  }, [playerStats, navigate]);
+  }, [playerStats]);
 
   const wins = playerStats?.total_wins ?? 0;
   const losses = playerStats?.total_losses ?? 0;
