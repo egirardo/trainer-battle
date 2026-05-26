@@ -19,19 +19,6 @@ export default function CreatureInfo({ creature, playerCreature, moves }: Props)
         <p className={styles.type}>{creature.type}</p>
         <p className={styles.description}>{creature.description}</p>
       </div>
-      {moves.length > 0 && (
-        <div className={styles.moves}>
-          <p className={styles.movesLabel}>Moves</p>
-          <div className={styles.moveGrid}>
-            {moves.map((move) => (
-              <div key={move.id} className={`${styles.moveCard} ${styles[move.type] ?? ''}`}>
-                <p className={styles.moveName}>{move.name}</p>
-                <p className={styles.movePower}>PWR {move.power ?? '—'}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       <dl className={styles.stats}>
         <div className={styles.statRow}>
           <dt className={styles.statLabel}>HP</dt>
@@ -50,6 +37,19 @@ export default function CreatureInfo({ creature, playerCreature, moves }: Props)
           <dd className={styles.statValue}>{creature.base_speed}</dd>
         </div>
       </dl>
+      {moves.length > 0 && (
+        <div className={styles.moves}>
+          <p className={styles.movesLabel}>Moves</p>
+          <div className={styles.moveGrid}>
+            {moves.map((move) => (
+              <div key={move.id} className={`${styles.moveCard} ${styles[move.type] ?? ''}`}>
+                <p className={styles.moveName}>{move.name}</p>
+                <p className={styles.movePower}>PWR {move.power ?? '—'}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

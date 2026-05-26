@@ -24,12 +24,14 @@
     grid-area: trainer;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 
   .creatureCol {
     grid-area: creature;
     display: flex;
     flex-direction: column;
+    min-width: 0;
   }
 
   .bagRow {

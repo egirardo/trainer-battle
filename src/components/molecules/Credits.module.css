@@ -1,0 +1,64 @@
+.contentContainer {
+  text-align: left;
+  padding: 0 1.5em 1.5em;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.contentContainer h2 {
+  text-transform: uppercase;
+  font-family: var(--pixel-bold);
+  font-size: 1.25em;
+  margin: 0 0 0.5em;
+  color: var(--text-h);
+  padding-bottom: 0.35em;
+  border-bottom: 2px solid var(--text-h);
+}
+
+.contentContainer p {
+  margin: 0.35em 0;
+}
+
+.contentSection {
+  margin: 1.5em 0;
+}
+
+.accentText {
+  font-family: var(--pixel-bold);
+  color: var(--accent);
+}
+
+.subText {
+  font-size: 0.85em;
+  color: var(--text);
+  margin-top: 0.15em !important;
+}
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+
+
+.techRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.35em;
+}
+
+.techTag {
+  font-family: var(--pixel-bold);
+  font-size: 0.8em;
+  color: var(--text-h);
+  background-color: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 4px;
+  padding: 0.2em 0.5em;
+}

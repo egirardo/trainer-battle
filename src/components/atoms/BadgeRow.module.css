@@ -1,0 +1,21 @@
+.badgeRow {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.badgeRow img {
+    width: 48px;
+    height: auto;
+    object-fit: contain;
+}
+
+.earned {
+    filter: none;
+}
+
+.locked {
+    opacity: 0.4;
+}
