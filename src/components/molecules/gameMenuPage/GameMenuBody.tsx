@@ -159,10 +159,11 @@ export default function GameMenuBody({ onCashoutClick }: Props) {
   }, [userId]);
 
   useEffect(() => {
-    if (playerStats && playerStats.lives === 0) {
-      void supabase.auth.signOut().then(() => navigate(ROUTES.start));
-    }
-  }, [playerStats]);
+    if (!playerStats || playerStats.lives !== 0) return;
+    void supabase.auth.signOut().then(({ error }) => {
+      if (!error) void navigate(ROUTES.start, { replace: true });
+    });
+  }, [playerStats, navigate]);
 
   const wins = playerStats?.total_wins ?? 0;
   const losses = playerStats?.total_losses ?? 0;
