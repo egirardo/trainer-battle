@@ -46,21 +46,6 @@
     width: 100%;
 }
 
-.viewCartButton {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-family: var(--pixel-regular);
-    font-size: 0.875rem;
-    color: var(--text);
-    padding: 0;
-    text-decoration: underline;
-}
-
-.viewCartButton:disabled {
-    opacity: 0.4;
-    cursor: default;
-}
 
 .totalCount {
     display: flex;
