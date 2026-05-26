@@ -254,6 +254,7 @@ Deno.serve(async (req) => {
         credits: creditsToSet,
         transaction_id: transactionId,
         starting_credits: startingCreditsToSet,
+        lives: 3,
       }, { onConflict: 'player_id' })
 
     if (statsError) {
