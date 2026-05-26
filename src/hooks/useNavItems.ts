@@ -6,9 +6,17 @@ const BASE_NAV_LINKS: NavItem[] = [
     { label: 'View Profile', to: ROUTES.profile },
     { label: 'Lobby',        to: ROUTES.lobby },
     { label: 'Shop',         to: ROUTES.shop },
-    { label: 'Help',         to: ROUTES.help },
 ]
 
-export function useNavItems(): NavItem[] {
-    return [...BASE_NAV_LINKS]
+export function useNavItems(onHelp?: () => void, onCredits?: () => void): NavItem[] {
+
+    const helpItem: NavItem = onHelp
+        ? { label: 'Help', onClick: onHelp }
+        : { label: 'Help', to: ROUTES.help }
+
+    return [
+        ...BASE_NAV_LINKS,
+        helpItem,
+         ...(onCredits ? [{ label: 'Credits', onClick: onCredits }] : [])
+    ]
 }

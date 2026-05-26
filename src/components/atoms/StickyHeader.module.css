@@ -35,7 +35,13 @@
   margin: 0;
 }
 
-.headerRow > button {
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.headerActions > button {
   padding: 0;
   display: flex;
   justify-content: end;

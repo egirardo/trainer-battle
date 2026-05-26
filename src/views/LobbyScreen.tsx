@@ -3,6 +3,9 @@ import { useLobby } from "@/hooks/useLobby";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import StickyHeader from "@/components/atoms/StickyHeader";
 import { useNavItems } from "@/hooks/useNavItems";
+import Overlay from '@/components/atoms/Overlay';
+import Credits from '@/components/molecules/Credits';
+import GameInstructions from '@/components/molecules/gameInstructions/GameInstructions';
 import { usePlayerStats } from "@/hooks/usePlayerStats";
 import styles from './LobbyScreen.module.css'
 import Button from "@/components/atoms/button";
@@ -11,7 +14,9 @@ import LifeCreditTracker from "@/components/molecules/gameMenuPage/LifeCreditTra
 
 export default function LobbyScreen() {
     const sessionChannelRef = useRef<RealtimeChannel | null>(null);
-    const navItems = useNavItems();
+    const [showInstructions, setShowInstructions] = useState(false);
+    const [showCredits, setShowCredits] = useState(false);
+    const navItems = useNavItems(() => setShowInstructions(true), () => setShowCredits(true));
     const { stats } = usePlayerStats();
     const [inviteState, setInviteState] = useState<{ playerId: string; status: 'waiting' | 'declined' } | null>(null);
 
@@ -161,7 +166,22 @@ export default function LobbyScreen() {
                     </ul>
                 )}
             </section>
+            {showInstructions && (
+                <Overlay>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </Overlay>
+            )}
+            {showCredits && (
+                <Overlay>
+                    <Credits onClose={() => setShowCredits(false)} />
+                </Overlay>
+            )}
             </main>
+            {showInstructions && (
+                <Overlay>
+                    <GameInstructions onClose={() => setShowInstructions(false)} />
+                </Overlay>
+            )}
         </>
     );
 }
