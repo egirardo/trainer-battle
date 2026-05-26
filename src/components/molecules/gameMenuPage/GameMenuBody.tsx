@@ -181,7 +181,12 @@ export default function GameMenuBody({ onCashoutClick, onShowInstructions }: Pro
   return (
     <div className={`${styles.gameMenuBody}${hasBoss ? ` ${styles.bossActive}` : ''}`}>
       <div className={styles.creditsRow}>
-        <LifeCreditTracker lives={playerStats?.lives ?? 0} credits={playerStats?.credits ?? 0}/>
+        <LifeCreditTracker
+            lives={playerStats?.lives ?? 0}
+            credits={playerStats?.credits ?? 0}
+            level={trainer?.playerCreature?.level ?? undefined}
+            experience={trainer?.playerCreature?.experience ?? undefined}
+          />
       </div>
       <div className={styles.actionsCol}>
         <ButtonGroup horizontal onShowInstructions={onShowInstructions} />

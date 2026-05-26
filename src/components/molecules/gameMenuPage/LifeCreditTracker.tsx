@@ -1,12 +1,3 @@
-// TODO: Replace mock data with real player_stats once the DB is wired up.
-// Fetch from player_stats via usePlayerStats() or equivalent hook, e.g.:
-//   const { data: playerStats } = usePlayerStats(playerId);
-//   const lives = playerStats?.lives ?? 0;
-//   const credits = playerStats?.credits ?? 0;
-// Then remove the MOCK_LIVES and MOCK_CREDITS constants below.
-// If the parent should supply player_stats instead, update this component
-// to accept props for lives and credits rather than fetching data here.
-
 import styles from './LifeCreditTracker.module.css';
 import filledHeart from '@/assets/sprites/icons/filled-heart.svg';
 import emptyHeart from '@/assets/sprites/icons/empty-heart.svg';
@@ -15,9 +6,15 @@ import starIcon from '@/assets/sprites/badges/star-badge.svg';
 type Props = {
   lives: number;
   credits: number;
+  level?: number;
+  experience?: number;
+  xpPerLevel?: number;
 };
 
-export default function LifeCreditTracker({ lives, credits }: Props) {
+export default function LifeCreditTracker({ lives, credits, level, experience, xpPerLevel = 100 }: Props) {
+  const showXp = level != null && experience != null;
+  const currentXp = showXp ? experience % xpPerLevel : 0;
+
   return (
     <div className={styles.trackerContainer}>
       <div className={styles.livesRow} aria-label={`Lives: ${lives}`} role="img">
@@ -30,6 +27,22 @@ export default function LifeCreditTracker({ lives, credits }: Props) {
           />
         ))}
       </div>
+
+      {showXp && (
+        <div className={styles.xpSection}>
+          <div className={styles.xpLabel}>
+            <span>Lv. {level}</span>
+            <span>{currentXp} / {xpPerLevel} XP</span>
+          </div>
+          <progress
+            className={styles.xpBar}
+            value={currentXp}
+            max={xpPerLevel}
+            aria-label={`XP: ${currentXp} of ${xpPerLevel}`}
+          />
+        </div>
+      )}
+
       <div className={styles.creditsRow}>
         <img src={starIcon} alt="Credits Icon" className={styles.starIcon} />
         <span className={styles.creditsText}>{credits}</span>
